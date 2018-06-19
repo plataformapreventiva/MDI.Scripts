@@ -1,0 +1,1056 @@
+\documentclass[11pt,]{article}
+\usepackage[left=1in,top=1in,right=1in,bottom=1in]{geometry}
+\newcommand*{\authorfont}{\fontfamily{phv}\selectfont}
+\usepackage[]{mathpazo}
+
+
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+
+
+
+\usepackage{abstract}
+\renewcommand{\abstractname}{}    % clear the title
+\renewcommand{\absnamepos}{empty} % originally center
+
+\renewenvironment{abstract}
+ {{%
+    \setlength{\leftmargin}{0mm}
+    \setlength{\rightmargin}{\leftmargin}%
+  }%
+  \relax}
+ {\endlist}
+
+\makeatletter
+\def\@maketitle{%
+  \newpage
+%  \null
+%  \vskip 2em%
+%  \begin{center}%
+  \let \footnote \thanks
+    {\fontsize{18}{20}\selectfont\raggedright  \setlength{\parindent}{0pt} \@title \par}%
+}
+%\fi
+\makeatother
+
+
+
+
+\setcounter{secnumdepth}{0}
+
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+
+
+\title{Anexo 2.2. Segmentacion de hogares ENIGH  }
+
+
+
+\author{\Large Juan Carlos Martinez-Ovando\vspace{0.05in} \newline\normalsize\emph{}   \and \Large \vspace{0.05in} \newline\normalsize\emph{ITAM}  }
+
+
+\date{}
+
+\usepackage{titlesec}
+
+\titleformat*{\section}{\normalsize\bfseries}
+\titleformat*{\subsection}{\normalsize\itshape}
+\titleformat*{\subsubsection}{\normalsize\itshape}
+\titleformat*{\paragraph}{\normalsize\itshape}
+\titleformat*{\subparagraph}{\normalsize\itshape}
+
+
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+\usepackage[strings]{underscore} % protect underscores in most circumstances
+
+
+
+\newtheorem{hypothesis}{Hypothesis}
+\usepackage{setspace}
+
+\makeatletter
+\@ifpackageloaded{hyperref}{}{%
+\ifxetex
+  \PassOptionsToPackage{hyphens}{url}\usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \PassOptionsToPackage{hyphens}{url}\usepackage[unicode=true]{hyperref}
+\fi
+}
+
+\@ifpackageloaded{color}{
+    \PassOptionsToPackage{usenames,dvipsnames}{color}
+}{%
+    \usepackage[usenames,dvipsnames]{color}
+}
+\makeatother
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={Juan Carlos Martinez-Ovando () and  (ITAM)},
+             pdfkeywords = {},  
+            pdftitle={Anexo 2.2. Segmentacion de hogares ENIGH},
+            colorlinks=true,
+            citecolor=blue,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+
+% add tightlist ----------
+\providecommand{\tightlist}{%
+\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\begin{document}
+	
+% \pagenumbering{arabic}% resets `page` counter to 1 
+%
+% \maketitle
+
+{% \usefont{T1}{pnc}{m}{n}
+\setlength{\parindent}{0pt}
+\thispagestyle{plain}
+{\fontsize{18}{20}\selectfont\raggedright 
+\maketitle  % title \par  
+
+}
+
+{
+   \vskip 13.5pt\relax \normalsize\fontsize{11}{12} 
+\textbf{\authorfont Juan Carlos Martinez-Ovando} \hskip 15pt \emph{\small }   \par \textbf{\authorfont } \hskip 15pt \emph{\small ITAM}   
+
+}
+
+}
+
+
+
+
+
+
+
+
+\begin{abstract}
+
+    \hbox{\vrule height .2pt width 39.14pc}
+
+    \vskip 8.5pt % \small 
+
+\noindent Se presenta y comenta el codigo para segmentar los hogares de la ENIGH
+2016
+
+
+    \hbox{\vrule height .2pt width 39.14pc}
+
+
+\end{abstract}
+
+
+\vskip 6.5pt
+
+
+\noindent  \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{Preambulo}\label{preambulo}
+
+Leemos los paquetes necesarios para realizar la segmentacion de los
+datos generados de la ENIGH.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{source}\NormalTok{(}\StringTok{"./Code/load.R.packages.R"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: digest
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: devtools
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: abind
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: aplpack
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: tcltk
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: bayesQR
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: car
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: carData
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: class
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: colorspace
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: data.table
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: doBy
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: DPpackage
+\end{verbatim}
+
+\begin{verbatim}
+## 
+\end{verbatim}
+
+\begin{verbatim}
+## DPpackage 1.1-7.4
+\end{verbatim}
+
+\begin{verbatim}
+## 
+\end{verbatim}
+
+\begin{verbatim}
+## Copyright (C) 2006 - 2012, Alejandro Jara
+\end{verbatim}
+
+\begin{verbatim}
+## Department of Statistics
+\end{verbatim}
+
+\begin{verbatim}
+## P.U. Catolica de Chile
+\end{verbatim}
+
+\begin{verbatim}
+## 
+\end{verbatim}
+
+\begin{verbatim}
+## Support provided by Fondecyt
+\end{verbatim}
+
+\begin{verbatim}
+## 11100144 grant.
+\end{verbatim}
+
+\begin{verbatim}
+## 
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: GB2
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: effects
+\end{verbatim}
+
+\begin{verbatim}
+## lattice theme set by effectsTheme()
+## See ?effectsTheme for details.
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: foreign
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: GPDPQuantReg
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: pscl
+\end{verbatim}
+
+\begin{verbatim}
+## Classes and Methods for R developed in the
+## Political Science Computational Laboratory
+## Department of Political Science
+## Stanford University
+## Simon Jackman
+## hurdle and zeroinfl functions by Achim Zeileis
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: tmvtnorm
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: mvtnorm
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: Matrix
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: stats4
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: gmm
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: sandwich
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: coda
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: reshape
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'reshape'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:Matrix':
+## 
+##     expand
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:data.table':
+## 
+##     melt
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:class':
+## 
+##     condense
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: lattice
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: doParallel
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: foreach
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: iterators
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: parallel
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: Hmisc
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: survival
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: Formula
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: ggplot2
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'Hmisc'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:base':
+## 
+##     format.pval, units
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: kamila
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: leaps
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: lmtest
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: zoo
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'zoo'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:base':
+## 
+##     as.Date, as.Date.numeric
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: memisc
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: MASS
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'memisc'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:Hmisc':
+## 
+##     %nin%, html
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:foreach':
+## 
+##     foreach
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:reshape':
+## 
+##     rename
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:Matrix':
+## 
+##     as.array
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:car':
+## 
+##     recode
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:stats':
+## 
+##     contr.sum, contr.treatment, contrasts
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:base':
+## 
+##     as.array
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: monomvn
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: pls
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'pls'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:stats':
+## 
+##     loadings
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: lars
+\end{verbatim}
+
+\begin{verbatim}
+## Loaded lars 1.2
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: multcomp
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: TH.data
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'TH.data'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:MASS':
+## 
+##     geyser
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: quantreg
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: SparseM
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'SparseM'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:base':
+## 
+##     backsolve
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'quantreg'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:Hmisc':
+## 
+##     latex
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:survival':
+## 
+##     untangle.specials
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: Rcpp
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: relimp
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: sampling
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'sampling'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:survival':
+## 
+##     cluster, strata
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: survey
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: grid
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'survey'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:Hmisc':
+## 
+##     deff
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:graphics':
+## 
+##     dotchart
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: yaml
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{load}\NormalTok{(}\StringTok{"../Datos.Modelo/mdi_variables_modelo.RData"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Los datos con los que trabajaremos son:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{hogares\_enigh\_agr.csv} -- Tabla de hogares de la ENIGH 2016
+\end{itemize}
+
+\section{Preparacion}\label{preparacion}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"../Bases.Enigh/hogares_enigh_agr.csv"}\NormalTok{, }\DataTypeTok{header=}\OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{colnames}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "X"           "FOLIOVIV"    "FOLIOHOG"    "tam_loc"     "sexo_jefe"  
+##  [6] "edad_jefe"   "educa_jefe"  "tot_integ"   "p12_64"      "p65mas"     
+## [11] "remesas"     "ing_cor"     "int0a12"     "int12a64"    "int65a98"   
+## [16] "depdemog"    "muj12a49"    "tot_per"     "ltot_per"    "p_esc3"     
+## [21] "p_esc5b"     "trab_sub"    "trab_ind"    "trab_s_pago" "seg_alim2"  
+## [26] "seg_alim3"   "seg_alim_a"  "seg_pop"     "ss"          "jtrab_ind"  
+## [31] "ssjtrabind"  "con_remesas" "viv_prop"    "viv_rent"    "tot_cuar"   
+## [36] "bao13"       "piso_fir"    "piso_rec"    "combustible" "sin_refri"  
+## [41] "sin_vehi"    "sin_compu"   "sin_vidvd"   "sin_telef"   "sin_horno"  
+## [46] "factor"      "rururb"      "tamhogesc"   "ict"         "ictpc"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{dim}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 43609    50
+\end{verbatim}
+
+\subsection{Ingreso corriente (dos
+versiones)}\label{ingreso-corriente-dos-versiones}
+
+\subsection{Variables ENIGH-CUIS}\label{variables-enigh-cuis}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Numeric}
+\NormalTok{hogares_agr[,var_enighcuis_num] <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(hogares_agr[,var_enighcuis_num],}
+\NormalTok{                                          as.numeric)}
+
+\CommentTok{# Categoric}
+\NormalTok{hogares_agr[,var_enighcuis_cat] <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(hogares_agr[,var_enighcuis_cat],}
+\NormalTok{                                          as.numeric)}
+
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(hogares_agr)}
+
+\KeywordTok{table}\NormalTok{(hogares_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"rururb"}\NormalTok{,}\StringTok{"tam_loc"}\NormalTok{)])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##       tam_loc
+## rururb     1     2     3     4
+##      0 14364  6018  6960     0
+##      1     0     0     0 16267
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{rururb)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 27342 16267
+\end{verbatim}
+
+\section{Parte I - Segmentacion
+Rural}\label{parte-i---segmentacion-rural}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Numerical}
+\NormalTok{hogares_rur_num <-}\StringTok{ }\NormalTok{hogares_agr[}\KeywordTok{which}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{rururb}\OperatorTok{==}\DecValTok{1}\NormalTok{),}
+\NormalTok{                                             var_enighcuis_seg_num]}
+\NormalTok{hogares_rur_num <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(hogares_rur_num,as.numeric)}
+\NormalTok{hogares_rur_num <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(hogares_rur_num)}
+
+\CommentTok{# Categorical}
+\NormalTok{hogares_rur_cat <-}\StringTok{ }\NormalTok{hogares_agr[}\KeywordTok{which}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{rururb}\OperatorTok{==}\DecValTok{1}\NormalTok{),}
+\NormalTok{                                             var_enighcuis_seg_cat]}
+\NormalTok{hogares_rur_cat <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(hogares_rur_cat,factor)}
+\NormalTok{hogares_rur_cat <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(hogares_rur_cat)}
+
+\CommentTok{# Segmentacion rural}
+\NormalTok{modelo_seg_rur <-}\StringTok{ }\KeywordTok{kamila}\NormalTok{(hogares_rur_num, }
+\NormalTok{                         hogares_rur_cat,}
+                         \DataTypeTok{numClust=}\DecValTok{5}\NormalTok{,}
+                         \DataTypeTok{numInit=}\DecValTok{10}\NormalTok{)}
+
+\KeywordTok{summary}\NormalTok{(modelo_seg_rur)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##              Length Class  Mode   
+## finalMemb    16267  -none- numeric
+## numIter         10  -none- numeric
+## finalLogLik      1  -none- numeric
+## finalObj         1  -none- numeric
+## finalCenters    60  -none- numeric
+## finalProbs       8  -none- list   
+## input           10  -none- list   
+## verbose          0  -none- list   
+## nClust           0  -none- list
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{table}\NormalTok{(modelo_seg_rur}\OperatorTok{$}\NormalTok{finalMemb)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##    1    2    3    4    5 
+## 3399 1807 3624 2453 4984
+\end{verbatim}
+
+\subsection{Unimos los
+clasificaciones}\label{unimos-los-clasificaciones}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr_rur <-}\StringTok{ }\NormalTok{hogares_agr[}\KeywordTok{which}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{rururb}\OperatorTok{==}\DecValTok{1}\NormalTok{),]}
+\KeywordTok{dim}\NormalTok{(hogares_agr_rur)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 16267    50
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{finalMemb_rur <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(modelo_seg_rur}\OperatorTok{$}\NormalTok{finalMemb)}
+\KeywordTok{dim}\NormalTok{(finalMemb_rur)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 16267     1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(finalMemb_rur) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"finalMemb_rur"}\NormalTok{) }
+
+\NormalTok{hogares_agr_rur <-}\StringTok{ }\KeywordTok{cbind}\NormalTok{(hogares_agr_rur,finalMemb_rur)}
+\KeywordTok{colnames}\NormalTok{(hogares_agr_rur)  }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "X"             "FOLIOVIV"      "FOLIOHOG"      "tam_loc"      
+##  [5] "sexo_jefe"     "edad_jefe"     "educa_jefe"    "tot_integ"    
+##  [9] "p12_64"        "p65mas"        "remesas"       "ing_cor"      
+## [13] "int0a12"       "int12a64"      "int65a98"      "depdemog"     
+## [17] "muj12a49"      "tot_per"       "ltot_per"      "p_esc3"       
+## [21] "p_esc5b"       "trab_sub"      "trab_ind"      "trab_s_pago"  
+## [25] "seg_alim2"     "seg_alim3"     "seg_alim_a"    "seg_pop"      
+## [29] "ss"            "jtrab_ind"     "ssjtrabind"    "con_remesas"  
+## [33] "viv_prop"      "viv_rent"      "tot_cuar"      "bao13"        
+## [37] "piso_fir"      "piso_rec"      "combustible"   "sin_refri"    
+## [41] "sin_vehi"      "sin_compu"     "sin_vidvd"     "sin_telef"    
+## [45] "sin_horno"     "factor"        "rururb"        "tamhogesc"    
+## [49] "ict"           "ictpc"         "finalMemb_rur"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{100} \OperatorTok{*}\StringTok{ }\KeywordTok{table}\NormalTok{(hogares_agr_rur}\OperatorTok{$}\NormalTok{finalMemb_rur) }\OperatorTok{/}\StringTok{ }
+\StringTok{  }\KeywordTok{sum}\NormalTok{(}\KeywordTok{table}\NormalTok{(hogares_agr_rur}\OperatorTok{$}\NormalTok{finalMemb_rur))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##        1        2        3        4        5 
+## 20.89506 11.10838 22.27823 15.07961 30.63872
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{write.csv}\NormalTok{(hogares_agr_rur,}\DataTypeTok{file=}\StringTok{"../Datos.Modelo/hogares_agr_rur.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Parte II - Segmentacion
+Urbano}\label{parte-ii---segmentacion-urbano}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Numerical}
+\NormalTok{hogares_urb_num <-}\StringTok{ }\NormalTok{hogares_agr[}\KeywordTok{which}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{rururb}\OperatorTok{==}\DecValTok{0}\NormalTok{), }
+\NormalTok{                               var_enighcuis_seg_num]}
+\NormalTok{hogares_urb_num <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(hogares_urb_num,as.numeric)}
+\NormalTok{hogares_urb_num <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(hogares_urb_num)}
+
+\CommentTok{# Categorical}
+\NormalTok{hogares_urb_cat <-}\StringTok{ }\NormalTok{hogares_agr[}\KeywordTok{which}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{rururb}\OperatorTok{==}\DecValTok{0}\NormalTok{), }
+\NormalTok{                               var_enighcuis_seg_cat]}
+\NormalTok{hogares_urb_cat <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(hogares_urb_cat,factor)}
+\NormalTok{hogares_urb_cat <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(hogares_urb_cat)}
+
+\CommentTok{# Segmentacion urbano}
+\NormalTok{modelo_seg_urb <-}\StringTok{ }\KeywordTok{kamila}\NormalTok{(hogares_urb_num, }
+\NormalTok{                       hogares_urb_cat,}
+                       \DataTypeTok{numClust=}\DecValTok{3}\NormalTok{,}
+                       \DataTypeTok{numInit=}\DecValTok{10}\NormalTok{,}
+                       \DataTypeTok{verbose=}\OtherTok{TRUE}\NormalTok{)}
+
+\KeywordTok{summary}\NormalTok{(modelo_seg_urb)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##              Length Class  Mode   
+## finalMemb    27342  -none- numeric
+## numIter         10  -none- numeric
+## finalLogLik      1  -none- numeric
+## finalObj         1  -none- numeric
+## finalCenters    36  -none- numeric
+## finalProbs       8  -none- list   
+## input           10  -none- list   
+## verbose          6  -none- list   
+## nClust           0  -none- list
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{table}\NormalTok{(modelo_seg_urb}\OperatorTok{$}\NormalTok{finalMemb)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     1     2     3 
+##  8993  6237 12112
+\end{verbatim}
+
+\subsection{Unimos los
+clasificaciones}\label{unimos-los-clasificaciones-1}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr_urb <-}\StringTok{ }\NormalTok{hogares_agr[}\KeywordTok{which}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{rururb}\OperatorTok{==}\DecValTok{0}\NormalTok{),]}
+\KeywordTok{dim}\NormalTok{(hogares_agr_urb)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 27342    50
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{finalMemb_urb <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(modelo_seg_urb}\OperatorTok{$}\NormalTok{finalMemb)}
+\KeywordTok{dim}\NormalTok{(finalMemb_urb)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 27342     1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(finalMemb_urb) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"finalMemb_urb"}\NormalTok{) }
+
+\NormalTok{hogares_agr_urb <-}\StringTok{ }\KeywordTok{cbind}\NormalTok{(hogares_agr_urb,finalMemb_urb)}
+\KeywordTok{colnames}\NormalTok{(hogares_agr_urb)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "X"             "FOLIOVIV"      "FOLIOHOG"      "tam_loc"      
+##  [5] "sexo_jefe"     "edad_jefe"     "educa_jefe"    "tot_integ"    
+##  [9] "p12_64"        "p65mas"        "remesas"       "ing_cor"      
+## [13] "int0a12"       "int12a64"      "int65a98"      "depdemog"     
+## [17] "muj12a49"      "tot_per"       "ltot_per"      "p_esc3"       
+## [21] "p_esc5b"       "trab_sub"      "trab_ind"      "trab_s_pago"  
+## [25] "seg_alim2"     "seg_alim3"     "seg_alim_a"    "seg_pop"      
+## [29] "ss"            "jtrab_ind"     "ssjtrabind"    "con_remesas"  
+## [33] "viv_prop"      "viv_rent"      "tot_cuar"      "bao13"        
+## [37] "piso_fir"      "piso_rec"      "combustible"   "sin_refri"    
+## [41] "sin_vehi"      "sin_compu"     "sin_vidvd"     "sin_telef"    
+## [45] "sin_horno"     "factor"        "rururb"        "tamhogesc"    
+## [49] "ict"           "ictpc"         "finalMemb_urb"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{100} \OperatorTok{*}\StringTok{ }\KeywordTok{table}\NormalTok{(hogares_agr_urb}\OperatorTok{$}\NormalTok{finalMemb_urb) }\OperatorTok{/}\StringTok{ }
+\StringTok{  }\KeywordTok{sum}\NormalTok{(}\KeywordTok{table}\NormalTok{(hogares_agr_urb}\OperatorTok{$}\NormalTok{finalMemb_urb))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##        1        2        3 
+## 32.89079 22.81106 44.29815
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{write.csv}\NormalTok{(hogares_agr_urb,}\DataTypeTok{file=}\StringTok{"../Datos.Modelo/hogares_agr_urb.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Descripcion de salida}\label{descripcion-de-salida}
+
+\begin{itemize}
+\item
+  \texttt{finalMemb} - Vector numerico con etiquetas numericas de
+  asignacion
+\item
+  \texttt{numIter}
+\item
+  \texttt{finalLogLik} - Pseudo log-likelihood de la clasificacion final
+\item
+  \texttt{finalObj}
+\item
+  \texttt{finalCenters}
+\item
+  \texttt{finalProbs}
+\item
+  \texttt{input} - Vector con los parametros de inicio
+\item
+  \texttt{nClust} - Descripcion de los resultados de la seleccion de
+  segmentos
+\item
+  \texttt{verbose} - Informacion compementaria
+\end{itemize}
+
+\section{Exportacion}\label{exportacion}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{save}\NormalTok{( finalMemb_rur,finalMemb_urb,}
+\NormalTok{      hogares_agr,}
+\NormalTok{      hogares_agr_rur,hogares_agr_urb,}
+\NormalTok{      hogares_rur_cat,hogares_rur_num,}
+\NormalTok{      hogares_urb_cat,hogares_urb_num,}
+\NormalTok{      modelo_seg_rur,modelo_seg_urb,}
+\NormalTok{      var_enighcuis_cat,var_enighcuis_num,}
+\NormalTok{      var_enighcuis_reg_cat,var_enighcuis_reg_num,}
+\NormalTok{      var_enighcuis_seg_cat,var_enighcuis_seg_num,}
+     \DataTypeTok{file =} \StringTok{"../Datos.Modelo/modelo_segmentacion.RData"}\NormalTok{)}
+\KeywordTok{ls}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "finalMemb_rur"         "finalMemb_urb"        
+##  [3] "hogares_agr"           "hogares_agr_rur"      
+##  [5] "hogares_agr_urb"       "hogares_rur_cat"      
+##  [7] "hogares_rur_num"       "hogares_urb_cat"      
+##  [9] "hogares_urb_num"       "modelo_seg_rur"       
+## [11] "modelo_seg_urb"        "var_enighcuis_cat"    
+## [13] "var_enighcuis_num"     "var_enighcuis_reg_cat"
+## [15] "var_enighcuis_reg_num" "var_enighcuis_seg_cat"
+## [17] "var_enighcuis_seg_num"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{gc}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            used  (Mb) gc trigger  (Mb) max used  (Mb)
+## Ncells  1968519 105.2    3205452 171.2  3205055 171.2
+## Vcells 13339715 101.8   21625148 165.0 21625075 165.0
+\end{verbatim}
+
+
+
+
+\newpage
+\singlespacing 
+\end{document}

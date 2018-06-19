@@ -1,2 +1,1 @@
-# MDI.Scripts
-Modelo de Distribución del Ingreso
+# Modelo de Distribución del Ingreso

@@ -1,0 +1,2273 @@
+\documentclass[11pt,]{article}
+\usepackage[left=1in,top=1in,right=1in,bottom=1in]{geometry}
+\newcommand*{\authorfont}{\fontfamily{phv}\selectfont}
+\usepackage[]{mathpazo}
+
+
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+
+
+
+\usepackage{abstract}
+\renewcommand{\abstractname}{}    % clear the title
+\renewcommand{\absnamepos}{empty} % originally center
+
+\renewenvironment{abstract}
+ {{%
+    \setlength{\leftmargin}{0mm}
+    \setlength{\rightmargin}{\leftmargin}%
+  }%
+  \relax}
+ {\endlist}
+
+\makeatletter
+\def\@maketitle{%
+  \newpage
+%  \null
+%  \vskip 2em%
+%  \begin{center}%
+  \let \footnote \thanks
+    {\fontsize{18}{20}\selectfont\raggedright  \setlength{\parindent}{0pt} \@title \par}%
+}
+%\fi
+\makeatother
+
+
+
+
+\setcounter{secnumdepth}{0}
+
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+
+
+\title{Anexo 2.2. Creacion de variables ENIGH  }
+
+
+
+\author{\Large Juan Carlos Martinez-Ovando\vspace{0.05in} \newline\normalsize\emph{}   \and \Large \vspace{0.05in} \newline\normalsize\emph{ITAM}  }
+
+
+\date{}
+
+\usepackage{titlesec}
+
+\titleformat*{\section}{\normalsize\bfseries}
+\titleformat*{\subsection}{\normalsize\itshape}
+\titleformat*{\subsubsection}{\normalsize\itshape}
+\titleformat*{\paragraph}{\normalsize\itshape}
+\titleformat*{\subparagraph}{\normalsize\itshape}
+
+
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+\usepackage[strings]{underscore} % protect underscores in most circumstances
+
+
+
+\newtheorem{hypothesis}{Hypothesis}
+\usepackage{setspace}
+
+\makeatletter
+\@ifpackageloaded{hyperref}{}{%
+\ifxetex
+  \PassOptionsToPackage{hyphens}{url}\usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \PassOptionsToPackage{hyphens}{url}\usepackage[unicode=true]{hyperref}
+\fi
+}
+
+\@ifpackageloaded{color}{
+    \PassOptionsToPackage{usenames,dvipsnames}{color}
+}{%
+    \usepackage[usenames,dvipsnames]{color}
+}
+\makeatother
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={Juan Carlos Martinez-Ovando () and  (ITAM)},
+             pdfkeywords = {},  
+            pdftitle={Anexo 2.2. Creacion de variables ENIGH},
+            colorlinks=true,
+            citecolor=blue,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+
+% add tightlist ----------
+\providecommand{\tightlist}{%
+\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\begin{document}
+	
+% \pagenumbering{arabic}% resets `page` counter to 1 
+%
+% \maketitle
+
+{% \usefont{T1}{pnc}{m}{n}
+\setlength{\parindent}{0pt}
+\thispagestyle{plain}
+{\fontsize{18}{20}\selectfont\raggedright 
+\maketitle  % title \par  
+
+}
+
+{
+   \vskip 13.5pt\relax \normalsize\fontsize{11}{12} 
+\textbf{\authorfont Juan Carlos Martinez-Ovando} \hskip 15pt \emph{\small }   \par \textbf{\authorfont } \hskip 15pt \emph{\small ITAM}   
+
+}
+
+}
+
+
+
+
+
+
+
+
+\begin{abstract}
+
+    \hbox{\vrule height .2pt width 39.14pc}
+
+    \vskip 8.5pt % \small 
+
+\noindent Se presenta y comenta el codigo para la creacion de las variables de
+analisis del modelo MUM y propuesto a partir de los datos de la ENIGH
+2016 compatibles con la informacion proporcionada por los datos CUIS.
+
+
+    \hbox{\vrule height .2pt width 39.14pc}
+
+
+\end{abstract}
+
+
+\vskip 6.5pt
+
+
+\noindent  \section{Parte I: Creacion de
+Variables}\label{parte-i-creacion-de-variables}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsection{Preambulo}\label{preambulo}
+
+Las bases de datos fueron obtenidas del INEGI
+(\texttt{www.inegi.org.mx}) en formato \texttt{*.dbf} de la liga:
+
+\texttt{http://www.beta.inegi.org.mx/proyectos/enchogares/regulares/enigh/nc/2016/}
+
+\emph{Nota.- Los scripts de este documento fueron probabados en R
+version \textgreater{} 3.4.x. (Linux y Windows x64).}
+
+Los \texttt{scripts} de este documento hacen uso de las siguientes
+tablas:
+
+\begin{itemize}
+\item
+  Concentrado hogar: \texttt{concentradohogar.dbf}
+\item
+  Base hogares: \texttt{hogares.dbf}
+\item
+  Base poblacion: \texttt{poblacion.dbf}
+\item
+  Base laboral: \texttt{trabajos.dbf}
+\item
+  Base de viviendas: \texttt{viviendas.dbf}
+\end{itemize}
+
+Las rutas de las bases de datos correspondientes al proyecto
+\texttt{Modelo.Distribucion.Ingreso.2017} son:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Bases originales: \texttt{./BasesDatos/ENIGH.2016}
+\item
+  Bases generadas: \texttt{./Bases4Analysis}
+\end{enumerate}
+
+\subsection{Paquetes de R}\label{paquetes-de-r}
+
+Se cargan los paquetes necesarios de \texttt{R} de manera oculta. En el
+archivo \texttt{*.Rmd} se encuentra el script para la verificacion e
+instalacion de los paquetes.
+
+Fijamos, adicionalmente, la ruta de la carpeta donde los datos fuente
+del INEGI se localizan.
+
+=========================================================
+
+\subsection{Preparacion de los datos}\label{preparacion-de-los-datos}
+
+\textbf{La preparacion de los datos sigue las especificaciones y reglas
+definidas por el CONEVAL (\texttt{www.coneval.org.mx}).}
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\section{Parte I. Preparacion}\label{parte-i.-preparacion}
+
+\subsection{Importancion de las
+tablas}\label{importancion-de-las-tablas}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{concentradohogar <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/concentradohogar.dbf"}\NormalTok{, }
+                       \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{dim}\NormalTok{(concentradohogar)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 70311   127
+\end{verbatim}
+
+\subsection{Creacion de tabla base}\label{creacion-de-tabla-base}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"tam_loc"}\NormalTok{,}
+             \StringTok{"sexo_jefe"}\NormalTok{,}\StringTok{"edad_jefe"}\NormalTok{,}\StringTok{"educa_jefe"}\NormalTok{,}
+             \StringTok{"tot_integ"}\NormalTok{,}\StringTok{"p12_64"}\NormalTok{,}\StringTok{"p65mas"}\NormalTok{,}\StringTok{"remesas"}\NormalTok{,}
+             \StringTok{"ing_cor"}\NormalTok{)}
+\NormalTok{hogares_agr <-}\StringTok{ }\NormalTok{concentradohogar[,}\KeywordTok{c}\NormalTok{(}\StringTok{"folioviv"}\NormalTok{,}\StringTok{"foliohog"}\NormalTok{,aux_var)]}
+\KeywordTok{colnames}\NormalTok{(hogares_agr) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)}
+\KeywordTok{dim}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 70311    11
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{write.csv}\NormalTok{(hogares_agr,}\DataTypeTok{file=}\StringTok{"../Bases.Enigh/2016_a_hogares_enigh.csv"}\NormalTok{)}
+\KeywordTok{rm}\NormalTok{(concentradohogar)}
+\KeywordTok{rm}\NormalTok{(aux_var)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{Preparacion de tablas}\label{preparacion-de-tablas}
+
+\subsubsection{Jefe/conyuge}\label{jefeconyuge}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{poblacion <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/poblacion.dbf"}\NormalTok{, }
+                       \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{dim}\NormalTok{(poblacion)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 257805    178
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(poblacion) <-}\StringTok{ }\KeywordTok{toupper}\NormalTok{(}\KeywordTok{colnames}\NormalTok{(poblacion))}
+
+\CommentTok{# Jefe y conyuge}
+\NormalTok{poblacion}\OperatorTok{$}\NormalTok{es_jefe <-}\StringTok{ }\DecValTok{0}
+\NormalTok{poblacion}\OperatorTok{$}\NormalTok{es_cony <-}\StringTok{ }\DecValTok{0}
+\NormalTok{poblacion[}\KeywordTok{which}\NormalTok{(poblacion}\OperatorTok{$}\NormalTok{PARENTESCO}\OperatorTok{==}\DecValTok{101}\NormalTok{),}\StringTok{"es_jefe"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+\NormalTok{poblacion[}\KeywordTok{which}\NormalTok{(poblacion}\OperatorTok{$}\NormalTok{PARENTESCO}\OperatorTok{==}\DecValTok{201}\NormalTok{),}\StringTok{"es_cony"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+\KeywordTok{table}\NormalTok{(poblacion[,}\KeywordTok{c}\NormalTok{(}\StringTok{"es_jefe"}\NormalTok{,}\StringTok{"es_cony"}\NormalTok{)])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        es_cony
+## es_jefe      0      1
+##       0 139654  47840
+##       1  70311      0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{poblacion_jefe <-}\StringTok{ }\NormalTok{poblacion[}\KeywordTok{which}\NormalTok{( poblacion}\OperatorTok{$}\NormalTok{es_jefe}\OperatorTok{==}\DecValTok{1} \OperatorTok{|}\StringTok{ }\NormalTok{poblacion}\OperatorTok{$}\NormalTok{es_cony}\OperatorTok{==}\DecValTok{1}\NormalTok{),]}
+\KeywordTok{dim}\NormalTok{(poblacion_jefe)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 118151    180
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Escolaridad Jefe y Conyuge}
+\NormalTok{poblacion_jefe}\OperatorTok{$}\NormalTok{p_esc3 <-}\StringTok{ }\DecValTok{0}
+\NormalTok{poblacion_jefe[}\KeywordTok{which}\NormalTok{( (poblacion}\OperatorTok{$}\NormalTok{PARENTESCO}\OperatorTok{==}\DecValTok{101} \OperatorTok{|}\NormalTok{poblacion}\OperatorTok{$}\NormalTok{PARENTESCO}\OperatorTok{==}\DecValTok{201}\NormalTok{) }\OperatorTok{&}
+\StringTok{                   }\NormalTok{poblacion}\OperatorTok{$}\NormalTok{EDAD}\OperatorTok{>=}\DecValTok{12} \OperatorTok{&}\StringTok{ }
+\StringTok{                   }\NormalTok{( poblacion}\OperatorTok{$}\NormalTok{NIVELAPROB}\OperatorTok{>=}\DecValTok{2} \OperatorTok{&}\StringTok{ }\NormalTok{poblacion}\OperatorTok{$}\NormalTok{NIVELAPROB}\OperatorTok{<}\DecValTok{3}\NormalTok{ ) ),}\StringTok{"p_esc3"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+
+\NormalTok{poblacion_jefe}\OperatorTok{$}\NormalTok{p_esc5b <-}\StringTok{ }\DecValTok{0}
+\NormalTok{poblacion_jefe[}\KeywordTok{which}\NormalTok{( (poblacion}\OperatorTok{$}\NormalTok{PARENTESCO}\OperatorTok{==}\DecValTok{101} \OperatorTok{|}\NormalTok{poblacion}\OperatorTok{$}\NormalTok{PARENTESCO}\OperatorTok{==}\DecValTok{201}\NormalTok{) }\OperatorTok{&}
+\StringTok{                   }\NormalTok{poblacion}\OperatorTok{$}\NormalTok{EDAD}\OperatorTok{>=}\DecValTok{12} \OperatorTok{&}\StringTok{ }
+\StringTok{                   }\NormalTok{poblacion}\OperatorTok{$}\NormalTok{NIVELAPROB}\OperatorTok{>=}\DecValTok{3}\NormalTok{ ),}\StringTok{"p_esc5b"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+  
+\CommentTok{# Agregago}
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"p_esc3"}\NormalTok{,}\StringTok{"p_esc5b"}\NormalTok{)}
+\NormalTok{poblacion_jefe <-}\StringTok{ }\KeywordTok{aggregate}\NormalTok{( }\DataTypeTok{x =}\NormalTok{ poblacion_jefe[,aux_var],}
+                            \DataTypeTok{by =} \KeywordTok{list}\NormalTok{(poblacion_jefe}\OperatorTok{$}\NormalTok{FOLIOVIV,poblacion_jefe}\OperatorTok{$}\NormalTok{FOLIOHOG),}
+                            \DataTypeTok{FUN =}\NormalTok{ max )}
+\KeywordTok{colnames}\NormalTok{(poblacion_jefe) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)}
+\KeywordTok{dim}\NormalTok{(poblacion_jefe)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 70311     4
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{rm}\NormalTok{(poblacion)}
+\KeywordTok{rm}\NormalTok{(aux_var)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Poblacion}\label{poblacion}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{poblacion <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/poblacion.dbf"}\NormalTok{, }
+                       \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{dim}\NormalTok{(poblacion)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 257805    178
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(poblacion) <-}\StringTok{ }\KeywordTok{toupper}\NormalTok{(}\KeywordTok{colnames}\NormalTok{(poblacion))}
+
+\CommentTok{# Grupos de edad}
+\NormalTok{poblacion}\OperatorTok{$}\NormalTok{int0a12 <-}\StringTok{ }\DecValTok{0}
+\NormalTok{poblacion}\OperatorTok{$}\NormalTok{int12a64 <-}\StringTok{ }\DecValTok{0}
+\NormalTok{poblacion}\OperatorTok{$}\NormalTok{int65a98 <-}\StringTok{ }\DecValTok{0}
+\NormalTok{poblacion[}\KeywordTok{which}\NormalTok{(poblacion}\OperatorTok{$}\NormalTok{EDAD}\OperatorTok{>}\DecValTok{0} \OperatorTok{&}\StringTok{ }\NormalTok{poblacion}\OperatorTok{$}\NormalTok{EDAD}\OperatorTok{<}\DecValTok{12}\NormalTok{ ),}\StringTok{"int0a12"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}  
+\NormalTok{poblacion[}\KeywordTok{which}\NormalTok{(poblacion}\OperatorTok{$}\NormalTok{EDAD}\OperatorTok{>=}\DecValTok{12} \OperatorTok{&}\StringTok{ }\NormalTok{poblacion}\OperatorTok{$}\NormalTok{EDAD}\OperatorTok{<=}\DecValTok{64}\NormalTok{ ),}\StringTok{"int12a64"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}  
+\NormalTok{poblacion[}\KeywordTok{which}\NormalTok{(poblacion}\OperatorTok{$}\NormalTok{EDAD}\OperatorTok{>=}\DecValTok{65} \OperatorTok{&}\StringTok{ }\NormalTok{poblacion}\OperatorTok{$}\NormalTok{EDAD}\OperatorTok{<=}\DecValTok{98}\NormalTok{ ),}\StringTok{"int65a98"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}  
+
+\CommentTok{# Mujeres }
+\NormalTok{poblacion}\OperatorTok{$}\NormalTok{muj12a49 <-}\StringTok{ }\DecValTok{0}
+\NormalTok{poblacion[}\KeywordTok{which}\NormalTok{( poblacion}\OperatorTok{$}\NormalTok{SEXO}\OperatorTok{==}\DecValTok{2} \OperatorTok{&}\StringTok{ }
+\StringTok{                   }\NormalTok{(poblacion}\OperatorTok{$}\NormalTok{EDAD}\OperatorTok{>=}\DecValTok{12} \OperatorTok{&}\StringTok{ }\NormalTok{poblacion}\OperatorTok{$}\NormalTok{EDAD}\OperatorTok{<}\DecValTok{49}\NormalTok{) ),}\StringTok{"muj12a49"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}  
+
+\CommentTok{# Seguro Popular }
+\NormalTok{poblacion}\OperatorTok{$}\NormalTok{seg_pop <-}\StringTok{ }\DecValTok{0}
+\NormalTok{poblacion[}\KeywordTok{which}\NormalTok{( poblacion}\OperatorTok{$}\NormalTok{SEGPOP}\OperatorTok{==}\DecValTok{1}\NormalTok{ ),}\StringTok{"seg_pop"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}  
+
+\CommentTok{# Atencion Medica}
+\NormalTok{poblacion}\OperatorTok{$}\NormalTok{ss <-}\StringTok{ }\DecValTok{0}
+\NormalTok{poblacion[}\KeywordTok{which}\NormalTok{( poblacion}\OperatorTok{$}\NormalTok{ATEMED}\OperatorTok{==}\DecValTok{1}\NormalTok{ ),}\StringTok{"ss"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}  
+
+\CommentTok{# Agregago}
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"int0a12"}\NormalTok{,}\StringTok{"int12a64"}\NormalTok{,}\StringTok{"int65a98"}\NormalTok{,}\StringTok{"muj12a49"}\NormalTok{,}\StringTok{"seg_pop"}\NormalTok{,}\StringTok{"ss"}\NormalTok{)}
+\NormalTok{poblacion_agr <-}\StringTok{ }\KeywordTok{aggregate}\NormalTok{( }\DataTypeTok{x =}\NormalTok{ poblacion[,aux_var],}
+                            \DataTypeTok{by =} \KeywordTok{list}\NormalTok{(poblacion}\OperatorTok{$}\NormalTok{FOLIOVIV,poblacion}\OperatorTok{$}\NormalTok{FOLIOHOG),}
+                            \DataTypeTok{FUN =}\NormalTok{ sum )}
+\KeywordTok{colnames}\NormalTok{(poblacion_agr) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)}
+\KeywordTok{dim}\NormalTok{(poblacion_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 70311     8
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{rm}\NormalTok{(poblacion)}
+\KeywordTok{rm}\NormalTok{(aux_var)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Hogares}\label{hogares}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/hogares.dbf"}\NormalTok{, }
+                       \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{dim}\NormalTok{(hogares)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 70311   137
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(hogares) <-}\StringTok{ }\KeywordTok{toupper}\NormalTok{(}\KeywordTok{colnames}\NormalTok{(hogares))}
+
+\CommentTok{# Seguridad Alimentaria 3 (Desayuno, comida o cena)}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{ACC_ALIM5)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     1     2 
+## 10195 60116
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares}\OperatorTok{$}\NormalTok{seg_alim2 <-}\StringTok{ }\DecValTok{0}
+\NormalTok{hogares[}\KeywordTok{which}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{ACC_ALIM5}\OperatorTok{==}\DecValTok{1}\NormalTok{),}\StringTok{"seg_alim2"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+
+\CommentTok{# Seguridad Alimentaria 3 (Comida)}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{ACC_ALIM2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     1     2 
+##  8895 61416
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares}\OperatorTok{$}\NormalTok{seg_alim3 <-}\StringTok{ }\DecValTok{0}
+\NormalTok{hogares[}\KeywordTok{which}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{ACC_ALIM2}\OperatorTok{==}\DecValTok{1}\NormalTok{),}\StringTok{"seg_alim3"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+
+\CommentTok{# Seguridad Alimentaria a (Comida)}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{ACC_ALIM8)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     1     2 
+##  7788 26881
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares}\OperatorTok{$}\NormalTok{seg_alim_a <-}\StringTok{ }\DecValTok{0}
+\NormalTok{hogares[}\KeywordTok{which}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{ACC_ALIM8}\OperatorTok{==}\DecValTok{1}\NormalTok{),}\StringTok{"seg_alim_a"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+
+\CommentTok{# Refrigerador}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{NUM_REFRI)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1     2     3     4     5     7     8    14    15 
+## 10021 59467   767    38     7     4     3     1     2     1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares}\OperatorTok{$}\NormalTok{sin_refri <-}\StringTok{ }\DecValTok{0}
+\NormalTok{hogares[}\KeywordTok{which}\NormalTok{( hogares}\OperatorTok{$}\NormalTok{NUM_REFRI}\OperatorTok{==}\DecValTok{0}\NormalTok{ ),}\StringTok{"sin_refri"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{sin_refri)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 60290 10021
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Vehiculos}
+\NormalTok{hogares}\OperatorTok{$}\NormalTok{num_vehi <-}\StringTok{ }\NormalTok{hogares}\OperatorTok{$}\NormalTok{NUM_AUTO }\OperatorTok{+}\StringTok{ }\NormalTok{hogares}\OperatorTok{$}\NormalTok{NUM_VAN }\OperatorTok{+}\StringTok{ }\NormalTok{hogares}\OperatorTok{$}\NormalTok{NUM_PICKUP}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{num_vehi)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##    -1     0     1     2     3     4     5     6     7     8     9    10 
+##     1 38655 23890  6123  1229   268    83    30    11     7     4     5 
+##    12    14    20 
+##     3     1     1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares}\OperatorTok{$}\NormalTok{sin_vehi <-}\StringTok{ }\DecValTok{0}
+\NormalTok{hogares[}\KeywordTok{which}\NormalTok{( hogares}\OperatorTok{$}\NormalTok{num_vehi}\OperatorTok{==}\DecValTok{0}\NormalTok{ ),}\StringTok{"sin_vehi"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{sin_vehi)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 31656 38655
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Computadora}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{NUM_COMPU)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1     2     3     4     5     6     7     8     9    15 
+## 53011 14437  1979   661   149    42    15     9     4     3     1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares}\OperatorTok{$}\NormalTok{sin_compu <-}\StringTok{ }\DecValTok{0}
+\NormalTok{hogares[}\KeywordTok{which}\NormalTok{( hogares}\OperatorTok{$}\NormalTok{NUM_COMPU}\OperatorTok{==}\DecValTok{0}\NormalTok{ ),}\StringTok{"sin_compu"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{sin_compu)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 17300 53011
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Video & DVD}
+\NormalTok{hogares}\OperatorTok{$}\NormalTok{num_vidvd <-}\StringTok{ }\NormalTok{hogares}\OperatorTok{$}\NormalTok{NUM_DVD }\OperatorTok{+}\StringTok{ }\NormalTok{hogares}\OperatorTok{$}\NormalTok{NUM_VIDEO}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{num_vidvd)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1     2     3     4     5     6     7     8     9    12    15 
+## 45855 21282  2668   389    80    24     7     1     2     1     1     1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares}\OperatorTok{$}\NormalTok{sin_vidvd <-}\StringTok{ }\DecValTok{0}
+\NormalTok{hogares[}\KeywordTok{which}\NormalTok{( hogares}\OperatorTok{$}\NormalTok{num_vidvd}\OperatorTok{==}\DecValTok{0}\NormalTok{ ),}\StringTok{"sin_vidvd"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{sin_vidvd)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 24456 45855
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Telefono}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{TELEFONO)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     1     2 
+## 20668 49643
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares}\OperatorTok{$}\NormalTok{sin_telef <-}\StringTok{ }\DecValTok{1}
+\NormalTok{hogares[}\KeywordTok{which}\NormalTok{( hogares}\OperatorTok{$}\NormalTok{TELEFONO}\OperatorTok{==}\DecValTok{1}\NormalTok{ ),}\StringTok{"sin_telef"}\NormalTok{] <-}\StringTok{ }\DecValTok{0}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{sin_telef)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 20668 49643
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Horno (microondas)}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{NUM_MICRO)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1     2     3     4     5     9    11    13    15 
+## 41067 29066   161    10     1     1     1     1     2     1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares}\OperatorTok{$}\NormalTok{sin_horno <-}\StringTok{ }\DecValTok{0}
+\NormalTok{hogares[}\KeywordTok{which}\NormalTok{( hogares}\OperatorTok{$}\NormalTok{NUM_MICRO}\OperatorTok{==}\DecValTok{0}\NormalTok{ ),}\StringTok{"sin_horno"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+\KeywordTok{table}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{sin_horno)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 29244 41067
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Agregago}
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"seg_alim2"}\NormalTok{,}\StringTok{"seg_alim3"}\NormalTok{,}\StringTok{"seg_alim_a"}\NormalTok{,}\StringTok{"sin_refri"}\NormalTok{,}\StringTok{"sin_vehi"}\NormalTok{,}\StringTok{"sin_vidvd"}\NormalTok{,}\StringTok{"sin_compu"}\NormalTok{,}\StringTok{"sin_telef"}\NormalTok{,}\StringTok{"sin_horno"}\NormalTok{)}
+\NormalTok{hogares_agr_agr <-}\StringTok{ }\KeywordTok{aggregate}\NormalTok{( }\DataTypeTok{x =}\NormalTok{ hogares[,aux_var],}
+                            \DataTypeTok{by =} \KeywordTok{list}\NormalTok{(hogares}\OperatorTok{$}\NormalTok{FOLIOVIV,hogares}\OperatorTok{$}\NormalTok{FOLIOHOG),}
+                            \DataTypeTok{FUN =}\NormalTok{ max )}
+\KeywordTok{colnames}\NormalTok{(hogares_agr_agr) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)}
+\KeywordTok{summary}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{seg_alim2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   0.000   0.000   0.145   0.000   1.000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{sin_refri)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0000  0.0000  0.0000  0.1425  0.0000  1.0000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{sin_vehi)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0000  0.0000  1.0000  0.5498  1.0000  1.0000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{sin_compu)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   1.000   1.000   0.754   1.000   1.000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{sin_vidvd)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0000  0.0000  1.0000  0.6522  1.0000  1.0000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{sin_telef)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   0.000   1.000   0.706   1.000   1.000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{sin_horno)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0000  0.0000  1.0000  0.5841  1.0000  1.0000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{rm}\NormalTok{(hogares)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Trabajos}\label{trabajos}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{trabajos <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/trabajos.dbf"}\NormalTok{, }
+                       \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{dim}\NormalTok{(trabajos)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 132095     55
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(trabajos) <-}\StringTok{ }\KeywordTok{toupper}\NormalTok{(}\KeywordTok{colnames}\NormalTok{(trabajos))}
+
+\NormalTok{poblacion <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/poblacion.dbf"}\NormalTok{, }
+                       \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{dim}\NormalTok{(poblacion)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 257805    178
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(poblacion) <-}\StringTok{ }\KeywordTok{toupper}\NormalTok{(}\KeywordTok{colnames}\NormalTok{(poblacion))}
+
+\NormalTok{trabajos <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(trabajos,}
+\NormalTok{                  poblacion[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}
+                               \StringTok{"NUMREN"}\NormalTok{, }\StringTok{"EDAD"}\NormalTok{,}\StringTok{"PARENTESCO"}\NormalTok{)],}
+                  \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"NUMREN"}\NormalTok{),}
+                  \DataTypeTok{all.x=}\OtherTok{TRUE}\NormalTok{)}
+
+\CommentTok{# Trabajo subordinado}
+\NormalTok{trabajos}\OperatorTok{$}\NormalTok{trab_sub <-}\StringTok{ }\DecValTok{0}
+\NormalTok{trabajos[}\KeywordTok{which}\NormalTok{( trabajos}\OperatorTok{$}\NormalTok{EDAD }\OperatorTok{>=}\StringTok{ }\DecValTok{12} \OperatorTok{&}\StringTok{ }
+\StringTok{                  }\NormalTok{trabajos}\OperatorTok{$}\NormalTok{ID_TRABAJO}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}
+\StringTok{                  }\CommentTok{#( trabajos$ID_TRABAJO==1 | trabajos$ID_TRABAJO==2 ) & }
+\StringTok{                  }\NormalTok{trabajos}\OperatorTok{$}\NormalTok{SUBOR}\OperatorTok{==}\DecValTok{1}\NormalTok{ ),}\StringTok{"trab_sub"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+
+\KeywordTok{table}\NormalTok{(trabajos}\OperatorTok{$}\NormalTok{trab_sub)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 39705 92390
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Trabajo independiendte}
+\NormalTok{trabajos}\OperatorTok{$}\NormalTok{trab_ind <-}\StringTok{ }\DecValTok{0}
+\NormalTok{trabajos[}\KeywordTok{which}\NormalTok{( trabajos}\OperatorTok{$}\NormalTok{EDAD }\OperatorTok{>=}\StringTok{ }\DecValTok{12} \OperatorTok{&}\StringTok{ }
+\StringTok{                  }\NormalTok{trabajos}\OperatorTok{$}\NormalTok{ID_TRABAJO}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}
+\StringTok{                  }\CommentTok{#( trabajos$ID_TRABAJO==1 | trabajos$ID_TRABAJO==2 ) & }
+\StringTok{                  }\NormalTok{trabajos}\OperatorTok{$}\NormalTok{INDEP}\OperatorTok{==}\DecValTok{1}\NormalTok{ ),}\StringTok{"trab_ind"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+
+\KeywordTok{table}\NormalTok{(trabajos}\OperatorTok{$}\NormalTok{trab_ind)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##      0      1 
+## 104849  27246
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Trabajo subordinado sin pago}
+\NormalTok{trabajos}\OperatorTok{$}\NormalTok{trab_s_pago <-}\StringTok{ }\DecValTok{0}
+\NormalTok{trabajos[}\KeywordTok{which}\NormalTok{( trabajos}\OperatorTok{$}\NormalTok{EDAD }\OperatorTok{>=}\StringTok{ }\DecValTok{12} \OperatorTok{&}\StringTok{ }
+\StringTok{                  }\NormalTok{trabajos}\OperatorTok{$}\NormalTok{ID_TRABAJO}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}
+\StringTok{                  }\CommentTok{#( trabajos$ID_TRABAJO==1 | trabajos$ID_TRABAJO==2 ) & }
+\StringTok{                  }\NormalTok{trabajos}\OperatorTok{$}\NormalTok{SUBOR}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }
+\StringTok{                  }\NormalTok{(trabajos}\OperatorTok{$}\NormalTok{PAGO}\OperatorTok{==}\DecValTok{2} \OperatorTok{|}\StringTok{ }\NormalTok{trabajos}\OperatorTok{$}\NormalTok{PAGO}\OperatorTok{==}\DecValTok{3}\NormalTok{) ),}\StringTok{"trab_s_pago"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+
+\KeywordTok{table}\NormalTok{(trabajos}\OperatorTok{$}\NormalTok{trab_s_pago)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##      0      1 
+## 126331   5764
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Trabajo independiendte / Jefe del hogar}
+\NormalTok{trabajos}\OperatorTok{$}\NormalTok{jtrab_ind <-}\StringTok{ }\DecValTok{0}
+\NormalTok{trabajos[}\KeywordTok{which}\NormalTok{( trabajos}\OperatorTok{$}\NormalTok{EDAD }\OperatorTok{>=}\StringTok{ }\DecValTok{12} \OperatorTok{&}\StringTok{ }
+\StringTok{                  }\NormalTok{trabajos}\OperatorTok{$}\NormalTok{PARENTESCO}\OperatorTok{==}\DecValTok{101} \OperatorTok{&}\StringTok{ }
+\StringTok{                  }\NormalTok{trabajos}\OperatorTok{$}\NormalTok{ID_TRABAJO}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}
+\StringTok{                  }\CommentTok{#( trabajos$ID_TRABAJO==1 | trabajos$ID_TRABAJO==2 ) & }
+\StringTok{                  }\NormalTok{trabajos}\OperatorTok{$}\NormalTok{INDEP}\OperatorTok{==}\DecValTok{1}\NormalTok{ ),}\StringTok{"jtrab_ind"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+
+\KeywordTok{table}\NormalTok{(trabajos}\OperatorTok{$}\NormalTok{jtrab_ind)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##      0      1 
+## 116462  15633
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Agregago}
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"trab_sub"}\NormalTok{,}\StringTok{"trab_ind"}\NormalTok{,}\StringTok{"jtrab_ind"}\NormalTok{,}\StringTok{"trab_s_pago"}\NormalTok{)}
+\NormalTok{trabajos_agr <-}\StringTok{ }\KeywordTok{aggregate}\NormalTok{( }\DataTypeTok{x =}\NormalTok{ trabajos[,aux_var],}
+                            \DataTypeTok{by =} \KeywordTok{list}\NormalTok{(trabajos}\OperatorTok{$}\NormalTok{FOLIOVIV,trabajos}\OperatorTok{$}\NormalTok{FOLIOHOG),}
+                            \DataTypeTok{FUN =}\NormalTok{ sum )}
+\KeywordTok{colnames}\NormalTok{(trabajos_agr) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)}
+\KeywordTok{summary}\NormalTok{(trabajos_agr}\OperatorTok{$}\NormalTok{trab_sub)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   1.000   1.000   1.441   2.000  12.000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(trabajos_agr}\OperatorTok{$}\NormalTok{trab_ind)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   0.000   0.000   0.425   1.000   6.000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(trabajos_agr}\OperatorTok{$}\NormalTok{trab_s_pago)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##  0.00000  0.00000  0.00000  0.08991  0.00000 10.00000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{rm}\NormalTok{(trabajos)}
+\KeywordTok{rm}\NormalTok{(poblacion)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsubsection{Viviendas}\label{viviendas}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{viviendas <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/viviendas.dbf"}\NormalTok{, }
+                       \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{dim}\NormalTok{(viviendas)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 69169    64
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(viviendas) <-}\StringTok{ }\KeywordTok{toupper}\NormalTok{(}\KeywordTok{colnames}\NormalTok{(viviendas))}
+
+\CommentTok{# Vivienda propia}
+\KeywordTok{table}\NormalTok{(viviendas}\OperatorTok{$}\NormalTok{TENENCIA)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     1     2     3     4     5     6 
+##  8440  9534  6768 42855  1057   515
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{viviendas}\OperatorTok{$}\NormalTok{viv_prop <-}\StringTok{ }\DecValTok{0}
+\NormalTok{viviendas[}\KeywordTok{which}\NormalTok{( viviendas}\OperatorTok{$}\NormalTok{TENENCIA}\OperatorTok{==}\DecValTok{3} \OperatorTok{|}\StringTok{ }\NormalTok{viviendas}\OperatorTok{$}\NormalTok{TENENCIA}\OperatorTok{==}\DecValTok{4}\NormalTok{ ),}\StringTok{"viv_prop"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+
+\CommentTok{# Vivienda rentada}
+\NormalTok{viviendas}\OperatorTok{$}\NormalTok{viv_rent <-}\StringTok{ }\DecValTok{0}
+\NormalTok{viviendas[}\KeywordTok{which}\NormalTok{( viviendas}\OperatorTok{$}\NormalTok{TENENCIA}\OperatorTok{==}\DecValTok{1}\NormalTok{ ),}\StringTok{"viv_rent"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+
+\CommentTok{# Piso firme}
+\KeywordTok{table}\NormalTok{(viviendas}\OperatorTok{$}\NormalTok{MAT_PISOS)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     &     1     2     3 
+##     4  2221 37986 28958
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{viviendas}\OperatorTok{$}\NormalTok{piso_fir <-}\StringTok{ }\DecValTok{0}
+\NormalTok{viviendas[}\KeywordTok{which}\NormalTok{( viviendas}\OperatorTok{$}\NormalTok{MAT_PISOS}\OperatorTok{==}\DecValTok{2}\NormalTok{ ),}\StringTok{"piso_fir"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+
+\CommentTok{# Piso con recubrimiento}
+\NormalTok{viviendas}\OperatorTok{$}\NormalTok{piso_rec <-}\StringTok{ }\DecValTok{0}
+\NormalTok{viviendas[}\KeywordTok{which}\NormalTok{( viviendas}\OperatorTok{$}\NormalTok{MAT_PISOS}\OperatorTok{==}\DecValTok{3}\NormalTok{ ),}\StringTok{"piso_rec"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+
+\CommentTok{# Piso con recubrimiento}
+\NormalTok{viviendas}\OperatorTok{$}\NormalTok{tot_cuar <-}\StringTok{ }\NormalTok{viviendas}\OperatorTok{$}\NormalTok{NUM_CUARTO}
+
+\CommentTok{# Combustible}
+\KeywordTok{table}\NormalTok{(viviendas}\OperatorTok{$}\NormalTok{COMBUSTIBL)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     1     2     3     4     5     6 
+## 11489   209 52571  3613   760   527
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{viviendas}\OperatorTok{$}\NormalTok{combustible <-}\StringTok{ }\DecValTok{0}
+\NormalTok{viviendas[}\KeywordTok{which}\NormalTok{( viviendas}\OperatorTok{$}\NormalTok{COMBUSTIBL}\OperatorTok{==}\DecValTok{1} \OperatorTok{|}\StringTok{ }\NormalTok{viviendas}\OperatorTok{$}\NormalTok{COMBUSTIBL}\OperatorTok{==}\DecValTok{2}\NormalTok{ ),}\StringTok{"combustible"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+\KeywordTok{table}\NormalTok{(viviendas}\OperatorTok{$}\NormalTok{combustible)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 57471 11698
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#Escusado exclusivo con descarga de agua}
+\KeywordTok{table}\NormalTok{(viviendas[,}\KeywordTok{c}\NormalTok{(}\StringTok{"EXCUSADO"}\NormalTok{,}\StringTok{"USO_COMPAR"}\NormalTok{,}\StringTok{"SANIT_AGUA"}\NormalTok{)])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## , , SANIT_AGUA = 1
+## 
+##         USO_COMPAR
+## EXCUSADO     1     2
+##        1  1984 43394
+##        2     0     0
+## 
+## , , SANIT_AGUA = 2
+## 
+##         USO_COMPAR
+## EXCUSADO     1     2
+##        1  2105 14878
+##        2     0     0
+## 
+## , , SANIT_AGUA = 3
+## 
+##         USO_COMPAR
+## EXCUSADO     1     2
+##        1   772  4007
+##        2     0     0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{viviendas}\OperatorTok{$}\NormalTok{bao13 <-}\StringTok{ }\DecValTok{0}
+\NormalTok{viviendas[}\KeywordTok{which}\NormalTok{( viviendas}\OperatorTok{$}\NormalTok{EXCUSADO}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}
+\StringTok{                  }\NormalTok{viviendas}\OperatorTok{$}\NormalTok{USO_COMPAR}\OperatorTok{==}\DecValTok{2} \OperatorTok{&}\StringTok{ }
+\StringTok{                   }\NormalTok{viviendas}\OperatorTok{$}\NormalTok{SANIT_AGUA}\OperatorTok{==}\StringTok{ }\DecValTok{1}\NormalTok{ ),}\StringTok{"bao13"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+\KeywordTok{table}\NormalTok{(viviendas}\OperatorTok{$}\NormalTok{bao13)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 25775 43394
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Agregacion}
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"viv_prop"}\NormalTok{,}\StringTok{"viv_rent"}\NormalTok{,}\StringTok{"piso_fir"}\NormalTok{,}\StringTok{"piso_rec"}\NormalTok{,}\StringTok{"tot_cuar"}\NormalTok{,}\StringTok{"combustible"}\NormalTok{,}\StringTok{"bao13"}\NormalTok{)}
+
+\NormalTok{viviendas_agr <-}\StringTok{ }\NormalTok{viviendas[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,aux_var)]}
+  
+\KeywordTok{rm}\NormalTok{(viviendas)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Parte II. Calculo de variables para
+modelacion}\label{parte-ii.-calculo-de-variables-para-modelacion}
+
+\subsection{1. Dependencia demografica
+(numerica)}\label{dependencia-demografica-numerica}
+
+\texttt{depdemog}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v01 depdemog}
+
+\CommentTok{# Se obtiene directamente de `poblacion_agr`}
+\NormalTok{poblacion_agr}\OperatorTok{$}\NormalTok{depdemog <-}\StringTok{ }\DecValTok{0}
+\NormalTok{poblacion_agr[}\KeywordTok{which}\NormalTok{(poblacion_agr}\OperatorTok{$}\NormalTok{int12a64}\OperatorTok{>}\DecValTok{0}\NormalTok{),}\StringTok{"depdemog"}\NormalTok{] <-}
+\StringTok{  }\NormalTok{(poblacion_agr[}\KeywordTok{which}\NormalTok{(poblacion_agr}\OperatorTok{$}\NormalTok{int12a64}\OperatorTok{>}\DecValTok{0}\NormalTok{),}\StringTok{"int0a12"}\NormalTok{] }\OperatorTok{+}
+\StringTok{     }\NormalTok{poblacion_agr[}\KeywordTok{which}\NormalTok{(poblacion_agr}\OperatorTok{$}\NormalTok{int12a64}\OperatorTok{>}\DecValTok{0}\NormalTok{),}\StringTok{"int65a98"}\NormalTok{]) }\OperatorTok{/}
+\StringTok{  }\NormalTok{poblacion_agr[}\KeywordTok{which}\NormalTok{(poblacion_agr}\OperatorTok{$}\NormalTok{int12a64}\OperatorTok{>}\DecValTok{0}\NormalTok{),}\StringTok{"int12a64"}\NormalTok{]}
+\KeywordTok{summary}\NormalTok{(poblacion_agr}\OperatorTok{$}\NormalTok{depdemog)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0000  0.0000  0.2500  0.4199  0.6667  6.0000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"int0a12"}\NormalTok{,}\StringTok{"int12a64"}\NormalTok{,}\StringTok{"int65a98"}\NormalTok{,}\StringTok{"depdemog"}\NormalTok{)}
+
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     poblacion_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{dim}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 70311    15
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "FOLIOVIV"   "FOLIOHOG"   "tam_loc"    "sexo_jefe"  "edad_jefe" 
+##  [6] "educa_jefe" "tot_integ"  "p12_64"     "p65mas"     "remesas"   
+## [11] "ing_cor"    "int0a12"    "int12a64"   "int65a98"   "depdemog"
+\end{verbatim}
+
+\subsection{2. Mujeres entre 12 y 49 anios (numero de
+personas)}\label{mujeres-entre-12-y-49-anios-numero-de-personas}
+
+\texttt{muj12a49}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v02 muj12a49}
+\CommentTok{# Trabajamos con la tabla `pobracion_agr`}
+\KeywordTok{summary}\NormalTok{(poblacion_agr}\OperatorTok{$}\NormalTok{muj12a49)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    0.00    0.00    1.00    1.06    2.00    8.00
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"muj12a49"}\NormalTok{)}
+
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     poblacion_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{dim}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 70311    16
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "FOLIOVIV"   "FOLIOHOG"   "tam_loc"    "sexo_jefe"  "edad_jefe" 
+##  [6] "educa_jefe" "tot_integ"  "p12_64"     "p65mas"     "remesas"   
+## [11] "ing_cor"    "int0a12"    "int12a64"   "int65a98"   "depdemog"  
+## [16] "muj12a49"
+\end{verbatim}
+
+\subsection{\texorpdfstring{3. Total de personas (numero de personas en
+\texttt{log-scale})}{3. Total de personas (numero de personas en log-scale)}}\label{total-de-personas-numero-de-personas-en-log-scale}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v03 ltot_per}
+\CommentTok{# Trabajamos con la tabla `hogares_agr`}
+\KeywordTok{summary}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{tot_integ)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   1.000   2.000   4.000   3.665   5.000  21.000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{int0a12 }\OperatorTok{+}\StringTok{ }\NormalTok{hogares_agr}\OperatorTok{$}\NormalTok{int12a64 }\OperatorTok{+}\StringTok{ }\NormalTok{hogares_agr}\OperatorTok{$}\NormalTok{int65a98)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   2.000   3.000   3.609   5.000  20.000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr}\OperatorTok{$}\NormalTok{tot_per <-}\StringTok{ }\NormalTok{hogares_agr}\OperatorTok{$}\NormalTok{int0a12 }\OperatorTok{+}\StringTok{ }
+\StringTok{  }\NormalTok{hogares_agr}\OperatorTok{$}\NormalTok{int12a64 }\OperatorTok{+}\StringTok{ }\NormalTok{hogares_agr}\OperatorTok{$}\NormalTok{int65a98}
+\NormalTok{hogares_agr}\OperatorTok{$}\NormalTok{ltot_per <-}\StringTok{ }\KeywordTok{log}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{tot_per))}
+\KeywordTok{colnames}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "FOLIOVIV"   "FOLIOHOG"   "tam_loc"    "sexo_jefe"  "edad_jefe" 
+##  [6] "educa_jefe" "tot_integ"  "p12_64"     "p65mas"     "remesas"   
+## [11] "ing_cor"    "int0a12"    "int12a64"   "int65a98"   "depdemog"  
+## [16] "muj12a49"   "tot_per"    "ltot_per"
+\end{verbatim}
+
+\subsection{4. Educacion del jefe del hogar y
+conyuge}\label{educacion-del-jefe-del-hogar-y-conyuge}
+
+\texttt{p\_esc3}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v04 p_esc3, p_esc4 and p_esc5}
+\CommentTok{# Trabajamos con la tabla `poblacion_jefe`}
+\KeywordTok{table}\NormalTok{(poblacion_jefe}\OperatorTok{$}\NormalTok{p_esc3)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 54340 15971
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     poblacion_jefe[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"p_esc3"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{p_esc3)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 54340 15971
+\end{verbatim}
+
+\subsection{5. Educacion del jefe del hogar y
+conyuge}\label{educacion-del-jefe-del-hogar-y-conyuge-1}
+
+\texttt{p\_esc5b}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v05 p_esc5b}
+\CommentTok{# Trabajamos con la tabla `poblacion_jefe`}
+\KeywordTok{table}\NormalTok{(poblacion_jefe}\OperatorTok{$}\NormalTok{p_esc5b)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 43244 27067
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     poblacion_jefe[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"p_esc5b"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{p_esc5b)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 43244 27067
+\end{verbatim}
+
+\subsection{6. Trabajo subordinado (numero de
+personas)}\label{trabajo-subordinado-numero-de-personas}
+
+\texttt{trab\_sub}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v06 trab_sub (numero)}
+\CommentTok{# Traajamos con la tabla `trabajos_agr`}
+\KeywordTok{summary}\NormalTok{(trabajos_agr}\OperatorTok{$}\NormalTok{trab_sub)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   1.000   1.000   1.441   2.000  12.000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"trab_sub"}\NormalTok{)}
+
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     trabajos_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{dim}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 64108    21
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "FOLIOVIV"   "FOLIOHOG"   "tam_loc"    "sexo_jefe"  "edad_jefe" 
+##  [6] "educa_jefe" "tot_integ"  "p12_64"     "p65mas"     "remesas"   
+## [11] "ing_cor"    "int0a12"    "int12a64"   "int65a98"   "depdemog"  
+## [16] "muj12a49"   "tot_per"    "ltot_per"   "p_esc3"     "p_esc5b"   
+## [21] "trab_sub"
+\end{verbatim}
+
+\subsection{7. Trabajo independiente (numero de
+personas)}\label{trabajo-independiente-numero-de-personas}
+
+\texttt{trab\_ind}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v07 trab_ind (numero)}
+\CommentTok{# Traajamos con la tabla `trabajos_agr`}
+\KeywordTok{summary}\NormalTok{(trabajos_agr}\OperatorTok{$}\NormalTok{trab_ind)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   0.000   0.000   0.425   1.000   6.000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(trabajos_agr}\OperatorTok{$}\NormalTok{trab_s_pago)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##  0.00000  0.00000  0.00000  0.08991  0.00000 10.00000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"trab_ind"}\NormalTok{)}
+
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     trabajos_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{dim}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 64108    22
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "FOLIOVIV"   "FOLIOHOG"   "tam_loc"    "sexo_jefe"  "edad_jefe" 
+##  [6] "educa_jefe" "tot_integ"  "p12_64"     "p65mas"     "remesas"   
+## [11] "ing_cor"    "int0a12"    "int12a64"   "int65a98"   "depdemog"  
+## [16] "muj12a49"   "tot_per"    "ltot_per"   "p_esc3"     "p_esc5b"   
+## [21] "trab_sub"   "trab_ind"
+\end{verbatim}
+
+\subsection{8. Trabajo subuordinado sin pago (numero de
+personas)}\label{trabajo-subuordinado-sin-pago-numero-de-personas}
+
+\texttt{trab\_s\_pago}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v08 trab_s_pag (numero)}
+\CommentTok{# Traajamos con la tabla `trabajos_agr`}
+\KeywordTok{summary}\NormalTok{(trabajos_agr}\OperatorTok{$}\NormalTok{trab_s_pago)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##  0.00000  0.00000  0.00000  0.08991  0.00000 10.00000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"trab_s_pago"}\NormalTok{)}
+
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     trabajos_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{dim}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 64108    23
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "FOLIOVIV"    "FOLIOHOG"    "tam_loc"     "sexo_jefe"   "edad_jefe"  
+##  [6] "educa_jefe"  "tot_integ"   "p12_64"      "p65mas"      "remesas"    
+## [11] "ing_cor"     "int0a12"     "int12a64"    "int65a98"    "depdemog"   
+## [16] "muj12a49"    "tot_per"     "ltot_per"    "p_esc3"      "p_esc5b"    
+## [21] "trab_sub"    "trab_ind"    "trab_s_pago"
+\end{verbatim}
+
+\subsection{9. Seguridad alimentaria 1}\label{seguridad-alimentaria-1}
+
+\texttt{seg\_alim2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v09 seg_alim2 (indicadora)}
+\CommentTok{# Trabajamos con la tabla `hogares_agr_agr`}
+\KeywordTok{table}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{seg_alim2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 60116 10195
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     hogares_agr_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"seg_alim2"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{seg_alim2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 54841  9267
+\end{verbatim}
+
+\subsection{10. Seguridad alimentaria 2}\label{seguridad-alimentaria-2}
+
+\texttt{seg\_alim3}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v10 seg_alim3 (indicadora)}
+\CommentTok{# Trabajamos con la tabla `hogares_agr_agr`}
+\KeywordTok{table}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{seg_alim3)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 61416  8895
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     hogares_agr_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"seg_alim3"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{seg_alim3)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 56089  8019
+\end{verbatim}
+
+\subsection{11. Seguridad alimentaria
+conjunta}\label{seguridad-alimentaria-conjunta}
+
+\texttt{seg\_alim\_a2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v11 seg_alim_a2 (indicadora)}
+\CommentTok{# Trabajamos con la tabla `hogares_agr_agr`}
+\CommentTok{# Trabajamos con la tabla `hogares_agr_agr`}
+\KeywordTok{table}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{seg_alim_a)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 62523  7788
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     hogares_agr_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"seg_alim_a"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{seg_alim_a)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 57032  7076
+\end{verbatim}
+
+\subsection{12. Acceso a seguro popular (numero de
+personas)}\label{acceso-a-seguro-popular-numero-de-personas}
+
+\texttt{seg\_pop}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v12 seg_pop (numero)}
+\KeywordTok{table}\NormalTok{(poblacion_agr}\OperatorTok{$}\NormalTok{seg_pop)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1     2     3     4     5     6     7     8     9    10    11 
+## 29760  8997  8412  7672  7133  4575  2052   946   405   177    94    46 
+##    12    13    14    15 
+##    24    11     4     3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"seg_pop"}\NormalTok{)}
+
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     poblacion_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{dim}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 64108    27
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "FOLIOVIV"    "FOLIOHOG"    "tam_loc"     "sexo_jefe"   "edad_jefe"  
+##  [6] "educa_jefe"  "tot_integ"   "p12_64"      "p65mas"      "remesas"    
+## [11] "ing_cor"     "int0a12"     "int12a64"    "int65a98"    "depdemog"   
+## [16] "muj12a49"    "tot_per"     "ltot_per"    "p_esc3"      "p_esc5b"    
+## [21] "trab_sub"    "trab_ind"    "trab_s_pago" "seg_alim2"   "seg_alim3"  
+## [26] "seg_alim_a"  "seg_pop"
+\end{verbatim}
+
+\subsection{13. Servicio medico}\label{servicio-medico}
+
+\texttt{ss}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v13 ss (indicadora)}
+\KeywordTok{table}\NormalTok{(poblacion_agr}\OperatorTok{$}\NormalTok{ss)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1     2     3     4     5     6     7     8     9    10    11 
+## 28405 11908 10239  7812  6830  3416  1133   375   112    53    16     6 
+##    12    13 
+##     3     3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"ss"}\NormalTok{)}
+
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     poblacion_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{dim}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 64108    28
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "FOLIOVIV"    "FOLIOHOG"    "tam_loc"     "sexo_jefe"   "edad_jefe"  
+##  [6] "educa_jefe"  "tot_integ"   "p12_64"      "p65mas"      "remesas"    
+## [11] "ing_cor"     "int0a12"     "int12a64"    "int65a98"    "depdemog"   
+## [16] "muj12a49"    "tot_per"     "ltot_per"    "p_esc3"      "p_esc5b"    
+## [21] "trab_sub"    "trab_ind"    "trab_s_pago" "seg_alim2"   "seg_alim3"  
+## [26] "seg_alim_a"  "seg_pop"     "ss"
+\end{verbatim}
+
+\subsection{14. Seguridad social por trabajo
+independiente}\label{seguridad-social-por-trabajo-independiente}
+
+\texttt{ssjtrabind}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v14 ssjtrabind (indicadora)}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{ss)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1     2     3     4     5     6     7     8     9    10    11 
+## 25730 10076  8891  7575  6737  3401  1130   375   112    53    16     6 
+##    12    13 
+##     3     3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{table}\NormalTok{(trabajos_agr}\OperatorTok{$}\NormalTok{jtrab_ind)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 48475 15633
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     trabajos_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"jtrab_ind"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+
+\NormalTok{hogares_agr}\OperatorTok{$}\NormalTok{ssjtrabind <-}\StringTok{ }\DecValTok{0}
+\NormalTok{hogares_agr[}\KeywordTok{which}\NormalTok{( hogares_agr}\OperatorTok{$}\NormalTok{ss}\OperatorTok{==}\DecValTok{1} \OperatorTok{&}\StringTok{ }
+\StringTok{                     }\NormalTok{hogares_agr}\OperatorTok{$}\NormalTok{jtrab_ind}\OperatorTok{==}\DecValTok{1}\NormalTok{ ),}\StringTok{"ssjtrabind"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{ssjtrabind)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 61734  2374
+\end{verbatim}
+
+\subsection{15. Recepcion de remesas}\label{recepcion-de-remesas}
+
+\texttt{con\_remesas}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v30 remesa}
+\KeywordTok{summary}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{remesas)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##      0.0      0.0      0.0    325.7      0.0 173152.2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr}\OperatorTok{$}\NormalTok{con_remesas <-}\StringTok{ }\DecValTok{0}
+\NormalTok{hogares_agr[}\KeywordTok{which}\NormalTok{( hogares_agr}\OperatorTok{$}\NormalTok{remesas}\OperatorTok{>}\DecValTok{0}\NormalTok{ ),}\StringTok{"con_remesas"}\NormalTok{] <-}\StringTok{ }\DecValTok{1}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{con_remesas)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 60820  3288
+\end{verbatim}
+
+\subsection{16. Vivienda propia}\label{vivienda-propia}
+
+\texttt{viv\_prop}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v16 viv_prop (indicadora)}
+\CommentTok{# Trabajamos con `viviendas_agr`}
+\KeywordTok{table}\NormalTok{(viviendas_agr}\OperatorTok{$}\NormalTok{viv_prop)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 19546 49623
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     viviendas_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"viv_prop"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{viv_prop)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 18291 45817
+\end{verbatim}
+
+\subsection{17. Vivienda rentada}\label{vivienda-rentada}
+
+\texttt{viv\_rent}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v17 viv_rent (indicadora)}
+\CommentTok{# Trabajamos con `viviendas_agr`}
+\KeywordTok{table}\NormalTok{(viviendas_agr}\OperatorTok{$}\NormalTok{viv_rent)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 60729  8440
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     viviendas_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"viv_rent"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{viv_rent)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 56022  8086
+\end{verbatim}
+
+\subsection{18. Total de cuartos
+(numero)}\label{total-de-cuartos-numero}
+
+\texttt{tot\_cuar}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v18 tot_cuar (numero)}
+\KeywordTok{table}\NormalTok{(viviendas_agr}\OperatorTok{$}\NormalTok{tot_cuar)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     1     2     3     4     5     6     7     8     9    10    11    12 
+##  4012 10646 18565 18435 10334  4311  1635   750   249   143    41    26 
+##    13    14    15    16    17    23 
+##    10     3     3     4     1     1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     viviendas_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"tot_cuar"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{tot_cuar)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     1     2     3     4     5     6     7     8     9    10    11    12 
+##  3688  9816 17203 17134  9586  4005  1536   696   233   132    36    23 
+##    13    14    15    16    17    23 
+##     9     2     3     4     1     1
+\end{verbatim}
+
+\subsection{19. Tipo de banio}\label{tipo-de-banio}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v19 bao1, bao2 and bao3 (indicadoras)}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{20. Banio exclusivo}\label{banio-exclusivo}
+
+\texttt{bao13}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v20 bao13 (indicadoras)}
+\CommentTok{# Trabajamos con la tabla `viviendas_agr`}
+\KeywordTok{table}\NormalTok{(viviendas_agr}\OperatorTok{$}\NormalTok{bao13)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 25775 43394
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     viviendas_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"bao13"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{bao13)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 24338 39770
+\end{verbatim}
+
+\subsection{21. Piso firme}\label{piso-firme}
+
+\texttt{piso\_fir}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v21 piso_fir & piso_rec (indicadoras)}
+\CommentTok{# Trabajamos con `viviendas_agr`}
+\KeywordTok{table}\NormalTok{(viviendas_agr}\OperatorTok{$}\NormalTok{piso_fir)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 31183 37986
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     viviendas_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"piso_fir"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{piso_fir)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 28455 35653
+\end{verbatim}
+
+\subsection{22. Piso con recubrimiento}\label{piso-con-recubrimiento}
+
+\texttt{piso\_rec}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v22 piso_fir & piso_rec (indicadoras)}
+\CommentTok{# Trabajamos con `viviendas_agr`}
+\KeywordTok{table}\NormalTok{(viviendas_agr}\OperatorTok{$}\NormalTok{piso_rec)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 40211 28958
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     viviendas_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"piso_rec"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{piso_rec)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 37706 26402
+\end{verbatim}
+
+\subsection{23. Uso de combustible}\label{uso-de-combustible}
+
+\texttt{combustible}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v223< combustible (indicadoras)}
+\CommentTok{# Trabajamos con la tabla `viviendas_agr`}
+\KeywordTok{table}\NormalTok{(viviendas_agr}\OperatorTok{$}\NormalTok{combustible)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 57471 11698
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(}\DataTypeTok{x=}\NormalTok{hogares_agr,}
+                     \DataTypeTok{y=}\NormalTok{viviendas_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"combustible"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{combustible)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 52969 11139
+\end{verbatim}
+
+\subsection{24. Hogar sin refrigerador}\label{hogar-sin-refrigerador}
+
+\texttt{sin\_refri}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v24< sin_refri (indicadoras)}
+\CommentTok{# Trabajamos con la base `hogares_agr_agr`}
+\KeywordTok{table}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{sin_refri)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 60290 10021
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     hogares_agr_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"sin_refri"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{sin_refri)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 54990  9118
+\end{verbatim}
+
+\subsection{25. Hogar sin vehiculo}\label{hogar-sin-vehiculo}
+
+\texttt{sin\_vehi}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v25 sin_vehi (indicadoras)}
+\CommentTok{# Trabajamos con la base `hogares_agr_agr`}
+\KeywordTok{table}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{sin_vehi)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 31656 38655
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     hogares_agr_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"sin_vehi"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{sin_vehi)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 29617 34491
+\end{verbatim}
+
+\subsection{26. Hogar sin computadora}\label{hogar-sin-computadora}
+
+\texttt{sin\_compu}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v26 sin_compu (indicadoras)}
+\CommentTok{# Trabajamos con la base `hogares_agr_agr`}
+\KeywordTok{table}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{sin_compu)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 17300 53011
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     hogares_agr_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"sin_compu"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{sin_compu)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 16278 47830
+\end{verbatim}
+
+\subsection{27. Hogar sin video ni dvd}\label{hogar-sin-video-ni-dvd}
+
+\texttt{sin\_vidvd}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v27 sin_vidvd (indicadoras)}
+\CommentTok{# Trabajamos con la base `hogares_agr_agr`}
+\KeywordTok{table}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{sin_vidvd)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 24456 45855
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     hogares_agr_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"sin_vidvd"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{sin_vidvd)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 23055 41053
+\end{verbatim}
+
+\subsection{28. Hogar sin telefono}\label{hogar-sin-telefono}
+
+\texttt{sin\_telef}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v28 sin_telef (indicadoras)}
+\CommentTok{# Trabajamos con la base `hogares_agr_agr`}
+\KeywordTok{table}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{sin_telef)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 20668 49643
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     hogares_agr_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"sin_telef"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{sin_telef)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 18133 45975
+\end{verbatim}
+
+\subsection{29. Hogar sin horno}\label{hogar-sin-horno}
+
+\texttt{sin\_horno}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# v29 sin_horno (indicadoras)}
+\CommentTok{# Trabajamos con la base `hogares_agr_agr`}
+\KeywordTok{table}\NormalTok{(hogares_agr_agr}\OperatorTok{$}\NormalTok{sin_horno)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 29244 41067
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     hogares_agr_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"sin_horno"}\NormalTok{)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{))}
+\KeywordTok{table}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{sin_horno)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##     0     1 
+## 26566 37542
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{dim}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 64108    44
+\end{verbatim}
+
+\subsection{Ingreso corriente total}\label{ingreso-corriente-total}
+
+\texttt{ict} y \texttt{ictp}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# ict - Ingresp Corriente Total}
+\CommentTok{# Trabajamos con la base `2016_a_bienestar_ingreso`}
+\NormalTok{ict_agr <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"../Bases.Enigh/2016_a_bienestar_ingreso.csv"}\NormalTok{, }\DataTypeTok{header=}\OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{dim}\NormalTok{(ict_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 70311    10
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{colnames}\NormalTok{(ict_agr) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,}\StringTok{"factor"}\NormalTok{,}\StringTok{"tam_loc"}\NormalTok{,}\StringTok{"rururb"}\NormalTok{,}\StringTok{"tamhogesc"}\NormalTok{,}\StringTok{"ict"}\NormalTok{,}\StringTok{"ictpc"}\NormalTok{,}\StringTok{"plb_m"}\NormalTok{,}\StringTok{"plb"}\NormalTok{)}
+
+\KeywordTok{table}\NormalTok{(ict_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"plb_m"}\NormalTok{,}\StringTok{"plb"}\NormalTok{)])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      plb
+## plb_m     0     1
+##     0 40728 19791
+##     1     0  9792
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{aux_var <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"factor"}\NormalTok{,}\StringTok{"rururb"}\NormalTok{,}\StringTok{"tamhogesc"}\NormalTok{,}\StringTok{"ict"}\NormalTok{,}\StringTok{"ictpc"}\NormalTok{) }
+\NormalTok{ict_agr}\OperatorTok{$}\NormalTok{ict <-}\StringTok{ }\NormalTok{ict_agr}\OperatorTok{$}\NormalTok{ict }\OperatorTok{+}\StringTok{ }\DecValTok{1}
+\NormalTok{ict_agr}\OperatorTok{$}\NormalTok{ictpc <-}\StringTok{ }\NormalTok{ict_agr}\OperatorTok{$}\NormalTok{ictpc }\OperatorTok{+}\StringTok{ }\DecValTok{1}
+
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(hogares_agr,}
+\NormalTok{                     ict_agr[,}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{,aux_var)],}
+                     \DataTypeTok{by=}\KeywordTok{c}\NormalTok{(}\StringTok{"FOLIOVIV"}\NormalTok{,}\StringTok{"FOLIOHOG"}\NormalTok{),}
+                     \DataTypeTok{x.all=}\OtherTok{TRUE}\NormalTok{)}
+\KeywordTok{summary}\NormalTok{(hogares_agr}\OperatorTok{$}\NormalTok{ictpc)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##       1    1483    2454    3828    4222 1917475
+\end{verbatim}
+
+\section{Variables numericas y categoricas (p/
+modelo)}\label{variables-numericas-y-categoricas-p-modelo}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_agr[,var_enighcuis_num] <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(hogares_agr[,var_enighcuis_num],as.numeric)}
+
+\NormalTok{hogares_agr[,var_enighcuis_cat] <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(hogares_agr[,var_enighcuis_cat],factor)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Exportacion de tabla de
+trabajo}\label{exportacion-de-tabla-de-trabajo}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{write.csv}\NormalTok{(hogares_agr,}\DataTypeTok{file=}\StringTok{"../Bases.Enigh/hogares_enigh_agr.csv"}\NormalTok{)}
+\KeywordTok{colnames}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "FOLIOVIV"    "FOLIOHOG"    "tam_loc"     "sexo_jefe"   "edad_jefe"  
+##  [6] "educa_jefe"  "tot_integ"   "p12_64"      "p65mas"      "remesas"    
+## [11] "ing_cor"     "int0a12"     "int12a64"    "int65a98"    "depdemog"   
+## [16] "muj12a49"    "tot_per"     "ltot_per"    "p_esc3"      "p_esc5b"    
+## [21] "trab_sub"    "trab_ind"    "trab_s_pago" "seg_alim2"   "seg_alim3"  
+## [26] "seg_alim_a"  "seg_pop"     "ss"          "jtrab_ind"   "ssjtrabind" 
+## [31] "con_remesas" "viv_prop"    "viv_rent"    "tot_cuar"    "bao13"      
+## [36] "piso_fir"    "piso_rec"    "combustible" "sin_refri"   "sin_vehi"   
+## [41] "sin_compu"   "sin_vidvd"   "sin_telef"   "sin_horno"   "factor"     
+## [46] "rururb"      "tamhogesc"   "ict"         "ictpc"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{dim}\NormalTok{(hogares_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 43609    49
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{rm}\NormalTok{(}\DataTypeTok{list=}\KeywordTok{ls}\NormalTok{())}
+\KeywordTok{gc}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           used  (Mb) gc trigger  (Mb)  max used   (Mb)
+## Ncells 1961331 104.8    3886542 207.6   3886542  207.6
+## Vcells 2383656  18.2  118874452 907.0 148589376 1133.7
+\end{verbatim}
+
+
+
+
+\newpage
+\singlespacing 
+\end{document}

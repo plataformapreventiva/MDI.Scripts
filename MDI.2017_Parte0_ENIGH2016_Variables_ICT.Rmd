@@ -1,0 +1,4770 @@
+---
+output: 
+  pdf_document:
+    citation_package: natbib
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template:  ./svm-sources/svm-latex-ms.tex
+title: "Anexo 2.2. Creacion de variables ENIGH para ingreso corriente total"
+#thanks: "Agradecimientos..."
+author: 
+- name: "Juan Carlos Martinez-Ovando"
+- affiliation: ITAM
+abstract: "Se presenta y comenta el codigo para la creacion de las variables de analisis del modelo partir de los datos de la ENIGH 2016 para calcular el ingreso correinte total de los hogares, de acuerdo a la metodologia desarrollada por el CONEVAL."
+#keywords: "..."
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+#spacing: double
+#bibliography: C:/Users/jcmo/Dropbox/@BibTeX/ReferencesJCMO.bib
+#biblio-style: apsr
+endnote: yes
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Parte I: Creacion de Variables
+
+----------------
+
+### Preambulo
+
+Las bases de datos fueron obtenidas del INEGI (`www.inegi.org.mx`) en formato `*.dbf` de la liga:
+
+`http://www.beta.inegi.org.mx/proyectos/enchogares/regulares/enigh/nc/2016/`
+
+*Nota.- Los scripts de este documento fueron probabados en R version > 3.4.x. (Linux y Windows x64).*
+
+Los `scripts` de este documento hacen uso de las siguientes tablas:
+
+* Base hogares: `hogares.dbf`
+
+* Base poblacion: `poblacion.dbf`
+
+* Base de ingresos: `ingresos.dbf`
+
+* Base de concentrado: `concentradohogar.dbf`
+
+* Base laboral: `trabajos.dbf`
+
+* Base de viviendas: `viviendas.dbf`
+
+* Bases de gastos: `gastospersona.dbf` y `gastoshogar.dbf`
+
+Las rutas de las bases de datos correspondientes al proyecto `Modelo.Distribucion.Ingreso.2017` son:
+
+1. Bases originales: `./BasesDatos/ENIGH2016`
+
+2. Bases generadas: `./Bases4Analysis`
+
+### Paquetes de R
+
+Se cargan los paquetes necesarios de `R` de manera oculta. En el archivo `*.Rmd` se encuentra el script para la verificacion e instalacion de los paquetes.
+
+Fijamos, adicionalmente, la ruta de la carpeta donde los datos fuente del INEGI se localizan.
+
+```{r 00_prelim, include=FALSE}
+source("Sedesol.Code/load.R.packages.R")
+```
+
+=========================================================
+
+## Preparacion de los datos
+
+La preparacion de los datos sigue las especificaciones y reglas definidas por el CONEVAL (`www.coneval.org.mx`).
+
+------------------------------
+
+# Parte I - Indicadores de Privacion Social
+
+## Rezago Educativo
+
+En la poblacion objeto, como CONEVAL indica, `poblacion2`, no se incluye a huéspedes ni trabajadores domésticos.
+
+```{r 01_poblacion2}
+##rm(list=ls())
+# General - Poblacion1
+library("foreign")
+poblacion1 <- read.dbf("./BasesDatos/ENIGH2016/poblacion.dbf", as.is = TRUE)
+
+names(poblacion1) <- tolower(names(poblacion1))
+
+# Parentesco - Poblacion2
+poblacion2 <- as.numeric(poblacion1$parentesco)
+
+#Seleccion de parentezcos
+index <- ( (poblacion2>=400 & poblacion2<500) | 
+           (poblacion2>=700 & poblacion2 <800) )
+index <- (index==FALSE)
+
+# Poblacion seleccionada
+poblacion <- poblacion1[index,]
+dim(poblacion)
+#colnames(poblacion)
+```
+
+**Anio de nacimiento**
+
+```{r 02_anio_nacimiento}
+anio_med <- 2016
+
+attach(poblacion)
+
+poblacion$anac_e <- anio_med-edad
+hist(poblacion$anac_e)
+```
+
+## Inasistencia escolar 
+`inas_esc`
+
+Se reporta para personas de 3 anios o mas.
+
+```{r 03_inasistencia_escolar}
+poblacion$inas_esc <- NA
+
+attach(poblacion)
+poblacion$inas_esc <- recode(asis_esc, "1=0; 2=1; else=NA")
+table(poblacion$inas_esc)
+```
+
+## Nivel educativo 
+`niv_ed`
+
+```{r 04_nivel_educativo}
+poblacion$nivelaprob <- as.numeric(nivelaprob)
+
+poblacion$gradoaprob <- as.numeric(gradoaprob)
+
+poblacion$antec_esc <- as.numeric(antec_esc) 
+
+#detach(poblacion)
+
+poblacion$niv_ed <- NA
+```
+
+a. Con primaria incompleta o menos 
+
+```{r 05_nivel_educativo_prim_incompleta}
+poblacion$niv_ed[(nivelaprob < 2) | 
+                 (nivelaprob == 2 & gradoaprob < 6)] <- 0 
+```
+
+b. Primaria completa o secundaria incompleta
+
+```{r 06_nivel_educativo_prim_completa}
+poblacion$niv_ed[(nivelaprob == 2 & gradoaprob == 6) | 
+                 (nivelaprob == 3 & gradoaprob < 3) |
+                 (nivelaprob == 5 | nivelaprob == 6) & 
+                 gradoaprob < 3 & antec_esc == 1] <- 1
+
+poblacion$niv_ed[((nivelaprob == 3 & gradoaprob == 3) | 
+                  (nivelaprob == 4) | 
+                  (nivelaprob == 5 & antec_esc == 1 & gradoaprob >= 3) |  
+                  (nivelaprob == 6 & antec_esc == 1 & gradoaprob >= 3) |
+                  (nivelaprob == 5 & antec_esc >= 2) | 
+                  (nivelaprob == 6 & antec_esc >= 2) | 
+                  (nivelaprob >= 7))] <- 2 
+
+attach(poblacion)
+```
+
+c. Secundaria completa o mayor nivel educativo
+
+Distribucion de la poblacion por los niveles de primaria y secundaria completa e incompleta.
+
+```{r 07_secudnaria_completa}
+#detach(poblacion)
+
+table(poblacion$niv_ed)
+```
+
+## Carencia por rezago educativo 
+`ic_rezedu`
+
+En el "Indicador de carencia por rezago educativo" se considera en situacion de carencia por rezago educativo a la poblacion que cumpla con alguno de los siguientes criterios:
+
+* Se encuentra entre los 3 y los 11 anios y no ha terminado la educacion obligatoria (secundaria terminada) o no asiste a la escuela.
+
+* Tiene una edad de 12 anios o mas, su anio de nacimiento aproximado es 1981 o anterior, y no dispone de primaria completa.
+
+* Tiene una edad de 12 anios o mas, su anio de nacimiento aproximado es 1982 en adelante, y no dispone de primaria secundaria completa.
+
+```{r 08_carencia_rezago_educativo}
+#attach(poblacion)
+
+poblacion$ic_rezedu <- NA
+
+poblacion$ic_rezedu[ (edad >= 3 & edad <= 11) & 
+                     inas_esc == 1 & 
+                     (niv_ed == 0 | niv_ed == 1)] <- 1
+
+poblacion$ic_rezedu[ (edad >= 12) & 
+                     (anac_e >= 1982) & 
+                     (niv_ed == 0 | niv_ed==1)] <- 1
+
+poblacion$ic_rezedu[ (edad >= 12) & 
+                     (anac_e <= 1981) & 
+                     (niv_ed == 0)] <- 1
+
+poblacion$ic_rezedu[ (edad >= 0 & edad <= 2)] <- 0
+
+poblacion$ic_rezedu[ (edad >= 3 & edad <= 11) & 
+                     inas_esc == 0] <- 0
+
+poblacion$ic_rezedu[ (edad >= 3 & edad <= 11) & 
+                     inas_esc == 1 & 
+                     (niv_ed == 2)] <- 0
+
+poblacion$ic_rezedu[ (edad >= 12) & 
+                     (anac_e >= 1982) & 
+                     (niv_ed == 2)] <- 0
+
+poblacion$ic_rezedu[ (edad >= 12) & 
+                     (anac_e <= 1981) & 
+                     (niv_ed == 1 | niv_ed == 2)] <- 0
+
+attach(poblacion)
+
+table(poblacion$ic_rezedu)
+```
+
+## Poblacion lengua indigena 
+`hli`
+
+Se calcula la bandera para los habitantes del hogar que hablan alguna lengua indigena. 
+Indica si algun miembro del hogar habla alguna lengua indigena
+
+```{r 09_lengua_indigena}
+poblacion$hablaind <- as.numeric(hablaind)
+
+poblacion$hli <- NA
+
+poblacion$hli[ (edad >= 3 & hablaind == 1) ] <- 1
+
+poblacion$hli[ (edad >= 3 & hablaind == 2) ] <- 0
+
+attach(poblacion)
+
+table(poblacion$hli)
+```
+
+## Distribucion de la composicion de la poblacion indigena en la muestra
+
+```{r 10_composicion_pob_indigena}
+library("doBy")
+table(poblacion$hli)
+
+table(poblacion$ic_rezedu)
+
+poblacion <- poblacion[,c("folioviv", "foliohog", "numren", 
+                          "edad", "anac_e", "inas_esc", 
+                          "antec_esc", "niv_ed", 
+                          "ic_rezedu", "hli")]
+
+poblacion <- orderBy(~+folioviv+foliohog+numren, data=poblacion)
+dim(poblacion)
+
+attach(poblacion)
+
+write.csv( poblacion, './Bases4Analysis/2016_ic_rezeducacion.csv',row.names = FALSE)
+write.dbf( poblacion, './Bases4Analysis/2016_ic_rezeducacion.dbf')
+
+#detach(poblacion)
+```
+
+------------------------------------------------------------------------
+
+# Parte II -Indicadores de Privacion Social
+
+## Carencia por acceso a servicios de salud
+
+
+```{r 11_privacion_social}
+#rm(list=ls())
+trabajos <- read.dbf("./BasesDatos/ENIGH2016/trabajos.dbf", as.is = TRUE)
+attach(trabajos)
+dim(trabajos)
+```
+
+## Tipo de trabajo 
+`tipo_trab`
+
+El **tipo de trabajador** identifica la poblacion subordinada e independiente
+
+a. `tipo_trab=1` **Subordinados**
+
+```{r 12_tipo_trabajo_1}
+trabajos$tipo_trab <- NA
+
+trabajos$tipo_trab[subor == 1] <- 1
+```
+
+b. `tipo_trab=2` **Independientes que reciben un pago**
+
+```{r 13_tipo_trabajo_2}
+trabajos$tipo_trab[ subor == 2 & 
+                    indep == 1 & 
+                    tiene_suel == 1] <- 2
+
+trabajos$tipo_trab[ subor == 2 & 
+                    indep == 2 & 
+                    pago == 1] <- 2
+```
+
+c. `tipo_trab=3` **Independientes que no reciben un pago**
+
+```{r 14_tipo_trabajo_3}
+trabajos$tipo_trab[ subor == 2 & 
+                    indep == 1 & 
+                    tiene_suel == 2] <- 3
+
+trabajos$tipo_trab[ subor == 2 & 
+                    indep == 2 & 
+                    (pago == 2 | pago == 3)] <- 3
+
+attach(trabajos)
+
+table(trabajos$tipo_trab)
+dim(trabajos)
+```
+
+## Tipo de ocupacion 
+`ocupa`
+
+a. Ocupacion principal o secundario
+
+```{r 15_tipo_ocupacion}
+trabajos$ocupa <- NA
+
+trabajos$ocupa[ id_trabajo == 1 ] <- 1
+
+trabajos$ocupa[ id_trabajo == 2 ] <- 0
+
+attach(trabajos)
+
+table(trabajos$ocupa)
+dim(trabajos)
+```
+
+## Prestaciones en trabajo principal y secundario 
+`ocupa2`
+
+Distincion de prestaciones en trabajo principal y secundario.
+
+```{r 16_prestaciones_laborales}
+trabajos <- trabajos[, c( "folioviv", "foliohog", "numren", 
+                         "id_trabajo", "tipo_trab", "ocupa")]
+
+trabajos2 <- reshape( trabajos, 
+                      idvar = c("folioviv", "foliohog", "numren"), 
+                      timevar = "id_trabajo", direction = "wide" )
+
+#detach(trabajos)
+attach(trabajos2)
+
+trabajos2$ocupa2 <- NA
+
+trabajos2$ocupa2[ is.na(ocupa.2) == TRUE ] <- 0
+
+trabajos2$ocupa2[ ocupa.2 == 0 ] <- 1
+#detach(trabajos2)
+
+names(trabajos2)[4:6] <- c("tipo_trab1","ocupa1","tipo_trab2" )
+#attach(trabajos2)
+```
+
+## Base trabajadora 
+`trab`
+
+Identificacion de la poblacion trabajadora (toda la que reporta al menos un empleo en la base de `trabajos.dbf`).
+
+```{r 17_base_trabajadora}
+trabajos2$trab <- 1
+
+table(trabajos2$trab)
+
+trabajos2 <- trabajos2[, c("folioviv", "foliohog", "numren", 
+                           "tipo_trab1", "ocupa1", "tipo_trab2", 
+                           "ocupa2", "trab") ]
+
+attach(trabajos2)
+
+trabajos2 <- orderBy(~+folioviv+foliohog+numren, data=trabajos2)
+dim(trabajos2)
+
+write.csv(trabajos2,'./Bases4Analysis/2016_basetrabajadora.csv', row.names = FALSE)
+write.dbf(trabajos2,'./Bases4Analysis/2016_basetrabajadora.dbf')
+```
+
+_Integracion de la bases_
+
+```{r 18_integracion_poblacion_basetrabajadora}
+poblacion1 <- read.dbf("./BasesDatos/ENIGH2016/poblacion.dbf", as.is = TRUE)
+names(poblacion1) <-  tolower(names(poblacion1))
+dim(poblacion1)
+```
+
+Siguiendo los lineamientos, la **poblacion objetivo** no incluye huespedes ni trabajadores domesticos, 
+como antes shan sido filtrados esos casos.
+
+```{r 19_poblacion_objetivo}
+poblacion2 <- as.numeric( poblacion1$parentesco )
+
+index <- ( (poblacion2 >= 400 & poblacion2 < 500) | 
+           (poblacion2 >= 700 & poblacion2 < 800) )
+
+index <- ( index == FALSE )
+
+poblacion <- poblacion1[index,]
+
+poblacion <- orderBy(~+folioviv+foliohog+numren, data=poblacion)
+dim(poblacion)
+
+ocupados <- read.dbf('./Bases4Analysis/2016_basetrabajadora.dbf', as.is = TRUE)
+dim(ocupados)
+
+poblacion <- merge(poblacion, ocupados,
+                   by.x=c("folioviv", "foliohog", "numren"), 
+                   all.x = TRUE)
+
+attach(poblacion)
+
+rm(ocupados)
+#colnames(poblacion)
+dim(poblacion)
+```
+
+## PEA (mas de 12 anios)) 
+`pea`
+
+En este rubro, modificamos la definicion de PEA para agrupar a los **integrantes del hogar mayores a lso  12 anios**, y no solo a los integrantes de 16 anios o mas, como la definicion de PEA especifica para SEDESOL.
+
+```{r 20_pea}
+poblacion$pea <- NA
+
+poblacion$pea[ (trab == 1 & (edad >= 12 & is.na(edad) == FALSE) ) ] <- 1
+
+poblacion$pea[ ( (act_pnea1 == "1" | act_pnea2 == "1") & 
+                 (edad >= 12 & is.na(edad) == FALSE) ) ] <- 2
+
+poblacion$pea[ (edad >= 12 & is.na(edad) == FALSE) & 
+               (act_pnea1 == "2" | act_pnea1 == "3" | act_pnea1 == "4" | 
+                act_pnea1 == "5" | act_pnea1 == "6") &
+               is.na(poblacion$pea) == TRUE] <- 0
+
+poblacion$pea[ (edad >= 12 & is.na(edad) == FALSE) & 
+               (act_pnea2 == "2" | act_pnea2 == "3" | act_pnea2 == "4" |
+                act_pnea2 == "5" | act_pnea2 == "6") & 
+               is.na(poblacion$pea) == TRUE] <- 0
+
+attach(poblacion)
+table(poblacion$pea)
+dim(poblacion)
+```
+
+## Tipo de trabajo 1 
+`tipo_trab1`
+
+a. Ocupacion principal
+
+```{r 21_tipo_trabajo}
+poblacion$tipo_trab1[ pea == 1 & is.na(tipo_trab1) == FALSE & 
+                      is.na(pea) == FALSE ] <- 
+  poblacion$tipo_trab1[ pea == 1 & is.na(tipo_trab1) == FALSE &
+                        is.na(pea) == FALSE]
+
+poblacion$tipo_trab1[ ( pea == 0 | pea == 2 ) ] <- NA
+
+poblacion$tipo_trab1[ is.na(pea) == TRUE] <- NA
+```
+
+b. Ocupacion secundaria
+
+```{r 22_ocupacion_secundaria}
+poblacion$tipo_trab2[ pea == 1 & 
+                      is.na(tipo_trab2) == FALSE & 
+                      is.na(pea) == FALSE ] <- 
+poblacion$tipo_trab2[ pea == 1 & 
+                        is.na(tipo_trab2) == FALSE & 
+                        is.na(pea) == FALSE ]
+
+poblacion$tipo_trab2[ ( pea == 0 | pea == 2) ] <- NA
+
+poblacion$tipo_trab2[ is.na(pea) == TRUE ] <- NA
+
+attach(poblacion)
+```
+
+## Prestaciones basicas 
+
+### Servicios medicos laborales 
+
+`smlab1` y `smlab2`
+
+Prestaciones laborales (servicios medicos)
+
+a. Ocupacion principal
+
+```{r 23_prestacionlabora_ocuprinc}
+poblacion$smlab1 <- NA
+
+poblacion$smlab1[ ocupa1 == 1 & atemed==1 & 
+                  ( inst_1 == 1 | inst_2 == 2 | 
+                    inst_3 == 3 | inst_4 == 4 ) & 
+                  ( inscr_1 == 1) ] <- 1
+
+poblacion$smlab1[ ocupa1 == 1 & 
+                  is.na(poblacion$smlab1) == TRUE] <-0
+```
+
+b. Ocupacion secundaria
+
+```{r 24_prestacionlabora_ocusecund}
+poblacion$smlab2 <- NA
+
+poblacion$smlab2[ ocupa2 == 1 & atemed == 1 & 
+                  ( inst_1 == 1 | inst_2 == 2 | 
+                    inst_3 == 3 | inst_4 == 4) & 
+                  ( inscr_1 == 1) ] <- 1
+
+poblacion$smlab2[ ocupa2 == 1 & is.na(poblacion$smlab2) == TRUE] <- 0
+
+attach(poblacion)
+table(poblacion[, c("smlab1","smlab2")])
+dim(poblacion)
+```
+
+### Servicios Médicos Voluntarios 
+`smcv`
+
+Contratacion voluntaria de servicios medicos. 
+
+a. Servicios medicos
+
+```{r 25_prestacionlabora_volun_servmed}
+poblacion$smcv <- NA
+
+poblacion$smcv[ atemed == 1 & ( inst_1 == 1 | inst_2 == 2 | 
+                                inst_3 == 3 | inst_4 == 4) & 
+                ( inscr_6 == 6 ) & 
+                ( edad >= 12 & edad <= 97 ) ] <- 1
+
+poblacion$smcv[ ( edad >= 12 & edad <= 97 ) & 
+                is.na(poblacion$smcv) == TRUE ] <- 0
+
+attach(poblacion)
+table(poblacion$smcv)
+dim(poblacion)
+```
+
+## Servicios de salud 
+`sa_dir` *
+
+Acceso directo a servicios de salud (compuestos por prestacion laboral y contratacion voluntaria).
+
+a. Ocupacion principal
+
+```{r 26_serviciossalud_ocuprinc}
+poblacion$sa_dir <- NA
+
+names(poblacion)
+
+poblacion$sa_dir[ tipo_trab1 == 1 & smlab1 == 1 ] <- 1
+
+poblacion$sa_dir[ tipo_trab1 == 2 & (smlab1 == 1 | smcv == 1)] <- 1
+
+poblacion$sa_dir[ tipo_trab1 == 3 & (smlab1 == 1 | smcv == 1)] <- 1
+
+attach(poblacion)
+table(poblacion$sa_dir)
+dim(poblacion)
+```
+
+b. Ocupacion secundaria
+
+```{r 27_serviciossalud_ocusecund}
+poblacion$sa_dir[ tipo_trab2 == 1 & smlab2 == 1] <- 1
+
+poblacion$sa_dir[ tipo_trab2 == 2 & (smlab2 == 1 | smcv == 1) ] <- 1
+
+poblacion$sa_dir[ tipo_trab2 == 3 & (smlab2 == 1 | smcv == 1) ] <- 1
+
+attach(poblacion)
+table(poblacion$sa_dir)
+dim(poblacion)
+```
+
+### Nucleos familiares 
+`par`
+
+Parentescos dentro del nucleo familiar.
+
+```{r 28_nucleos_familiares}
+parent <- as.numeric(poblacion$parentesco)
+
+poblacion$par <- 6
+
+poblacion$par[ ( parent >= 100 & parent < 200) ] <- 1
+
+poblacion$par[ ( parent >= 200 & parent < 300) ] <- 2
+
+poblacion$par[ (parent >= 300 & parent < 400) ] <- 3
+
+poblacion$par[ parent == 601 ] <- 4
+
+poblacion$par[ parent == 615] <- 5
+
+attach(poblacion)
+table(poblacion$par)
+dim(poblacion)
+```
+
+#### Inasistencia escolar 
+`inas_esc`
+
+Se utiliza la informacion relativa a la asistencia a la escuela.
+
+```{r 29_nucleos_failiares_asistenciaescolar}
+poblacion$inas_esc <- NA
+
+poblacion$inas_esc[ asis_esc == 1 ] <- 0
+
+poblacion$inas_esc[ asis_esc == 2 ] <- 1
+
+attach(poblacion)
+table(poblacion$inas_esc)
+dim(poblacion)
+```
+
+#### Jefe del hogar 
+`jef`
+
+Parentescos respecto a la identificacion del jefe del hogar.
+
+```{r 30_jefe}
+poblacion$jef <- 0
+
+poblacion$jef[ par == 1 & sa_dir == 1 ] <- 1
+
+poblacion$jef[ par == 1 & sa_dir == 1 & ( 
+               ( (inst_2 == "2" | inst_3 == "3" ) & inscr_6 == "6" ) & 
+                 (is.na(inst_1) == TRUE & is.na(inst_4) == TRUE & 
+                    is.na(inst_6) == TRUE ) & 
+                 (is.na(inscr_1) == TRUE & is.na(inscr_2) == TRUE & 
+                    is.na(inscr_3) == TRUE & is.na(inscr_4) == TRUE & 
+                    is.na(inscr_5) == TRUE & is.na(inscr_7) == TRUE) ) ] <- NA
+
+attach(poblacion)
+table(poblacion$jef)
+dim(poblacion)
+```
+
+#### Conyuge del jefe del hogar 
+`cony`
+
+```{r 31_conyuge}
+poblacion$cony <- 0
+
+poblacion$cony[ par == 2 & sa_dir == 1 ] <- 1
+
+poblacion$cony[ par == 2 & sa_dir == 1 & 
+                  ( ( (inst_2 == "2" | inst_3 == "3") & inscr_6 == "6") & 
+                      (is.na(inst_1) == TRUE & is.na(inst_4) == TRUE & 
+                         is.na(inst_6) == TRUE) & 
+                      (is.na(inscr_1) == TRUE & is.na(inscr_2) == TRUE & 
+                         is.na(inscr_3) == TRUE & is.na(inscr_4) == TRUE & 
+                         is.na(inscr_5) == TRUE & is.na(inscr_7) == TRUE) ) 
+                ] <- NA
+
+attach(poblacion)
+table(poblacion$cony)
+dim(poblacion)
+```
+
+#### Hijo de la jefatura del hogar 
+`hijo`
+
+```{r 32_hijo}
+poblacion$hijo <- 0
+
+poblacion$hijo[ par == 3 & sa_dir == 1 ] <- 1
+
+poblacion$hijo[ par == 3 & sa_dir == 1 & 
+                  ( ( (inst_2 == "2" | inst_3 == "3") & inscr_6 == "6" ) & 
+                    ( is.na(inst_1) == TRUE & is.na(inst_4) == TRUE & 
+                        is.na(inst_6) == TRUE ) & 
+                    ( is.na(inscr_1) == TRUE & is.na(inscr_2) == TRUE & 
+                        is.na(inscr_3) == TRUE & is.na(inscr_4) == TRUE & 
+                        is.na(inscr_5) == TRUE & is.na(inscr_7) == TRUE) ) 
+                ] <- NA
+
+attach(poblacion)
+table(poblacion$hijo)
+dim(poblacion)
+```
+
+**Agregacion de tablas de poblacion**
+
+```{r 33_agregacion}
+attach(poblacion)
+poblacion4 <- aggregate( x = list(jef, cony, hijo), 
+                         by = list(folioviv, foliohog),  
+                         FUN=sum, 
+                         na.rm=FALSE )
+
+names(poblacion4)[1:5] <- c("folioviv", "foliohog",
+                            "jef_1", "cony_1", "hijo_1" )
+
+poblacion <- merge(poblacion, poblacion4,
+                   by.x=c( "folioviv", "foliohog"), 
+                   all.x = TRUE)
+
+attach(poblacion)
+dim(poblacion)
+rm(poblacion4)
+```
+
+#### Servicios de salud jefe del hogar 
+`jef_sa`
+
+Acceso directo a los servicios de salud de la jefatura del hogar
+
+```{r 34_serviciossalud_jefehogar}
+poblacion$jef_sa <- poblacion$jef_1
+
+attach(poblacion)
+table(poblacion$jef_sa)
+dim(poblacion)
+```
+
+#### Servicios de salud conyuge 
+`cony_sa`
+
+Acceso directo a los servicios de salud de conyuge de la jefatura del hogar.
+
+```{r 35_serviciossalud_conyuge}
+poblacion$cony_sa <- 0
+
+poblacion$cony_sa[ (poblacion$cony_1 >= 1 & 
+                      is.na(poblacion$cony_1) == FALSE) ] <- 1
+
+attach(poblacion)
+table(poblacion$cony_sa)
+table(poblacion[,c("jef_sa","cony_sa")])
+dim(poblacion)
+```
+
+#### Servicios salud hijos 
+`hijo_sa`
+
+Acceso directo a los servicios de salud de hijos(as) de la jefatura del hogar.
+
+```{r 36_serviciossalud_hijos}
+poblacion$hijo_sa <- 0
+
+poblacion$hijo_sa[(poblacion$hijo_1 >= 1 & 
+                     is.na(poblacion$hijo_1) == FALSE) ] <- 1
+
+attach(poblacion)
+table(poblacion$hijo_sa)
+table(poblacion[,c("jef_sa","cony_sa","hijo_sa")])
+dim(poblacion)
+```
+
+**Otros nucleos familiares**
+
+Excluidos del calculo.
+
+### Servicios de salud 
+`s_salud`
+
+Aqui se identifica a la poblacion con acceso a los servicios de salud mediante otros nucleos familiares a traves de la afiliacion o inscripcion a servicios de salud por algun familiar dentro o fuera del hogar, muerte del asegurado o por contratacion propia
+
+```{r 37_salud otros_nucleosfaniliares}
+attach(poblacion)
+poblacion$s_salud <- NA
+
+poblacion$s_salud[ atemed==1 & 
+                     (inst_1==1 | inst_2==2 | inst_3==3 | inst_4==4) & 
+                     (inscr_3==3 | inscr_4==4 | inscr_6==6 | inscr_7==7) ] <- 1
+
+poblacion$s_salud[ is.na(segpop) == FALSE & 
+                   is.na(atemed) == FALSE & 
+                   is.na(poblacion$s_salud) == TRUE ] <- 0
+
+attach(poblacion)
+table(poblacion$s_salud)
+dim(poblacion)
+```
+
+## Carencia servicios de salud 
+`ic_salud`
+
+Indicador de carencia por acceso a los servicios de salud. Se considera en situacion de carencia por acceso a servicios de salud a la poblacion que:
+
+* No se encuentra afiliada o inscrita al Seguro Popular o alguna institucion que proporcione servicios médicos, ya sea por prestacion laboral, contratacion voluntaria o afiliacion de un familiar por parentesco directo 
+
+```{r 38_carencia_serviciossalud}
+poblacion$ic_asalud <- 1
+```
+
+a. Acceso directo
+
+```{r 39_carencia_serviciossalud_directo}
+poblacion$ic_asalud[ sa_dir == 1 ] <- 0
+```
+
+b. Parentesco directo: jefatura
+
+```{r 40_carencia_serviciossaluds_jefatura}
+poblacion$ic_asalud[ par == 1 & cony_sa == 1 ] <- 0
+
+poblacion$ic_asalud[ par == 1 & pea == 0 & hijo_sa == 1 ] <- 0
+```
+
+c. Parentesco directo: conyuge
+
+```{r 41_carencia_serviciossalud_conjuge}
+poblacion$ic_asalud[ par == 2 & jef_sa == 1 ] <- 0
+
+poblacion$ic_asalud[ par == 2 & pea == 0 & hijo_sa == 1] <- 0
+```
+
+d. Parentesco directo: descendientes
+
+```{r 42_carencia_serviciossalud_descendientes}
+poblacion$ic_asalud[ par == 3 & edad < 16 & jef_sa == 1 ] <- 0
+
+poblacion$ic_asalud[ par == 3 & edad < 16 & cony_sa == 1 ] <- 0      
+
+poblacion$ic_asalud[ par == 3 & 
+                       (edad >= 16 & edad <= 25) & 
+                     inas_esc == 0 & 
+                     jef_sa == 1 ] <- 0
+
+poblacion$ic_asalud[ par == 3 & 
+                       (edad >= 16 & edad <= 25) & 
+                     inas_esc == 0 & 
+                     cony_sa == 1 ] <- 0
+```
+
+e. Parentesco directo: ascendientes
+
+```{r 43_carencia_serviciossalud_ascendientes}
+poblacion$ic_asalud[ par == 4 & pea == 0 & jef_sa == 1 ] <- 0
+
+poblacion$ic_asalud[ par == 5 & pea == 0 & cony_sa == 1 ] <- 0
+```
+
+f. Otros núcleos familiares
+
+```{r 44_carencia_serviciossaluotrosfamilires}
+poblacion$ic_asalud[ s_salud == 1 ] <- 0
+```
+
+**Acceso reportado**
+
+```{r 45_carencia_serviciossalud_reportado}
+poblacion$ic_asalud[ segpop == 1 | 
+                       (segpop == 2 & atemed == 1 &
+                          (inst_1 == "1" | inst_2 == "2" | inst_3 == "3"  |
+                           inst_4 == "4" | inst_5 == "5" | inst_6 == "6"  ) ) | 
+                       segvol_2 == "2" ] <- 0
+
+attach(poblacion)
+table(poblacion$ic_asalud)
+dim(poblacion)
+
+write.csv(poblacion,"./Bases4Analysis/2016_poblacion.csv", 
+          row.names = FALSE)
+
+write.dbf(poblacion,"./Bases4Analysis/2016_poblacion.dbf")
+```
+
+
+## Discapacidad 
+`discap`
+
+a. Poblacion con al menos alguna discapacidad, sea f??sica o mental
+
+```{r 46_discapacidad1}
+poblacion$discap <- 0
+
+poblacion$discap[ (disc1 >= 1 & disc1 <= 7) ] <- 1
+
+poblacion$discap[ (disc2 >= 2 & disc2 <= 7) ] <- 1
+
+poblacion$discap[ (disc3 >= 3 & disc3 <= 7) ] <- 1
+
+poblacion$discap[ (disc4 >= 4 & disc4 <= 7) ] <- 1
+
+poblacion$discap[ (disc5 >= 5 & disc5 <= 7) ] <- 1
+
+poblacion$discap[ (disc6 >= 6 & disc6 <= 7) ] <- 1
+
+poblacion$discap[ (disc7 == 7) ] <- 1
+
+poblacion$discap[ (disc1 == 8 | disc1 == "&" | is.na(disc1) == TRUE) ] <- 0
+
+attach(poblacion)
+table(poblacion[,c("ic_asalud","discap")])
+
+poblacion <- poblacion[, c("folioviv", "foliohog", "numren", 
+                        "sexo", "discap", "ic_asalud")]
+
+poblacion <- orderBy(~+folioviv+foliohog+numren, data=poblacion)
+
+attach(poblacion)
+
+write.csv(poblacion,"./Bases4Analysis/2016_ic_salud.csv", 
+          row.names = FALSE)
+
+write.dbf(poblacion,"./Bases4Analysis/2016_ic_salud.dbf")
+```
+
+
+------------------------------------------------------------------------
+
+# Parte III - Indicadores de Privacion Social
+
+
+## Carencia a la seguridad social 
+
+Indicador de Carencia por Acceso a la Seguridad Social
+
+```{r 47_privacion_social2}
+#rm(list=ls())
+trabajos <- read.dbf("./BasesDatos/ENIGH2016/trabajos.dbf", as.is = TRUE)
+
+attach(trabajos)
+```
+
+### Tipo de trabajador
+
+Identifica la poblacion subordinada e independiente
+
+a. Subordinados
+
+```{r 48_tipotrabajador_subordinados}
+trabajos$tipo_trab <- NA
+
+trabajos$tipo_trab[ subor == 1 ] <- 1
+```
+
+b. Independientes que reciben un pago
+
+```{r 49_tipotrabajadro_indepago}
+trabajos$tipo_trab[ subor == 2 & indep == 1 & tiene_suel == 1] <- 2
+
+trabajos$tipo_trab[ subor ==2 & indep == 2 & pago == 1 ] <- 2
+```
+
+c. Independientes que no reciben un pago
+
+```{r 50_tipotrabajador_idenopago}
+trabajos$tipo_trab[ subor == 2 & indep == 1 & tiene_suel == 2 ] <-3
+
+trabajos$tipo_trab[ subor == 2 & indep==2 & ( pago == 2| pago == 3) ] <- 3
+
+table(trabajos$tipo_trab)
+```
+
+### Prestaciones laborales 
+`inclab`
+
+Esto cubre incapacidad en caso de enfermedad o maternidad con goce de sueldo y SAR o Afore
+
+```{r 51_prestacioneslaborales}
+trabajos$inclab <- NA
+
+trabajos$inclab[ is.na(pres_7) == TRUE ] <- 0
+
+trabajos$inclab[ pres_7 == "07" ] <- 1
+
+trabajos$aforlab <- NA
+
+trabajos$aforlab[ is.na(pres_14) == TRUE ] <-0
+
+trabajos$aforlab[ pres_14 == "14" ] <-1
+
+attach(trabajos)
+table(trabajos[,c("inclab","aforlab")])
+```
+
+a. Ocupacion principal o secundaria
+
+```{r 52_ocupacion_principal}
+trabajos$ocupa <- NA
+
+trabajos$ocupa[ id_trabajo == 1 ] <- 1
+
+trabajos$ocupa[ id_trabajo == 2 ] <-0
+```
+
+**Distincion de prestaciones** en trabajo principal y secundario
+
+```{r 53_prestacionsecundario}
+names(trabajos)
+
+trabajos <- trabajos[, c("folioviv", "foliohog", "numren", 
+                         "id_trabajo", "tipo_trab", "inclab", 
+                         "aforlab", "ocupa")]
+
+trabajos2 <- reshape( trabajos, 
+                      idvar = c("folioviv", "foliohog", "numren"), 
+                      timevar = "id_trabajo", 
+                      direction = "wide" )
+
+#detach(trabajos)
+
+#attach(trabajos2)
+
+trabajos2$ocupa2 <- NA
+
+trabajos2$ocupa2[ is.na(ocupa.2) == TRUE ] <- 0
+
+trabajos2$ocupa2[ ocupa.2 == 0 ] <- 1
+
+#detach(trabajos2)
+
+names(trabajos2)[4:10] <- c("tipo_trab1", "inclab1", "aforlab1", 
+                            "ocupa1", "tipo_trab2", "inclab2", "aforlab2")
+
+```
+
+Se eliminan las variales: `inclab1`, `aforlab1`
+
+```{r 54_inclab1_inclab2}
+trabajos2 <- trabajos2[,-(5:6)] 
+```
+
+### Poblacion Trabajadora
+
+Identificacion de la poblacion trabajadora (toda la que reporta al menos un empleo en la base de trabajos)
+
+```{r 55_poblacion_trabajadora}
+trabajos2$trab=1
+table(trabajos2$trab)
+
+trabajos2=trabajos2[, c("folioviv", "foliohog", "numren", 
+                        "tipo_trab1", "ocupa1", "tipo_trab2", 
+                        "inclab2", "aforlab2", "ocupa2", "trab" )]
+
+trabajos2 <- orderBy(~+folioviv+foliohog+numren, data=trabajos2)
+write.csv(trabajos2, './Bases4Analysis/2016_prestaciones_laborales.csv', 
+          row.names = FALSE)
+write.dbf(trabajos2, './Bases4Analysis/2016_prestaciones_laborales.dbf')
+```
+
+### Ingresos por jubilaciones o pensiones 
+`` 
+
+```{r 56_ingresos_pension}
+ingresos <- read.dbf("./BasesDatos/ENIGH2016/ingresos.dbf", as.is = TRUE)
+
+names(ingresos) <-  tolower(names(ingresos))
+
+attach(ingresos)
+index <- (clave=="P032" | clave=="P033" | clave=="P044" | clave=="P045")
+index <- (index==TRUE)
+ingresos <- ingresos[index,]
+#detach(ingresos)
+
+attach(ingresos)
+ingresos$ing_pens[(clave=="P032" | clave=="P033")] <- 
+  rowMeans(data.frame(ing_1[(clave=="P032" | clave=="P033")], 
+                      ing_2[(clave=="P032" | clave=="P033")], 
+                      ing_3[(clave=="P032" |clave=="P033")], 
+                      ing_4[(clave=="P032" | clave=="P033")], 
+                      ing_5[(clave=="P032" | clave=="P033")], 
+                      ing_6[(clave=="P032" | clave=="P033")]), 
+           na.rm = TRUE)
+
+ingresos$ing_pam[(clave=="P044" | clave=="P045")] <-
+  rowMeans(data.frame(ing_1[(clave=="P044" | clave=="P045")], 
+                      ing_2[(clave=="P044" | clave=="P045")],
+                      ing_3[(clave=="P044" | clave=="P045")], 
+                      ing_4[(clave=="P044" | clave=="P045")], 
+                      ing_5[(clave=="P044" | clave=="P045")], 
+                      ing_6[(clave=="P044" | clave=="P045")]), 
+           na.rm = TRUE)
+
+ingresos$ing_pens[is.na(ingresos$ing_pens)==TRUE] <- 0
+ingresos$ing_pam[is.na(ingresos$ing_pam)==TRUE] <- 0
+#detach(ingresos)
+
+ingresos <- ingresos[, c("folioviv", "foliohog", "numren", 
+                         "ing_pens", "ing_pam")]
+
+attach(ingresos)
+ingresos2 <- aggregate(x=list(ing_pens, ing_pam), 
+                       by=list(folioviv, foliohog, numren),  
+                       FUN=sum, na.rm=FALSE)
+
+names(ingresos2 )[1:5] <- c("folioviv", "foliohog", "numren",
+                            "ing_pens", "ing_pam")
+
+hist(ingresos2$ing_pens,50)
+
+hist(ingresos2$ing_pam,50)
+
+ingresos2 <- orderBy(~+folioviv+foliohog+numren, data=ingresos2)
+
+write.csv(ingresos2, './Bases4Analysis/2016_ingresos_pensiones.csv', 
+          row.names = FALSE)
+write.dbf(ingresos2, './Bases4Analysis/2016_ingresos_pensiones.dbf')
+```
+
+**Construccion del indicador**
+
+```{r 57_poblacion1_2}
+poblacion1 <- read.dbf("./BasesDatos/ENIGH2016/poblacion.dbf", as.is = TRUE)
+
+names(poblacion1) <- tolower(names(poblacion1))
+attach(poblacion1)
+```
+
+**Poblacion objetivo**
+
+No se incluye a huespedes ni trabajadores domesticos
+
+```{r 58_poblacion1_objetivo3}
+poblacion2 <- as.numeric(poblacion1$parentesco)
+index <- ((poblacion2>=400 & poblacion2<500) | 
+            (poblacion2>=700 & poblacion2 <800))
+
+index <- (index==FALSE)
+
+poblacion <- poblacion1[index,]
+
+poblacion <- orderBy(~+folioviv+foliohog+numren, data=poblacion)
+
+attach(poblacion)
+
+prestaciones <- read.dbf("./Bases4Analysis/2016_prestaciones_laborales.dbf",
+                         as.is = TRUE)
+
+poblacion <- merge(poblacion, prestaciones,
+                   by.x=c("folioviv", "foliohog", "numren"), 
+                   all.x = TRUE)
+rm(prestaciones)
+poblacion <- orderBy(~+folioviv+foliohog+numren, data=poblacion)
+pensiones <- read.dbf('./Bases4Analysis/2016_ingresos_pensiones.dbf',as.is = TRUE)
+
+poblacion <- merge(poblacion, 
+                   pensiones,
+                   by.x=c("folioviv", "foliohog", "numren"),
+                   all.x = TRUE)
+attach(poblacion)
+rm(pensiones)
+```
+
+### PEA (personas de 12 anios o mas) 
+
+`pea` ***
+
+Modificacion de la definicion de PEA para SEDESOL.
+
+```{r 59_pea_peasplus}
+attach(poblacion)
+
+# Mas de 12 anios
+poblacion$pea <- NA
+poblacion$pea[(trab==1 & (edad>=12 & is.na(edad)==FALSE))] <- 1
+poblacion$pea[((act_pnea1=="1" | act_pnea2=="1") & 
+                 (edad>=12 & is.na(edad)==FALSE))] <- 2
+poblacion$pea[(edad>=12 & is.na(edad)==FALSE) & 
+                (act_pnea1=="2" | 
+                   act_pnea1=="3" | 
+                   act_pnea1=="4" | 
+                   act_pnea1=="5" | 
+                   act_pnea1=="6") & 
+                is.na(poblacion$pea)==TRUE] <- 0
+poblacion$pea[(edad>=12 & is.na(edad)==FALSE) & 
+                (act_pnea2=="2" | 
+                   act_pnea2=="3" | 
+                   act_pnea2=="4" | 
+                   act_pnea2=="5" | 
+                   act_pnea2=="6") & 
+                is.na(poblacion$pea)==TRUE] <- 0
+
+table(poblacion$pea)
+dim(poblacion)
+
+attach(poblacion)
+```
+
+### Tipo de trabajo
+
+a. Ocupacion principal
+
+```{r 60_ocupacion_primaria_2}
+attach(poblacion)
+
+poblacion$tipo_trab1[pea==1 & is.na(tipo_trab1)==FALSE & is.na(pea)==FALSE] <- 
+  poblacion$tipo_trab1[pea==1  & is.na(tipo_trab1)==FALSE & is.na(pea)==FALSE]
+
+poblacion$tipo_trab1[(pea==0 | pea==2)]<-NA
+poblacion$tipo_trab1[is.na(pea)==TRUE]<-NA
+#detach(poblacion)
+```
+
+b. Ocupacion secundaria
+
+```{r 61_ocupacion_secundaria_2}
+poblacion$tipo_trab2[pea==1 & is.na(tipo_trab2)==FALSE & is.na(pea)==FALSE] <- 
+  poblacion$tipo_trab2[pea==1 & is.na(tipo_trab2)==FALSE & is.na(pea)==FALSE]
+
+poblacion$tipo_trab2[(pea==0 | pea==2)] <- NA
+poblacion$tipo_trab2[is.na(pea)==TRUE] <- NA
+#detach(poblacion)
+```
+
+c. Jubilados o pensionados
+
+```{r 62_jubilados_2}
+poblacion$jub <- NA
+poblacion$jub[trabajo_mp==2 & 
+                (poblacion$act_pnea1=="2" | 
+                   poblacion$act_pnea2=="2")] <- 1
+poblacion$jub[ing_pens>0 &
+                is.na(ing_pens)==FALSE] <- 1
+poblacion$jub[inscr_2==2] <- 1
+poblacion$jub[is.na(poblacion$jub)==TRUE] <- 0
+
+attach(poblacion)
+```
+
+### Prestaciones basicas 
+
+## Prestaciones laborales (Servicios medicos)
+
+a. Ocupacion principal
+
+```{r 63_serviciomedico_op_2}
+poblacion$smlab1 <- NA
+poblacion$smlab1[ocupa1==1 & 
+                   atemed==1 & 
+                   (inst_1==1 | 
+                      inst_2==2 | 
+                      inst_3==3 | 
+                      inst_4==4) & 
+                   (inscr_1==1)] <- 1
+poblacion$smlab1[ocupa1==1 & 
+                   is.na(poblacion$smlab1)==TRUE] <- 0
+```
+
+b. Ocupacion secundaria
+
+```{r 64_serviciomedico_os_2}
+poblacion$smlab2 <- NA
+poblacion$smlab2[ocupa2==1 & 
+                   atemed==1 & 
+                   (inst_1==1 | 
+                      inst_2==2 | 
+                      inst_3==3 | 
+                      inst_4==4) & 
+                   (inscr_1==1)] <- 1
+poblacion$smlab2[ocupa2==1 & 
+                   is.na(poblacion$smlab2)==TRUE] <- 0
+
+attach(poblacion)
+```
+
+##  Servicio Medico y Afore Voluntario 
+`smcv` `aforecv`
+
+Contratacion voluntaria: servicios medicos y SAR o Afore (personas con mas de 12 anios)
+
+a. Servicios medicos
+
+```{r 65_smcv_def}
+attach(poblacion)
+
+poblacion$smcv <- NA
+poblacion$smcv[atemed==1 & 
+                 (inst_1==1 | 
+                    inst_2==2 | 
+                    inst_3==3 |
+                    inst_4==4) & 
+                 (inscr_6==6) & 
+                 (edad>=12 & edad<=97)] <- 1
+poblacion$smcv[(edad>=12 & edad<=97) & 
+                 is.na(poblacion$smcv)==TRUE] <- 0
+```
+
+b. SAR o Afore
+
+```{r 66_aforecv_def}
+attach(poblacion)
+
+poblacion$aforecv <- NA
+poblacion$aforecv[segvol_1==1 & 
+                    (edad>=12 & 
+                       is.na(edad)==FALSE)] <- 1
+poblacion$aforecv[is.na(segvol_1)==TRUE & 
+                    (edad>=12 & 
+                       is.na(edad)==FALSE) & 
+                    is.na(poblacion$aforecv)==TRUE] <- 0
+
+attach(poblacion)
+
+names(poblacion)[181:182] <- c("aforlab1", "inclab1")
+```
+
+## Seguridad Social 
+`ss_dir` 
+
+Acceso directo a la seguridad social.
+
+a. Ocupacion principal
+
+```{r 67_ss_dir_def_prim}
+attach(poblacion)
+
+poblacion$ss_dir <- NA
+poblacion$ss_dir[tipo_trab1==1 & 
+                   (smlab1==1 & 
+                      inclab1==1 & 
+                      aforlab1==1)] <- 1
+poblacion$ss_dir[tipo_trab1==2 & 
+                   ((smlab1==1 | 
+                       smcv==1) & 
+                      (aforlab1==1 | 
+                         aforecv==1))] <- 1
+poblacion$ss_dir[tipo_trab1==3 & 
+                   ((smlab1==1 | 
+                       smcv==1) & 
+                      aforecv==1)] <- 1
+```
+
+b. Ocupacion secundaria
+
+```{r 68_ss_dir_def_sec}
+poblacion$ss_dir[tipo_trab2==1 & 
+                   (smlab2==1 & 
+                      inclab2==1 & 
+                      aforlab2==1)]=1
+poblacion$ss_dir[tipo_trab2==2 & 
+                   ((smlab2==1 | 
+                       smcv==1) & 
+                      (aforlab2==1 | 
+                         aforecv==1))]=1
+poblacion$ss_dir[tipo_trab2==3 & 
+                   ((smlab2==1 | 
+                       smcv==1) & 
+                      aforecv==1)]=1
+attach(poblacion)
+```
+
+c. Jubilados y pensionados
+
+```{r 69_ss_dir_def_jub}
+poblacion$ss_dir[jub==1]=1
+poblacion$ss_dir[is.na(poblacion$ss_dir)==TRUE]=0
+```
+
+### Nucleos familiares
+
+```{r 70_nucleos_familiares}
+parent<-as.numeric(poblacion$parentesco)
+poblacion$par=6
+poblacion$par[(parent>=100 & parent<200)]=1
+poblacion$par[(parent>=200 & parent<300)]=2
+poblacion$par[(parent>=300 & parent<400)]=3
+poblacion$par[parent==601]=4
+poblacion$par[parent==615]=5
+table(poblacion$par)
+```
+
+**Asistencia a la escuela**
+
+```{r 71_nf_asistencia_escuela}
+poblacion$inas_esc=NA
+poblacion$inas_esc[asis_esc==1]=0
+poblacion$inas_esc[asis_esc==2]=1
+#detach(poblacion)
+```
+
+**Principales parentescos respecto a la jefatura del hogar**
+
+```{r 72_nf_parentezco_jefe}
+attach(poblacion)
+
+poblacion$jef <- 0
+poblacion$jef[par==1 & ss_dir==1] <-1
+poblacion$jef[par==1 & ss_dir==1 & 
+                (((inst_2=="2" | 
+                     inst_3=="3") & 
+                    inscr_6=="6") & 
+                   (is.na(inst_1)==TRUE & 
+                      is.na(inst_4)==TRUE & 
+                      is.na(inst_6)==TRUE) & 
+                   (is.na(inscr_1)==TRUE & 
+                      is.na(inscr_2)==TRUE & 
+                      is.na(inscr_3)==TRUE & 
+                      is.na(inscr_4)==TRUE & 
+                      is.na(inscr_5)==TRUE & 
+                      is.na(inscr_7)==TRUE))] <- NA
+table(poblacion$jef)
+
+poblacion$cony <- 0
+poblacion$cony[par==2 & ss_dir==1] <-1
+poblacion$cony[par==2 & ss_dir==1 & 
+                 (((inst_2=="2" | 
+                      inst_3=="3") & 
+                     inscr_6=="6") & 
+                    (is.na(inst_1)==TRUE & 
+                       is.na(inst_4)==TRUE & 
+                       is.na(inst_6)==TRUE) & 
+                    (is.na(inscr_1)==TRUE & 
+                       is.na(inscr_2)==TRUE & 
+                       is.na(inscr_3)==TRUE & 
+                       is.na(inscr_4)==TRUE & 
+                       is.na(inscr_5)==TRUE & 
+                       is.na(inscr_7)==TRUE))] <- NA
+table(poblacion$cony)
+
+poblacion$hijo <- 0
+poblacion$hijo[par==3 & ss_dir==1 & jub==0] <- 1
+poblacion$hijo[par==3 & ss_dir==1 & jub==1 & 
+                 (edad>25 & is.na(edad)==FALSE)] <- 1
+poblacion$hijo[par==3 & ss_dir==1 & 
+                 (((inst_2=="2" | 
+                      inst_3=="3") & 
+                     inscr_6=="6") & 
+                    (is.na(inst_1)==TRUE & 
+                       is.na(inst_4)==TRUE & 
+                       is.na(inst_6)==TRUE) & 
+                    (is.na(inscr_1)==TRUE & 
+                       is.na(inscr_2)==TRUE & 
+                       is.na(inscr_3)==TRUE & 
+                       is.na(inscr_4)==TRUE & 
+                       is.na(inscr_5)==TRUE & 
+                       is.na(inscr_7)==TRUE))] <- NA
+table(poblacion$hijo)
+
+#detach(poblacion)
+
+attach(poblacion)
+poblacion4=aggregate(x=list(jef, cony, hijo), 
+                     by=list(folioviv, foliohog),  
+                     FUN=sum, na.rm=FALSE)
+#detach(poblacion)
+names(poblacion4)[1:5] <- c("folioviv", "foliohog", 
+                            "jef_1", "cony_1", "hijo_1" )
+
+poblacion= merge(poblacion, 
+                 poblacion4,by.x=c("folioviv", "foliohog"), 
+                 all.x = TRUE)
+
+rm(poblacion4)
+attach(poblacion)
+```
+
+**Acceso directo a la seguridad social de la jefatura del hogar**
+
+```{r 73_acceso_ss_jefe}
+poblacion$jef_ss <- poblacion$jef_1
+table(poblacion$jef_ss)
+dim(poblacion)
+```
+
+**Acceso directo a la seguridad social de conyuge de la jefatura del hogar**
+
+```{r 74_acceso_ss_cony}
+poblacion$cony_ss <- 0
+poblacion$cony_ss[(cony_1>=1 & is.na(cony_1)==FALSE)] <- 1
+table(poblacion$cony_ss)
+dim(poblacion)
+```
+
+**Acceso directo a la seguridad social de hijos(as) de la jefatura del hogar**
+
+```{r 75_acceso_ss_hijos}
+poblacion$hijo_ss <- 0
+poblacion$hijo_ss[(hijo_1>=1 & is.na(hijo_1)==FALSE)] <- 1
+table(poblacion$hijo_ss)
+dim(poblacion)
+```
+
+**Otros nucleos familiares** 
+
+Se identifica a la poblacion con acceso a la seguridad social mediante otros nucleos familiares a traves de la afiliacion o inscripcion a servicios de salud por algun familiar dentro ofuera del hogar, muerte del asegurado o por contratacion propia 
+
+```{r 76_acceso_ss_otrosnucleos}
+poblacion$s_salud <- NA
+poblacion$s_salud[atemed==1 & 
+                    (inst_1==1 | 
+                       inst_2==2 | 
+                       inst_3==3 | 
+                       inst_4==4) & 
+                    (inscr_3==3 | 
+                       inscr_4==4 | 
+                       inscr_6==6 | 
+                       inscr_7==7)] <- 1
+poblacion$s_salud[is.na(segpop)==FALSE & 
+                    is.na(atemed)==FALSE & 
+                    is.na(poblacion$s_salud)==TRUE ] <- 0
+table(poblacion$s_salud)
+dim(poblacion)
+
+```
+
+**Programas sociales de pensiones para adultos mayores**
+
+```{r 77_acceso_ss_adultosmayor}
+poblacion$pam <- NA
+poblacion$pam[(edad>=65 & 
+                 is.na(edad)==FALSE) & 
+                ing_pam>0] <- 1
+poblacion$pam[(edad>=65 & 
+                 is.na(edad)==FALSE) & 
+                is.na(poblacion$pam)==TRUE] <- 0
+table(poblacion$pam)
+dim(poblacion)
+#detach(poblacion)
+```
+
+### Indicador de carencia por acceso a la seguridad social
+
+No se considera en situacion de carencia por acceso a la seguridad social a la poblacion que:
+
+1. Disponga de acceso directo a la seguridad social,
+
+2. Cuente con parentesco directo con alguna persona dentro del hogar que tenga acceso directo,
+
+3. Reciba servicios medicos por parte de algun familiar dentro o fuera del hogar, por muerte del asegurado o por contratacion propia, 
+
+4. Reciba ingresos por parte de un programa de adultos mayores. 
+
+Se considera en situacion de carencia por acceso a la seguridad social aquella poblacion:
+
+**En cualquier otra situacion**
+
+**Indicador de carencia por acceso a la seguridad social**
+
+```{r 77_ic_carencia_ss}
+attach(poblacion)
+poblacion$ic_segsoc <- NA
+```
+
+**Acceso directo**
+
+```{r 78_ic_carencia_ss_directo}
+poblacion$ic_segsoc[ss_dir==1] <- 0
+```
+
+**Parentesco directo: jefatura**
+
+```{r 79_ic_carencia_ss_jefe}
+poblacion$ic_segsoc[par==1 & 
+                      cony_ss==1] <- 0
+poblacion$ic_segsoc[par==1 & pea==0 & 
+                      hijo_ss==1] <- 0
+```
+
+**Parentesco directo: conyuge**
+
+```{r 80_ic_carencia_ss_cony}
+poblacion$ic_segsoc[par==2 & 
+                      jef_ss==1] <- 0
+poblacion$ic_segsoc[par==2 & 
+                      pea==0 & 
+                      hijo_ss==1] <- 0
+```
+
+**Parentesco directo: descendientes**
+
+```{r 81_ic_carencia_ss_descendientes}
+poblacion$ic_segsoc[par==3 & 
+                      edad<16 & 
+                      jef_ss==1] <- 0
+poblacion$ic_segsoc[par==3 & 
+                      edad<16 & 
+                      cony_ss==1] <- 0      
+poblacion$ic_segsoc[par==3 & 
+                      (edad>=16 & 
+                         edad<=25) & 
+                      inas_esc==0 & 
+                      jef_ss==1] <- 0
+poblacion$ic_segsoc[par==3 & 
+                      (edad>=16 & 
+                         edad<=25) & 
+                      inas_esc==0 & 
+                      cony_ss==1] <- 0
+```
+
+**Parentesco directo: ascendientes**
+
+```{r 82_ic_carencia_ascendentes}
+poblacion$ic_segsoc[par==4 & 
+                      pea==0 & 
+                      jef_ss==1] <- 0
+poblacion$ic_segsoc[par==5 & 
+                      pea==0 & 
+                      cony_ss==1] <- 0
+```
+
+**Otros nucleos familiares**
+
+```{r 83_ic_carencia_otros}
+poblacion$ic_segsoc[s_salud==1] <- 0
+```
+
+**Programa de adultos mayores**
+
+```{r 84_ic_carencia_adultomayor}
+poblacion$ic_segsoc[pam==1] <- 0
+
+poblacion$ic_segsoc[is.na(poblacion$ic_segsoc)==TRUE] <- 1
+
+table(poblacion$pea)
+table(poblacion$jub)
+table(poblacion$ss_dir)
+table(poblacion$jef_ss)
+table(poblacion$cony_ss)
+table(poblacion$hijo_ss)
+table(poblacion$s_salud)
+table(poblacion$pam)
+table(poblacion$ic_segsoc)
+dim(poblacion)
+
+#detach(poblacion)
+
+poblacion=poblacion[, c( "folioviv", "foliohog", "numren", "pea",
+                         "jub", "ss_dir", "par", "jef_ss", "cony_ss",
+                         "hijo_ss", "s_salud", "pam", "ic_segsoc")]
+
+poblacion <- orderBy(~+folioviv+foliohog+numren, data=poblacion)
+
+write.csv(poblacion, './Bases4Analysis/2016_ic_seguridadsocial.csv', 
+          row.names = FALSE)
+write.dbf(poblacion, './Bases4Analysis/2016_ic_seguridadsocial.dbf')
+```
+
+# Parte IV - Indicadores de Carencia Calidad Vivienda
+
+Indicador de carecnia por calidad y espacios en la vivienda
+
+**Material de construccion de la vivienda**
+
+```{r 89_ic_carencia_vivienda}
+#rm(list=ls())
+hogares<- read.dbf("./BasesDatos/ENIGH2016/hogares.dbf", as.is = TRUE)
+
+hogares <- orderBy(~+folioviv, data=hogares)
+
+vivienda <- read.dbf("./BasesDatos/ENIGH2016/viviendas.dbf", as.is = TRUE)
+
+hogares2 = merge(hogares, vivienda,by=c( "folioviv"), all.x = TRUE)
+hogares2 <- orderBy(~+folioviv, data=hogares2)
+
+attach(hogares2)
+hogares2$mat_pisos=recode(mat_pisos, "-1=NA")
+hogares2$mat_pisos <- ifelse(mat_pisos == "&", NA, mat_pisos)
+
+
+attach(hogares2)
+hogares2$mat_pisos <- as.numeric(mat_pisos)
+hogares2$mat_techos <- as.numeric(mat_techos)
+hogares2$mat_muros <- as.numeric(mat_pared)
+hogares2$tot_resid <- as.numeric(tot_resid)
+hogares2$num_cuarto <- as.numeric(num_cuarto)
+##detach(hogares2)
+```
+
+## Indice de hacinamiento 
+`cv_hac`
+
+```{r 90_cv_hac}
+hogares2$cv_hac <- hogares2$tot_resid/hogares2$num_cuarto
+
+#detach(hogares2)
+attach(hogares2)
+dim(hogares2)
+```
+
+## Carencia Material Pisos 
+`icv_pisos`
+
+Indicador de carencia del material de piso de la vivienda
+
+```{r 91_icv_pisos}
+hogares2$icv_pisos <- NA
+hogares2$icv_pisos[mat_pisos==1] <- 1
+hogares2$icv_pisos[mat_pisos>1 & 
+                     is.na(mat_pisos)==FALSE] <- 0
+table(hogares2$icv_pisos)
+```
+
+## Material techos 
+`icv_techos`
+
+Indicador de carencia por material de techos de la vivienda
+
+```{r 92_icv_techos}
+hogares2$icv_techos <- NA
+hogares2$icv_techos[mat_techos<=2] <- 1
+hogares2$icv_techos[mat_techos>2 & 
+                      is.na(mat_techos)==FALSE] <- 0
+table(hogares2$icv_techos)
+```
+
+
+## Material muros 
+`icv_muros`
+
+Indicador de carencia del material de muros de la vivienda
+
+```{r 93_icv_muros}
+hogares2$icv_muros <- NA
+hogares2$icv_muros[mat_muros<=5] <- 1
+hogares2$icv_muros[mat_muros>5 & 
+                     is.na(mat_muros)==FALSE] <- 0
+table(hogares2$icv_muros)
+```
+
+## Hacinamiento 
+`icv_hac`
+
+Indicador de carencia por indice de hacinamiento de la vivienda
+
+```{r 94_icv_hac}
+hogares2$icv_hac <- NA
+hogares2$icv_hac[cv_hac>2.5 & 
+                   is.na(cv_hac)==FALSE] <- 1
+hogares2$icv_hac[cv_hac<=2.5] <- 0
+
+table(hogares2$icv_hac)
+dim(hogares2)
+detach(hogares2)
+```
+
+## Indicador de carencia por calidad y espacios de la vivienda
+
+Se considera en situacion de carencia por calidad y espacios de la vivienda 
+a la poblacion que:
+
+1. Presente carencia en cualquiera de los subindicadores de esta dimension
+
+No se considera en situacion de carencia por rezago calidad y espacios 
+de la vivienda a la poblacion que:
+
+**Habite en una vivienda sin carencia en todos los subindicadores
+de esta dimension**
+
+```{r 95_ic_cv}
+attach(hogares2)
+
+hogares2$ic_cv[icv_pisos==1 | 
+                 icv_techos==1 | 
+                 icv_muros==1 | 
+                 icv_hac==1 ] <- 1
+hogares2$ic_cv[icv_pisos==0 & 
+                 icv_techos==0 & 
+                 icv_muros==0 & 
+                 icv_hac==0] <- 0
+hogares2$ic_cv[is.na(icv_pisos)==TRUE | 
+                 is.na(icv_muros)==TRUE | 
+                 is.na(icv_muros)==TRUE | 
+                 is.na(icv_hac)==TRUE] <- NA
+
+detach(hogares2)
+
+table(hogares2$icv_pisos)
+table(hogares2$icv_techos)
+table(hogares2$icv_muros)
+table(hogares2$icv_hac)
+table(hogares2$ic_cv)
+dim(hogares2)
+
+hogares2 <- hogares2[, c( 
+  "folioviv","foliohog","tot_resid","num_cuarto",
+  "icv_pisos","icv_techos","icv_muros","icv_hac","ic_cv")]
+
+hogares2 <- orderBy(~+folioviv+foliohog, data=hogares2)
+
+write.csv(hogares2, './Bases4Analysis/2016_ic_vivienda.csv',
+          row.names = FALSE)
+write.dbf(hogares2, './Bases4Analysis/2016_ic_vivienda.dbf')
+attach(hogares2)
+```
+
+# Parte V - Indicadores de Carencia Servicios Salud
+
+## Servicios de salud en vivienda
+
+Carencia por servicios basicos de salud asociados con la vivienda.
+
+Indicador de carencia por acceso a los servicios basicos de salud
+
+```{r 96_hogares}
+hogares <- read.dbf("./BasesDatos/ENIGH2016/viviendas.dbf", as.is = TRUE)
+
+attach(hogares)
+hogares$aguav <- as.numeric(disp_agua)
+hogares$drenajev <- as.numeric(drenaje)
+hogares$elecv <- as.numeric(disp_elect) 
+hogares$combusv <- as.numeric(combustibl)
+detach(hogares)
+```
+
+## Disponibilidad de agua
+`sb_agua`
+
+```{r 97_sb_agua}
+attach(hogares)
+hogares$aguav[hogares$aguav==0] <- NA 
+hogares$sb_agua <- NA
+hogares$sb_agua[aguav==7] <- 1
+hogares$sb_agua[aguav==6] <- 2
+hogares$sb_agua[aguav==5] <- 3
+hogares$sb_agua[aguav==4] <- 4
+hogares$sb_agua[aguav==3] <- 5
+hogares$sb_agua[aguav==2] <- 6
+hogares$sb_agua[aguav==1] <- 7
+
+table(hogares$sb_agua)
+dim(hogares)
+```
+
+## Drenaje 
+`sb_dren`
+
+```{r 98_sb_dren}
+hogares$drenajev[hogares$drenajev==0] <- NA
+hogares$sb_dren <- NA
+hogares$sb_dren[drenajev==5] <- 1
+hogares$sb_dren[drenajev==4] <- 2
+hogares$sb_dren[drenajev==3] <- 3
+hogares$sb_dren[drenajev==2] <- 4
+hogares$sb_dren[drenajev==1] <- 5
+
+table(hogares$sb_dren)
+dim(hogares)
+```
+
+## Electricidad 
+`sb_luz` 
+
+```{r 99_sb_electricidad}
+hogares$elecv[hogares$elecv==0] <- NA
+hogares$sb_luz <- NA
+hogares$sb_luz[elecv==5] <- 1
+hogares$sb_luz[elecv==3 | elecv==4] <- 2
+hogares$sb_luz[elecv==2] <- 3
+hogares$sb_luz[elecv==1] <- 4
+
+table(hogares$sb_luz)
+dim(hogares)
+detach(hogares)
+```
+
+## Indicador de carencia de servicio de agua
+`isb_agua`
+
+```{r 100_isb_agua}
+attach(hogares)
+hogares$isb_agua[sb_agua<=5] <- 1
+hogares$isb_agua[sb_agua>5 & 
+                   is.na(sb_agua)==FALSE] <- 0
+hogares$isb_agua[sb_agua==4 & 
+                   ubica_geo=="200580016"] <- 0
+table(hogares$isb_agua)
+```
+
+## Indicador de carencia de servicio de drenaje
+`isb_dren`
+
+```{r 110_isb_dren}
+hogares$isb_dren[sb_dren<=3] <- 1
+hogares$isb_dren[sb_dren>3 & 
+                   is.na(sb_dren)==FALSE] <- 0
+table( hogares$isb_dren)
+```
+
+## Indicador de carencia de servicios de electricidad 
+`isb_luz`
+
+```{r 102_isb_luz}
+hogares$isb_luz[sb_luz==1] <- 1
+hogares$isb_luz[sb_luz>1 & 
+                  is.na(sb_luz)==FALSE] <- 0
+table( hogares$isb_luz)
+```
+
+## Indicador combustible 
+`isb_combus`
+
+```{r 103_isb_combus}
+hogares$isb_combus <- NA
+hogares$isb_combus[(combusv==1 | 
+                      combusv==2) & 
+                     estufa_chi=="2" & 
+                     is.na(combusv)==FALSE] <- 1
+hogares$isb_combus[(combusv==1 | 
+                      combusv==2) & 
+                     estufa_chi=="1" & 
+                     is.na(combusv)==FALSE] <- 0
+hogares$isb_combus[ combusv>=3 & 
+                      combusv<=6 & 
+                      is.na(combusv)==FALSE] <- 0
+
+table( hogares$isb_combus)
+detach(hogares)
+```
+
+Indicador de carencia por acceso a los servicios basicos en la vivienda; Se considera en situacion de carencia por servicios basicos en la vivienda a la poblacion que:
+
+* Presente carencia en cualquiera de los subindicadores de esta dimension. 
+
+No se considera en situacion de carencia por servicios basicos en la vivienda a la poblacion que:
+
+* Habite en una vivienda sin carencia en todos los subindicadores de esta dimension
+
+```{r 104_ic_vivienda_servicios}
+attach(hogares)
+hogares$ic_sbv <- NA
+hogares$ic_sbv[(isb_agua==1 | 
+                  isb_dren==1 | 
+                  isb_luz==1 | 
+                  isb_combus==1)] <- 1
+hogares$ic_sbv[isb_agua==0 & 
+                 isb_dren==0 & 
+                 isb_luz==0 & 
+                 isb_combus==0] <- 0
+hogares$ic_sbv[is.na(isb_agua)==TRUE | 
+                 is.na(isb_dren)==TRUE | 
+                 is.na(isb_luz)==TRUE | 
+                 is.na(isb_combus)==TRUE] <- NA
+
+#detach(hogares)
+
+attach(hogares)
+
+table(hogares$isb_agua)
+table(hogares$isb_dren)
+table(hogares$isb_luz)
+table(hogares$isb_combus)
+table(hogares$ic_sbv)
+dim(hogares)
+
+hogares=hogares[, c("folioviv", 
+                    "isb_agua", 
+                    "isb_dren", 
+                    "isb_luz", 
+                    "isb_combus", 
+                    "ic_sbv")]
+
+hogares <- orderBy(~+folioviv, data=hogares)
+
+write.csv(hogares, './Bases4Analysis/2016_ic_privacionsocial.csv', 
+          row.names = FALSE)
+write.dbf(hogares, './Bases4Analysis/2016_ic_privacionsocial.dbf')
+#detach(hogares)
+```
+
+# Parte VI - Indicadores de Carencia Acceso a Alimentacion
+
+**Indicador de carencia por acceso a la alimentacion**
+
+**Poblacion objetivo** 
+
+No se incluye a huespedes ni trabajadores doeosticos
+
+```{r 104_ic_alimentacion}
+poblacion1 <- read.dbf("./BasesDatos/ENIGH2016/poblacion.dbf", as.is = TRUE)
+
+names(poblacion1) <- tolower(names(poblacion1))
+poblacion2 <- as.numeric(poblacion1$parentesco)
+index <- ((poblacion2>=400 & 
+             poblacion2<500) | 
+            (poblacion2>=700 & 
+               poblacion2 <800))
+index <- (index==FALSE)
+poblacion <- poblacion1[index,]
+dim(poblacion)
+```
+
+## Indicador de hogares con menores de 12 anios **ATENCION**
+
+```{r 105_ic_alimentacion_hogares12-} 
+#***
+attach(poblacion)
+poblacion$men12 <- NA
+poblacion$men12[edad>=0 & 
+                  edad<=12] <- 1
+poblacion$men12[edad>12] <- 0
+#detach(poblacion)
+
+attach(poblacion)
+poblacion2 <- aggregate(x=list(men12), 
+                        by=list( folioviv, foliohog),  
+                        FUN=sum, na.rm=TRUE)
+#detach(poblacion)
+names(poblacion2)[1:3] <- c( "folioviv", "foliohog",
+                             "men12")
+
+attach(poblacion2)
+poblacion2$id_men12 <- NA
+poblacion2$id_men12[men12>=1 & 
+                      is.na(men12)==FALSE] <- 1
+poblacion2$id_men12[men12==0] <- 0
+#detach(poblacion2)
+
+attach(poblacion2)
+poblacion2=poblacion2[, c( "folioviv", "foliohog", 
+                           "id_men12")]
+poblacion2 <- orderBy(~+folioviv+foliohog, data=poblacion2)
+
+write.csv(poblacion2, './Bases4analysis/2016_hogares_menos12a.csv', 
+          row.names = FALSE)
+write.dbf(poblacion2, './Bases4Analysis/2016_hogares_menos12a.dbf')
+#detach(poblacion2)
+
+hogares <- read.dbf("./BasesDatos/ENIGH2016/hogares.dbf", as.is = TRUE)
+```
+
+## Seis preguntas para hogares sin poblacion menor a los 18 anios:
+
+1. Algun adulto tuvo una alimentacion basada en muy poca variedad de acc_alimentos?
+
+```{r 106_6pregs_1}
+attach(hogares)
+hogares$ia_1ad <- NA
+hogares$ia_1ad[acc_alim4==1] <- 1
+hogares$ia_1ad[acc_alim4==2] <- 0
+hogares$ia_1ad[is.na(acc_alim4)==TRUE] <- 0
+```
+
+2. Algun adulto deja de desayunar, comer o cenar?
+
+```{r 107_6pregs_2}
+hogares$ia_2ad <- NA
+hogares$ia_2ad[acc_alim5==1] <- 1
+hogares$ia_2ad[acc_alim5==2] <- 0
+hogares$ia_2ad[is.na(acc_alim5)==TRUE] <- 0
+```
+
+3. Algun adulto comio menos de lo que debia comer?
+
+```{r 108_6pregs_3}
+hogares$ia_3ad <- NA
+hogares$ia_3ad[acc_alim6==1] <- 1
+hogares$ia_3ad[acc_alim6==2] <- 0
+hogares$ia_3ad[is.na(acc_alim6)==TRUE] <- 0
+```
+
+4. El hogar se quedo sin comida?
+
+```{r 109_6pregs_4}
+hogares$ia_4ad <- NA
+hogares$ia_4ad[acc_alim2==1] <- 1
+hogares$ia_4ad[acc_alim2==2] <- 0
+hogares$ia_4ad[is.na(acc_alim2)==TRUE] <- 0
+```
+
+5. Algun adulto sintio hambre pero no comio?
+
+```{r 110_6pregs_5}
+hogares$ia_5ad <- NA
+hogares$ia_5ad[acc_alim7==1] <- 1
+hogares$ia_5ad[acc_alim7==2] <- 0
+hogares$ia_5ad[is.na(acc_alim7)==TRUE] <- 0
+```
+
+6. Algun adulto solo comio una vez al dia o dejo de comer todo un dia?
+
+```{r 111_6pregs_6}
+hogares$ia_6ad <- NA
+hogares$ia_6ad[acc_alim8==1] <- 1
+hogares$ia_6ad[acc_alim8==2] <- 0
+hogares$ia_6ad[is.na(acc_alim8)==TRUE] <- 0
+```
+
+## Seis preguntas para hogares con poblacion menor a 18 anios:
+
+1. Alguien de 0 a 17 anios tuvo una alimentacion basada en muy poca variedad de alimentos?
+
+```{r 112_6pregs_1_alim}
+hogares$ia_7men <- NA
+hogares$ia_7men[acc_alim11==1] <- 1
+hogares$ia_7men[acc_alim11==2] <- 0
+hogares$ia_7men[is.na(acc_alim11)==TRUE] <- 0
+```
+
+2. Alguien de 0 a 17 anios comio menos de lo que debia?
+
+```{r 113_6pregs_2_alim}
+hogares$ia_8men <- NA
+hogares$ia_8men[acc_alim12==1] <- 1
+hogares$ia_8men[acc_alim12==2] <- 0
+hogares$ia_8men[is.na(acc_alim12)==TRUE] <- 0
+```
+
+3. Se tuvo que disminuir la cantidad servida en las comidas a alguien de 0 a 17 anios?
+
+```{r 114_6pregs_3_alim}
+hogares$ia_9men <- NA
+hogares$ia_9men[acc_alim13==1] <- 1
+hogares$ia_9men[acc_alim13==2] <- 0
+hogares$ia_9men[is.na(acc_alim13)==TRUE] <- 0
+```
+
+4. Alguien de 0 a 17 anios sintio hambre pero no comio?
+
+```{r 115_6pregs_4_alim}
+hogares$ia_10men <- NA
+hogares$ia_10men[acc_alim14==1] <- 1
+hogares$ia_10men[acc_alim14==2] <- 0
+hogares$ia_10men[is.na(acc_alim14)==TRUE] <- 0
+```
+
+5. Alguien de 0 a 17 anios se acosto con hambre?
+
+```{r 116_6pregs_5_alim}
+hogares$ia_11men <- NA
+hogares$ia_11men[acc_alim15==1] <- 1
+hogares$ia_11men[acc_alim15==2] <- 0
+hogares$ia_11men[is.na(acc_alim15)==TRUE] <- 0
+```
+
+6. Alguien de 0 a 17 anios comio una vez al dia o dejo de comer todo un dia
+
+```{r 117_6pregs_6_alim}
+hogares$ia_12men <- NA
+hogares$ia_12men[acc_alim16==1] <- 1
+hogares$ia_12men[acc_alim16==2] <- 0
+hogares$ia_12men[is.na(acc_alim16)==TRUE] <- 0
+#detach(hogares)
+dim(hogares)
+```
+
+## Construccion de la escala de inseguridad alimentaria
+
+```{r 118_ia_escala}
+hogares <- orderBy(~+folioviv+foliohog, data=hogares)
+hogares= merge(hogares, 
+               poblacion2, 
+               by=c( "folioviv", "foliohog"),
+               all.x = TRUE)
+
+attach(hogares)
+```
+
+### a. Escala para hogares sin menores de 18 anios
+
+```{r 119_ia_escala_sinm12}
+hogares$tot_iaad <- NA
+hogares$tot_iaad[id_men12==0] <- 
+  ia_1ad[id_men12==0] + 
+  ia_2ad[id_men12==0] + 
+  ia_3ad[id_men12==0] +
+  ia_4ad[id_men12==0] + 
+  ia_5ad[id_men12==0] + 
+  ia_6ad[id_men12==0]
+table(hogares$tot_iaad)
+dim(hogares)
+```
+
+### b. Escala para hogares con menores de 18 anios
+
+```{r 120_ia_escala_conm12}
+hogares$tot_iamen <- NA
+hogares$tot_iamen[id_men12==1] <- 
+  ia_1ad[id_men12==1] + 
+  ia_2ad[id_men12==1] + 
+  ia_3ad[id_men12==1] + 
+  ia_4ad[id_men12==1] + 
+  ia_5ad[id_men12==1] + 
+  ia_6ad[id_men12==1] + 
+  ia_7men[id_men12==1] + 
+  ia_8men[id_men12==1] + 
+  ia_9men[id_men12==1] + 
+  ia_10men[id_men12==1] + 
+  ia_11men[id_men12==1] + 
+  ia_12men[id_men12==1]
+table(hogares$tot_iamen)
+dim(hogares)
+#detach(hogares)
+```
+
+## Grado de inseguridad alimentaria 
+`ictpc`
+
+Este subindicador genera cuatro clasificaciones de la siguiente forma:
+
+0. Sin inseguridad alimentaria 
+
+1. Inseguridad alimentaria leve
+
+2. Inseguridad alimentaria moderada
+
+3. Inseguridad alimentaria severa
+
+```{r 121_ia_grado}
+attach(hogares)
+hogares$ins_ali <- NA
+hogares$ins_ali[tot_iaad==0 | 
+                  tot_iamen==0] <- 0
+hogares$ins_ali[(tot_iaad==1 | 
+                   tot_iaad==2) | 
+                  (tot_iamen==1 | 
+                     tot_iamen==2 |
+                     tot_iamen==3)] <- 1
+hogares$ins_ali[(tot_iaad==3 | tot_iaad==4) | 
+                  (tot_iamen==4 | 
+                     tot_iamen==5 |
+                     tot_iamen==6 |
+                     tot_iamen==7)] <- 2
+hogares$ins_ali[(tot_iaad==5 | tot_iaad==6) | 
+                  (tot_iamen>=8 & 
+                     is.na(tot_iamen)==FALSE)] <- 3
+table(hogares$ins_ali)
+dim(hogares)
+detach(hogares)
+```
+
+## Indicador de carencia por acceso a la alimentacion
+
+Se considera en situacion de carencia por acceso a la alimentacion a la poblacion en hogares que:
+
+* Presenten inseguridad alimentaria moderada o severa.
+
+No se considera en situacion de carencia por acceso a la alimentacion a la poblacion que:
+
+* No presente inseguridad alimentaria o presente un grado de inseguridad alimentaria leve. 
+
+```{r 122_ic_alim}
+attach(hogares)
+hogares$ic_ali <- 0
+hogares$ic_ali[ins_ali==2 | 
+                 ins_ali==3] <- 1
+
+table(hogares$ins_ali)
+table(hogares$ic_ali)
+dim(hogares)
+
+hogares <- hogares[, c( 
+  "folioviv","foliohog",
+  "id_men12",
+  "ia_1ad","ia_2ad","ia_3ad","ia_4ad","ia_5ad","ia_6ad","ia_7men",
+  "ia_8men","ia_9men","ia_10men","ia_11men","ia_12men",
+  "tot_iaad","tot_iamen","ins_ali","ic_ali" )]
+
+hogares <- orderBy(~+folioviv+foliohog, data=hogares)
+
+attach(hogares)
+write.csv(hogares, './Bases4analysis/2016_ic_alimentacion_12a.csv',
+          row.names = FALSE)
+write.dbf(hogares, './Bases4Analysis/2016_ic_alimentacion_12a.dbf')
+```
+
+# Parte VII - Bienestar (por Ingresos)
+
+Para la construccion del ingreso corriente del hogar es necesario utilizar informacion sobre la condicion de ocupacion y los ingresos de los individuos.
+
+Se utiliza la informacion contenida en la base `trabajos` para identificar a la poblacion ocupada que declara tener como prestacion laboral aguinaldo, ya sea por su trabajo principal o secundario, a fin de incorporar los ingresos por este concepto en la medicion
+
+Creacion del ingreso monetario deflactado a pesos de agosto del 2016.
+
+### Ingresos Monetario
+
+```
+{r 123_bienestar_ing_auxiliar_a}
+gc()
+## defrag memory #
+#save.image(file="temp.RData")
+#rm(list=ls())
+#load(file="temp.RData")
+#source("Sedesol.Code/load.R.packages.R")
+#path.data <- "BasesDatos/ENIGH2016/"
+```
+
+```
+{r 124_ingreso_monetario}
+trabajos <- read.dbf("./BasesDatos/ENIGH2016/trabajos.dbf", as.is = TRUE)
+
+trabajos <- trabajos[, c( "folioviv", "foliohog", "numren",
+                          "id_trabajo", "pres_8")]
+
+trabajos2 <- reshape(trabajos, 
+                     idvar = c( "folioviv", "foliohog", "numren"), 
+                     timevar = "id_trabajo", direction = "wide")
+
+names(trabajos2)[4:5] <- c("pres_81", "pres_82")
+```
+
+a. Poblacion con al menos un empleo
+
+```
+{r 125_ingreso_monetario_1empleo}
+trabajos2$trab <- 1
+
+attach(trabajos2)
+```
+
+b. Aguinaldo trabajo principal
+
+```
+{r 126_ingreso_monetario_aguinaldo}
+trabajos2$aguinaldo1 <- 0
+trabajos2$aguinaldo1[pres_81=="08"] <- 1
+```
+
+c. Aguinaldo trabajo secundario
+
+```
+{r 127_ingreso_monetario_trabsec}
+trabajos2$aguinaldo2 <- 0
+trabajos2$aguinaldo2[pres_82=="08"] <- 1
+
+attach(trabajos2)
+aguinaldo <- trabajos2[,c( "folioviv", "foliohog", "numren",
+                           "aguinaldo1" , "aguinaldo2" , "trab")]
+
+aguinaldo <- orderBy(~+folioviv+foliohog+numren, data=trabajos2)
+
+write.dbf(aguinaldo, './Bases4Analysis/2016_aguinaldo.dbf')
+write.csv(aguinaldo, './Bases4Analysis/2016_aguinaldo.csv', 
+          row.names=FALSE)
+detach(trabajos2)
+```
+
+## Ingresos
+
+```
+{r 128_ingresos_monetarios}
+ingresos <-read.dbf("./BasesDatos/ENIGH2016/ingresos.dbf", as.is = TRUE)
+
+names(ingresos) <- tolower(names(ingresos))
+
+ingresos <- orderBy(~+folioviv+foliohog+numren, data=ingresos)
+
+ingresos3 <- merge(ingresos,aguinaldo,
+                   by.x=c("folioviv","foliohog","numren"),
+                   all=TRUE)
+
+index1 <- (ingresos3$clave=="P009" & 
+             ingresos3$aguinaldo1!=1 & 
+             is.na(ingresos3$clave)==FALSE )
+
+index2 <- (ingresos3$clave=="P016" & 
+             ingresos3$aguinaldo2!=1 & 
+             is.na(ingresos3$clave)==FALSE )
+
+index <- (index1==FALSE &  index2==FALSE)
+
+ingresos3 <- ingresos3[index,]
+
+rm(ingresos)
+
+ingresos <- ingresos3
+
+attach(ingresos)
+rm(ingresos3)
+```
+
+Una vez realizado lo anterior, se procede a deflactar el ingreso recibido por los hogares a precios de agosto de 2016. Para ello se utilizan las variables meses, las cuales toman los valores 2 a 10 e indican el mes en que se recibio el ingreso respectivo
+
+### Deflactacion
+
+**Definicion de los deflactores 2016**
+
+```
+{r 129_auxiliar_b, include=FALSE}
+gc()
+## defrag memory #
+#save.image(file="temp.RData")
+#rm(list=ls())
+#load(file="temp.RData")
+#source("Sedesol.Code/load.R.packages.R")
+#path.data <- "BasesDatos/ENIGH2016/"
+```
+
+```
+{r 130_deflactores_def}
+dic15 <- 0.9915096155	
+ene16 <- 0.9952905552	
+feb16 <- 0.9996486737	
+mar16 <- 1.0011208981	
+abr16 <- 0.9979505968	
+may16 <- 0.9935004643	
+jun16 <- 0.9945962676	
+jul16 <- 0.9971893899	
+ago16 <- 1.0000000000	
+sep16 <- 1.0061063849	
+oct16 <- 1.0122127699	
+nov16 <- 1.0201259756	
+dic16 <- 1.0248270555	
+```
+
+### Ingreso Monetario Deflactado 
+`ictpc`
+
+```
+{r 131_ingresos_deflactacion}
+ingresos$ing_6 <- ingresos$ing_6
+ingresos$ing_5 <- ingresos$ing_5
+ingresos$ing_4 <- ingresos$ing_4
+ingresos$ing_3 <- ingresos$ing_3
+ingresos$ing_2 <- ingresos$ing_2
+ingresos$ing_1 <- ingresos$ing_1
+
+mes_6 <- as.numeric(ingresos$mes_6)
+mes_5 <- as.numeric(ingresos$mes_5)
+mes_4 <- as.numeric(ingresos$mes_4)
+mes_3 <- as.numeric(ingresos$mes_3)
+mes_2 <- as.numeric(ingresos$mes_2)
+mes_1 <- as.numeric(ingresos$mes_1)
+
+ingresos$ing_6[(is.na(mes_6==2)!=TRUE & 
+                  mes_6==2 & 
+                  is.na(ingresos$ing_6)!=TRUE)] <- 
+  ingresos$ing_6[(is.na(mes_6==2)!=TRUE & 
+                    mes_6==2 & 
+                    is.na(ingresos$ing_6)!=TRUE)]/feb16
+
+ingresos$ing_6[(is.na(mes_6==3)!=TRUE & 
+                  mes_6==3 &
+                  is.na(ingresos$ing_6)!=TRUE)] <- 
+  ingresos$ing_6[(is.na(mes_6==3)!=TRUE & 
+                    mes_6==3 & 
+                    is.na(ingresos$ing_6)!=TRUE)]/mar16
+
+ingresos$ing_6[(is.na(mes_6==4)!=TRUE & 
+                  mes_6==4 & 
+                  is.na(ingresos$ing_6)!=TRUE)] <- 
+  ingresos$ing_6[(is.na(mes_6==4)!=TRUE & 
+                    mes_6==4 & 
+                    is.na(ingresos$ing_6)!=TRUE)]/abr16
+
+ingresos$ing_6[(is.na(mes_6==5)!=TRUE & 
+                  mes_6==5 &  
+                  is.na(ingresos$ing_6)!=TRUE)] <- 
+  ingresos$ing_6[(is.na(mes_6==5)!=TRUE & 
+                    mes_6==5 & is.na(ingresos$ing_6)!=TRUE)]/may16
+
+ingresos$ing_6[(is.na(mes_6==6)!=TRUE & 
+                  mes_6==6 &  
+                  is.na(ingresos$ing_6)!=TRUE)] <- 
+  ingresos$ing_6[(is.na(mes_6==6)!=TRUE & 
+                    mes_6==6 & 
+                    is.na(ingresos$ing_6)!=TRUE)]/jun16
+
+ingresos$ing_5[(is.na(mes_5==3)!=TRUE & 
+                  mes_5==3 & 
+                  is.na(ingresos$ing_5)!=TRUE)] <- 
+  ingresos$ing_5[(is.na(mes_5==3)!=TRUE & 
+                    mes_5==3 & 
+                    is.na(ingresos$ing_5)!=TRUE)]/mar16
+
+ingresos$ing_5[(is.na(mes_5==4)!=TRUE & 
+                  mes_5==4 &
+                  is.na(ingresos$ing_5)!=TRUE)] <- 
+  ingresos$ing_5[(is.na(mes_5==4)!=TRUE & 
+                    mes_5==4 & 
+                    is.na(ingresos$ing_5)!=TRUE)]/abr16
+
+ingresos$ing_5[(is.na(mes_5==5)!=TRUE & 
+                  mes_5==5 &
+                  is.na(ingresos$ing_5)!=TRUE)] <- 
+  ingresos$ing_5[(is.na(mes_5==5)!=TRUE & 
+                    mes_5==5 & 
+                    is.na(ingresos$ing_5)!=TRUE)]/may16
+
+ingresos$ing_5[(is.na(mes_5==6)!=TRUE & 
+                  mes_5==6 &
+                  is.na(ingresos$ing_5)!=TRUE)] <- 
+  ingresos$ing_5[(is.na(mes_5==6)!=TRUE & 
+                    mes_5==6 & 
+                    is.na(ingresos$ing_5)!=TRUE)]/jun16
+
+ingresos$ing_5[(is.na(mes_5==7)!=TRUE & 
+                  mes_5==7 & 
+                  is.na(ingresos$ing_5)!=TRUE)] <- 
+  ingresos$ing_5[(is.na(mes_5==7)!=TRUE & 
+                    mes_5==7 & 
+                    is.na(ingresos$ing_5)!=TRUE)]/jul16
+
+ingresos$ing_4[(is.na(mes_4==4)!=TRUE & 
+                  mes_4==4 &
+                  is.na(ingresos$ing_4)!=TRUE)] <- 
+  ingresos$ing_4[(is.na(mes_4==4)!=TRUE & 
+                    mes_4==4 & is.na(ingresos$ing_4)!=TRUE)]/abr16
+
+ingresos$ing_4[(is.na(mes_4==5)!=TRUE &
+                  mes_4==5 & 
+                  is.na(ingresos$ing_4)!=TRUE)] <- 
+  ingresos$ing_4[(is.na(mes_4==5)!=TRUE & 
+                    mes_4==5 & 
+                    is.na(ingresos$ing_4)!=TRUE)]/may16
+
+ingresos$ing_4[(is.na(mes_4==6)!=TRUE & 
+                  mes_4==6 & 
+                  is.na(ingresos$ing_4)!=TRUE)] <- 
+  ingresos$ing_4[(is.na(mes_4==6)!=TRUE & 
+                    mes_4==6 & 
+                    is.na(ingresos$ing_4)!=TRUE)]/jun16
+
+ingresos$ing_4[(is.na(mes_4==7)!=TRUE & 
+                  mes_4==7 & 
+                  is.na(ingresos$ing_4)!=TRUE)] <- 
+  ingresos$ing_4[(is.na(mes_4==7)!=TRUE & 
+                    mes_4==7 & 
+                    is.na(ingresos$ing_4)!=TRUE)]/jul16
+
+ingresos$ing_4[(is.na(mes_4==8)!=TRUE & 
+                  mes_4==8 & 
+                  is.na(ingresos$ing_4)!=TRUE)] <- 
+  ingresos$ing_4[(is.na(mes_4==8)!=TRUE & 
+                    mes_4==8 & 
+                    is.na(ingresos$ing_4)!=TRUE)]/ago16
+
+ingresos$ing_3[(is.na(mes_3==5)!=TRUE & 
+                  mes_3==5 & 
+                  is.na(ingresos$ing_3)!=TRUE)] <- 
+  ingresos$ing_3[(is.na(mes_3==5)!=TRUE & 
+                    mes_3==5 & 
+                    is.na(ingresos$ing_3)!=TRUE)]/may16
+
+ingresos$ing_3[(is.na(mes_3==6)!=TRUE & 
+                  mes_3==6 & 
+                  is.na(ingresos$ing_3)!=TRUE)] <- 
+  ingresos$ing_3[(is.na(mes_3==6)!=TRUE & 
+                    mes_3==6 & 
+                    is.na(ingresos$ing_3)!=TRUE)]/jun16
+
+ingresos$ing_3[(is.na(mes_3==7)!=TRUE & 
+                  mes_3==7 & 
+                  is.na(ingresos$ing_3)!=TRUE)] <-
+  ingresos$ing_3[(is.na(mes_3==7)!=TRUE & 
+                    mes_3==7 & 
+                    is.na(ingresos$ing_3)!=TRUE)]/jul16
+
+ingresos$ing_3[(is.na(mes_3==8)!=TRUE & 
+                  mes_3==8 & 
+                  is.na(ingresos$ing_3)!=TRUE)] <- 
+  ingresos$ing_3[(is.na(mes_3==8)!=TRUE & 
+                    mes_3==8 & 
+                    is.na(ingresos$ing_3)!=TRUE)]/ago16
+
+ingresos$ing_3[(is.na(mes_3==9)!=TRUE & 
+                  mes_3==9 & 
+                  is.na(ingresos$ing_3)!=TRUE)] <- 
+  ingresos$ing_3[(is.na(mes_3==9)!=TRUE & 
+                    mes_3==9 & 
+                    is.na(ingresos$ing_3)!=TRUE)]/sep16
+
+ingresos$ing_2[(is.na(mes_2==6)!=TRUE & 
+                  mes_2==6 & 
+                  is.na(ingresos$ing_2)!=TRUE)] <- 
+  ingresos$ing_2[(is.na(mes_2==6)!=TRUE & 
+                    mes_2==6 & 
+                    is.na(ingresos$ing_2)!=TRUE)]/jun16
+
+ingresos$ing_2[(is.na(mes_2==7)!=TRUE & 
+                  mes_2==7 & 
+                  is.na(ingresos$ing_2)!=TRUE)] <- 
+  ingresos$ing_2[(is.na(mes_2==7)!=TRUE & 
+                    mes_2==7 & 
+                    is.na(ingresos$ing_2)!=TRUE)]/jul16
+
+ingresos$ing_2[(is.na(mes_2==8)!=TRUE & 
+                  mes_2==8 &
+                  is.na(ingresos$ing_2)!=TRUE)] <- 
+  ingresos$ing_2[(is.na(mes_2==8)!=TRUE & 
+                    mes_2==8 & 
+                    is.na(ingresos$ing_2)!=TRUE)]/ago16
+
+ingresos$ing_2[(is.na(mes_2==9)!=TRUE & 
+                  mes_2==9 & 
+                  is.na(ingresos$ing_2)!=TRUE)] <- 
+  ingresos$ing_2[(is.na(mes_2==9)!=TRUE & 
+                    mes_2==9 & 
+                    is.na(ingresos$ing_2)!=TRUE)]/sep16
+
+ingresos$ing_2[(is.na(mes_2==10)!=TRUE & 
+                  mes_2==10 & 
+                  is.na(ingresos$ing_2)!=TRUE)] <- 
+  ingresos$ing_2[(is.na(mes_2==10)!=TRUE & 
+                    mes_2==10 & 
+                    is.na(ingresos$ing_2)!=TRUE)]/oct16
+
+ingresos$ing_1[(is.na(mes_1==7)!=TRUE & 
+                  mes_1==7 & 
+                  is.na(ingresos$ing_1)!=TRUE)] <- 
+  ingresos$ing_1[(is.na(mes_1==7)!=TRUE & 
+                    mes_1==7 & 
+                    is.na(ingresos$ing_1)!=TRUE)]/jul16
+
+ingresos$ing_1[(is.na(mes_1==8)!=TRUE & 
+                  mes_1==8 & 
+                  is.na(ingresos$ing_1)!=TRUE)] <- 
+  ingresos$ing_1[(is.na(mes_1==8)!=TRUE & 
+                    mes_1==8 & 
+                    is.na(ingresos$ing_1)!=TRUE)]/ago16
+
+ingresos$ing_1[(is.na(mes_1==9)!=TRUE & 
+                  mes_1==9 & 
+                  is.na(ingresos$ing_1)!=TRUE)] <- 
+  ingresos$ing_1[(is.na(mes_1==9)!=TRUE & 
+                    mes_1==9 & 
+                    is.na(ingresos$ing_1)!=TRUE)]/sep16
+
+ingresos$ing_1[(is.na(mes_1==10)!=TRUE & 
+                  mes_1==10 & 
+                  is.na(ingresos$ing_1)!=TRUE)] <- 
+  ingresos$ing_1[(is.na(mes_1==10)!=TRUE & 
+                    mes_1==10 &
+                    is.na(ingresos$ing_1)!=TRUE)]/oct16
+
+ingresos$ing_1[(is.na(mes_1==11)!=TRUE & 
+                  mes_1==11 & 
+                  is.na(ingresos$ing_1)!=TRUE)] <- 
+  ingresos$ing_1[(is.na(mes_1==11)!=TRUE & 
+                    mes_1==11 & 
+                    is.na(ingresos$ing_1)!=TRUE)]/nov16
+
+attach(ingresos)
+```
+
+Se deflactan las claves `P008` y `P015` (reparto de utilidades) y `P009` y `P016` (aguinaldo) con los deflactores de mayo a agosto 2016 y de dicembre de 2015 a agosto 2016, respectivamente, y se obtiene el promedio mensual.
+
+```
+{r 132_deflactacion_claves}
+ingresos$ing_1[is.na(ingresos$ing_1)!=TRUE & 
+                 ingresos$clave=="P008"] <- 
+  ingresos$ing_1[is.na(ingresos$ing_1)!=TRUE &
+                   ingresos$clave=="P008"]/may16/12
+
+ingresos$ing_1[is.na(ingresos$ing_1)!=TRUE &
+                 ingresos$clave=="P015"] <- 
+  ingresos$ing_1[is.na(ingresos$ing_1)!=TRUE &
+                   ingresos$clave=="P015"]/may16/12
+
+ingresos$ing_1[is.na(ingresos$ing_1)!=TRUE &
+                 ingresos$clave=="P009"] <- 
+  ingresos$ing_1[is.na(ingresos$ing_1)!=TRUE &
+                   ingresos$clave=="P009"]/dic15/12
+
+ingresos$ing_1[is.na(ingresos$ing_1)!=TRUE &
+                 ingresos$clave=="P016"] <- 
+  ingresos$ing_1[is.na(ingresos$ing_1)!=TRUE &
+                   ingresos$clave=="P016"]/dic15/12
+```
+
+Una vez realizada la deflactacion, se procede a obtener el ingreso mensual promedio en los ultimos seis meses, para cada persona y clave de ingreso
+
+```
+{r 133_auxiliar_c, include=FALSE}
+gc()
+## defrag memory #
+#save.image(file="temp.RData")
+#rm(list=ls())
+#load(file="temp.RData")
+#source("Sedesol.Code/load.R.packages.R")
+#path.data <- "BasesDatos/ENIGH2016/"
+```
+
+```
+{r 134_ingreso_mensual}
+ingresos$ing_mens <- 
+  rowMeans(data.frame(
+    ingresos$ing_1, 
+    ingresos$ing_2, 
+    ingresos$ing_3,
+    ingresos$ing_4, 
+    ingresos$ing_5, 
+    ingresos$ing_6), 
+    na.rm = TRUE)
+#sum(ingresos$ing_mens, na.rm=TRUE)
+```
+
+Para obtener el ingreso corriente monetario, se seleccionan las claves de ingreso correspondientes
+
+```
+{r 135_ingresos_monetarios}
+attach(ingresos)
+
+for(i in 1:9){
+  ing_mon <- 1000+i
+  string <- paste("P", 
+                  substr(as.character(ing_mon), 2, 4),  
+                  sep = "")
+  ingresos$ing_mon[(clave==string & 
+                      is.na(clave)!=TRUE)] <- 
+    ingresos$ing_mens[(clave==string & 
+                         is.na(clave)!=TRUE)]
+}
+
+for(i in 11:16){
+  ing_mon <- 1000+i
+  string <- paste("P", 
+                  substr(as.character(ing_mon), 2, 4),  
+                  sep = "")
+  ingresos$ing_mon[(clave==string & 
+                      is.na(clave)!=TRUE)] <- 
+    ingresos$ing_mens[(clave==string & 
+                         is.na(clave)!=TRUE)]
+}
+
+for(i in 18:48){
+  ing_mon <- 1000+i
+  string <- paste("P", 
+                  substr(as.character(ing_mon), 2, 4),  
+                  sep = "")
+  ingresos$ing_mon[(clave==string & 
+                      is.na(clave)!=TRUE)]<- 
+    ingresos$ing_mens[(clave==string & 
+                         is.na(clave)!=TRUE)]
+}
+
+for(i in 67:81){
+  ing_mon <- 1000+i
+  string <- paste("P", 
+                  substr(as.character(ing_mon), 2, 4),  
+                  sep = "")
+  ingresos$ing_mon[(clave==string & 
+                      is.na(clave)!=TRUE)] <- 
+    ingresos$ing_mens[(clave==string & 
+                         is.na(clave)!=TRUE)]
+}
+```
+
+**Calculo del ingreso corriente monetario del hogar**
+
+```
+{r 136_ing_mon1}
+ingresos$ing_mon1 <- as.numeric(ingresos$ing_mon)
+
+#detach(ingresos)
+#sum(ingresos$ing_mon, na.rm=TRUE)
+
+ingresos <- data.frame(ingresos)
+ingresos <- ingresos[, c( "folioviv", "foliohog", "ing_mon1")]
+
+attach(ingresos)
+ingresos2 <- aggregate(x=list(ing_mon1), 
+                       by=list(folioviv, foliohog),  
+                       FUN=sum, na.rm=TRUE)
+detach(ingresos)
+
+names(ingresos2)[1:3] <- c( "folioviv", "foliohog", "ing_mon")
+
+dim(ingresos2)
+
+ingresos2 <- orderBy(~+folioviv+foliohog, data=ingresos2)
+
+write.csv(ingresos2, './Bases4Analysis/2016_ingresocorriente.csv',
+          row.names = FALSE)
+write.dbf(ingresos2, './Bases4Analysis/2016_ingresocorriente.dbf')
+
+### *** ###
+```
+
+### Ingreso No Monetario Deflactado 
+
+Deflactado a pesos de agosto del 2016.
+
+**No Monetario**
+
+```
+{r 137_nomonetariopersona}
+library("foreign")
+library("doBy")
+
+nomonetariopersona <- read.dbf("./BasesDatos/ENIGH2016/gastospersona.dbf", as.is = TRUE)
+
+names(nomonetariopersona) <- tolower(names(nomonetariopersona))
+
+names(nomonetariopersona)[7] <- "frecuenciap"
+
+nomonetarioper <- orderBy(~+folioviv+foliohog,
+                          data=nomonetariopersona)
+
+nomonetariohogar <- read.dbf("./BasesDatos/ENIGH2016/gastoshogar.dbf", as.is = TRUE)
+
+names(nomonetariohogar) <- tolower(names(nomonetariohogar))
+
+nomonetariohog <- orderBy(~+folioviv+foliohog,
+                          data=nomonetariohogar)
+nomonetariohog <- data.frame(nomonetariohog, 
+                             numren=NA, 
+                             origen_rem=NA, 
+                             inst=NA )
+dim(nomonetariohog)
+ 
+nomonetario <- merge(nomonetariohog, nomonetarioper, all=TRUE)
+nomonetario$decena <- substr(nomonetario$folioviv, 8, 8)
+nomonetario$decena <- as.numeric(nomonetario$decena)
+### ^^^ ###
+```
+
+En el caso de la informacion de gasto no monetario, paradeflactar se utiliza la decena de levantamiento de la encuesta, la cual se encuentra en la octava posicion del folio de la vivienda. En primer lugar se obtiene una variable que identifique la decena de levantamiento
+
+**Definicion de los deflactores**
+
+* Rubro 1.1 semanal, Alimentos	
+
+```
+{r 138_deflactores_semanal_alimentos}
+d11w07 <- 0.9985457696	
+d11w08 <- 1.0000000000	
+d11w09 <- 1.0167932672	
+d11w10 <- 1.0199415214	
+d11w11 <- 1.0251086805	
+```
+
+* Rubro 1.2 semanal, Bebidas alcoholicas y tabaco
+
+```
+{r 139_deflactores_semanal_alcohol}
+d12w07 <- 0.9959845820	
+d12w08 <- 1.0000000000	
+d12w09 <- 1.0066744829	
+d12w10 <- 1.0087894741	
+d12w11 <- 1.0100998490	
+```
+
+* Rubro 2 trimestral, Vestido, calzado y accesorios
+
+```
+{r 140_deflactores_semanal_vestido}
+d2t05 <- 0.9920067602	
+d2t06 <- 0.9948005139	
+d2t07 <- 0.9986462366	
+d2t08 <- 1.0053546946	
+```
+
+* Rubro 3 mensual, Vivienda
+
+```
+{r 141_deflactores_semanal_vivienda}
+d3m07 <- 1.0017314941	
+d3m08 <- 1.0000000000	
+d3m09 <- 0.9978188915	
+d3m10 <- 1.0133832055	
+d3m11 <- 1.0358543632	
+```
+
+* Rubro 4.2 mensual, Accesorios y articulos de limpieza para el hogar
+
+```
+{r 142_deflactores_semanal_limpieza}
+d42m07 <- 0.9936894797	
+d42m08 <- 1.0000000000	
+d42m09 <- 1.0041605121	
+d42m10 <- 1.0056376169	
+d42m11 <- 1.0087477433	
+```
+
+* Rubro 4.2 trimestral, Accesorios y articulos de limpieza para el hogar
+
+```
+{r 143_deflactores_accesorios}
+d42t05 <- 0.9932545544	
+d42t06 <- 0.9960501122	
+d42t07 <- 0.9992833306	
+d42t08 <- 1.0032660430	
+```
+
+* Rubro 4.1 semestral, Muebles y aparatos domesticos
+
+```
+{r 144_deflactores_muebles}
+d41s02 <- 1.0081456317	
+d41s03 <- 1.0057381027	
+d41s04 <- 1.0038444337	
+d41s05 <- 1.0025359940	
+```
+
+* Rubro 5.1 trimestral, Salud	
+
+```
+{r 145_deflactores_salud}
+d51t05 <- 0.9948500567	
+d51t06 <- 0.9974422922	
+d51t07 <- 1.0000318717	
+d51t08 <- 1.0028179937	
+```
+
+* Rubro 6.1.1 semanal, Transporte pulico urbano	
+
+```
+{r 146_deflactores_trasnportepublico}
+d611w07 <- 0.9998162514	
+d611w08 <- 1.0000000000	
+d611w09 <- 1.0010465683	
+d611w10 <- 1.0030038907	
+d611w11 <- 1.0040584480	
+```
+
+* Rubro 6 mensual, Transporte	
+
+```
+{r 147_deflactores_transporte_men}
+d6m07 <- 0.9907765708	
+d6m08 <- 1.0000000000	
+d6m09 <- 1.0049108739	
+d6m10 <- 1.0097440440	
+d6m11 <- 1.0137147031	
+```
+
+* Rubro 6 semestral, Transporte	
+
+```
+{r 148_deflactores_transporte_sem}
+d6s02 <- 0.9749314912	
+d6s03 <- 0.9796636466	
+d6s04 <- 0.9851637735	
+d6s05 <- 0.9917996695	
+```
+
+* Rubro 7 mensual, Educacion y esparcimiento	
+
+```
+{r 149_deflactores_educacion}
+d7m07 <- 0.9997765641	
+d7m08 <- 1.0000000000	
+d7m09 <- 1.0128930818	
+d7m10 <- 1.0131744455	
+d7m11 <- 1.0158805031	
+```
+
+* Rubro 2.3 mensual, Accesorios y cuidados del vestido	
+
+```
+{r 150_deflactores_accesorios_men}
+d23m07 <- 0.9923456541	
+d23m08 <- 1.0000000000	
+d23m09 <- 1.0029207372	
+d23m10 <- 1.0029710948	
+d23m11 <- 1.0057155806	
+```
+
+* Rubro 2.3 trimestral,  Accesorios y cuidados del vestido	
+
+```
+{r 151_deflactores__accesorios_trim}
+d23t05 <- 0.9913748727	
+d23t06 <- 0.9950229966	
+d23t07 <- 0.9984221305	
+d23t08 <- 1.0019639440	
+```
+
+* INPC semestral	
+
+```
+{r 152_inpc_sem}
+dINPCs02 <- 0.9973343817	
+dINPCs03 <- 0.9973929361	
+dINPCs04 <- 0.9982238506	
+dINPCs05 <- 1.0006008794	
+
+gc()
+dim(nomonetario)
+```
+
+Una vez definidos los deflactores, se seleccionan los rubros
+
+```
+{r 153_deflactor_proceso}
+nomonetario$gasnomon <- nomonetario$gas_nm_tri/3
+nomonetario$gasnomon[is.na(nomonetario$gasnomon)==TRUE] <- 0
+
+gc()
+
+nomonetario$esp[nomonetario$tipo_gasto=="G4"] <- 1
+nomonetario$reg[nomonetario$tipo_gasto=="G5"] <- 1
+nomonetario$reg[nomonetario$tipo_gasto=="G6"] <- 1
+
+index1 <- nomonetario$tipo_gasto=="G2" 
+index2 <- nomonetario$tipo_gasto=="G3" 
+index3 <- nomonetario$tipo_gasto=="G7" 
+
+indext <- (index1==FALSE & index2==FALSE & index3==FALSE)
+
+nomonetario <- nomonetario[indext,]
+
+gc()
+dim(nomonetario)
+```
+
+Control para la frecuencia de los regalos recibidos, para no monetario ENIGH
+
+```
+{r 154_nomonetario}
+index1 <- ((nomonetario$frecuenciap=="9" | 
+              nomonetario$frecuenciap=="NA" | 
+              nomonetario$frecuenciap=="0") & 
+             nomonetario$tipo_gasto=="G5")
+
+index1[is.na(index1)==TRUE] <- FALSE
+
+index2 <- ((nomonetario$frecuencia=="5" |
+              nomonetario$frecuencia=="6" |
+              nomonetario$frecuencia=="0" | 
+              nomonetario$frecuencia=="NA") &
+             nomonetario$tipo_gasto=="G5")
+
+index2[is.na(index2)==TRUE] <- FALSE
+
+indext <- (index1==FALSE & index2==FALSE)
+
+nomonetario <- nomonetario[indext,]
+
+attach(nomonetario)
+```
+
+### Gasto Deflactado
+
+a. Gasto en alimentos deflactado (semanal)
+
+```
+{r 155_gasto_alimentos}
+for(i in 1:222){
+  gasto_ali <- 1000+i
+  string <- paste("A", 
+                  substr(as.character(gasto_ali), 2, 4),  
+                  sep = "")
+  nomonetario$ali_nm[(clave==string & 
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string &                                                                 is.na(clave)!=TRUE)]
+}
+
+gc()
+dim(nomonetario)
+
+for(i in 242:247){
+  gas_ali <- 1000+i
+  string <- paste("A", 
+                  substr(as.character(gas_ali), 2, 4),  
+                  sep = "")
+  nomonetario$ali_nm[(clave==string & 
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+nomonetario$ali_nm[(decena==1 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ali_nm[(decena==1 & 
+                        is.na(decena)!=TRUE)]/d11w08
+
+gc()
+
+nomonetario$ali_nm[(decena==2 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ali_nm[(decena==2 & 
+                        is.na(decena)!=TRUE)]/d11w08
+
+nomonetario$ali_nm[(decena==3 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ali_nm[(decena==3 & 
+                        is.na(decena)!=TRUE)]/d11w08
+
+nomonetario$ali_nm[(decena==4 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ali_nm[(decena==4 & 
+                        is.na(decena)!=TRUE)]/d11w09
+
+nomonetario$ali_nm[(decena==5 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ali_nm[(decena==5 & 
+                        is.na(decena)!=TRUE)]/d11w09
+
+nomonetario$ali_nm[(decena==6 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ali_nm[(decena==6 & 
+                        is.na(decena)!=TRUE)]/d11w09
+
+nomonetario$ali_nm[(decena==7 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ali_nm[(decena==7 & 
+                        is.na(decena)!=TRUE)]/d11w10
+
+nomonetario$ali_nm[(decena==8 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ali_nm[(decena==8 & 
+                        is.na(decena)!=TRUE)]/d11w10
+
+nomonetario$ali_nm[(decena==9 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ali_nm[(decena==9 & 
+                        is.na(decena)!=TRUE)]/d11w10
+
+nomonetario$ali_nm[(decena==0 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ali_nm[(decena==0 & 
+                        is.na(decena)!=TRUE)]/d11w11
+
+gc()
+```
+
+b. Gasto en Alcohol y Tabaco deflactado (semanal)
+
+```
+{r 156_Gasto_alcoholtabaco}
+for(i in 223:241){
+  gas_alctab <- 1000+i
+  string=paste("A", 
+               substr(as.character(gas_alctab), 2, 4),  
+               sep = "")
+  nomonetario$alta_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+nomonetario$alta_nm[(decena==1 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$alta_nm[(decena==1 & 
+                         is.na(decena)!=TRUE)]/d12w08
+
+nomonetario$alta_nm[(decena==2 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$alta_nm[(decena==2 & 
+                         is.na(decena)!=TRUE)]/d12w08
+
+nomonetario$alta_nm[(decena==3 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$alta_nm[(decena==3 & 
+                         is.na(decena)!=TRUE)]/d12w08
+
+nomonetario$alta_nm[(decena==4 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$alta_nm[(decena==4 & 
+                         is.na(decena)!=TRUE)]/d12w09
+
+nomonetario$alta_nm[(decena==5 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$alta_nm[(decena==5 & 
+                         is.na(decena)!=TRUE)]/d12w09
+
+nomonetario$alta_nm[(decena==6 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$alta_nm[(decena==6 & 
+                         is.na(decena)!=TRUE)]/d12w09
+
+nomonetario$alta_nm[(decena==7 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$alta_nm[(decena==7 & 
+                         is.na(decena)!=TRUE)]/d12w10
+
+nomonetario$alta_nm[(decena==8 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$alta_nm[(decena==8 & 
+                         is.na(decena)!=TRUE)]/d12w10
+
+nomonetario$alta_nm[(decena==9 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$alta_nm[(decena==9 & 
+                         is.na(decena)!=TRUE)]/d12w10
+
+nomonetario$alta_nm[(decena==0 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$alta_nm[(decena==0 & 
+                         is.na(decena)!=TRUE)]/d12w11
+
+gc()
+```
+
+c. Gasto en Vestido y Calzado deflactado (trimestral)**
+  
+```
+{r 157_gasto_vestidoycalzado}
+for(i in 1:122){
+  gas_vescal <- 1000+i
+  string=paste("H", substr(as.character(gas_vescal), 2, 4),  
+               sep = "")
+  nomonetario$veca_nm[(clave==string &
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+nomonetario$veca_nm[(clave=="H136" & 
+                       is.na(clave)!=TRUE)] <- 
+  nomonetario$gasnomon[(clave=="H136" & 
+                          is.na(clave)!=TRUE)]
+
+nomonetario$veca_nm[(decena==1 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$veca_nm[(decena==1 & 
+                         is.na(decena)!=TRUE)]/d2t05
+
+nomonetario$veca_nm[(decena==2 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$veca_nm[(decena==2 & 
+                         is.na(decena)!=TRUE)]/d2t05
+
+nomonetario$veca_nm[(decena==3 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$veca_nm[(decena==3 & 
+                         is.na(decena)!=TRUE)]/d2t06
+
+nomonetario$veca_nm[(decena==4 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$veca_nm[(decena==4 & 
+                         is.na(decena)!=TRUE)]/d2t06
+
+nomonetario$veca_nm[(decena==5 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$veca_nm[(decena==5 & 
+                         is.na(decena)!=TRUE)]/d2t06
+
+nomonetario$veca_nm[(decena==6 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$veca_nm[(decena==6 & 
+                         is.na(decena)!=TRUE)]/d2t07
+
+nomonetario$veca_nm[(decena==7 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$veca_nm[(decena==7 & 
+                         is.na(decena)!=TRUE)]/d2t07
+
+nomonetario$veca_nm[(decena==8 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$veca_nm[(decena==8 & 
+                         is.na(decena)!=TRUE)]/d2t07
+
+nomonetario$veca_nm[(decena==9 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$veca_nm[(decena==9 & 
+                         is.na(decena)!=TRUE)]/d2t08
+
+nomonetario$veca_nm[(decena==0 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$veca_nm[(decena==0 & 
+                         is.na(decena)!=TRUE)]/d2t08
+
+gc()
+```
+
+d. Gasto en Vivienda y Servicios de Conservacion deflactado (mensual)
+
+```
+{r 158_gasto_vivienda}
+for(i in 1:16){
+  gas_viv <- 1000+i
+  string=paste("G", 
+               substr(as.character(gas_viv), 2, 4), 
+               sep = "")
+  nomonetario$viv_nm[(clave==string &
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+for(i in 1:4){
+  gas_viv <- 1000+i
+  string=paste("R", 
+               substr(as.character(gas_viv), 2, 4),  
+               sep = "")
+  nomonetario$viv_nm[(clave==string & 
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+nomonetario$viv_nm[(clave=="R013" & 
+                      is.na(clave)!=TRUE)] <- 
+  nomonetario$gasnomon[(clave=="R013" & 
+                          is.na(clave)!=TRUE)]
+
+nomonetario$viv_nm[(decena==1 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$viv_nm[(decena==1 & 
+                        is.na(decena)!=TRUE)]/d3m07
+
+nomonetario$viv_nm[(decena==2 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$viv_nm[(decena==2 & 
+                        is.na(decena)!=TRUE)]/d3m07
+
+nomonetario$viv_nm[(decena==3 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$viv_nm[(decena==3 & 
+                        is.na(decena)!=TRUE)]/d3m08
+
+nomonetario$viv_nm[(decena==4 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$viv_nm[(decena==4 & 
+                        is.na(decena)!=TRUE)]/d3m08
+
+nomonetario$viv_nm[(decena==5 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$viv_nm[(decena==5 & 
+                        is.na(decena)!=TRUE)]/d3m08
+
+nomonetario$viv_nm[(decena==6 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$viv_nm[(decena==6 & 
+                        is.na(decena)!=TRUE)]/d3m09
+
+nomonetario$viv_nm[(decena==7 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$viv_nm[(decena==7 & 
+                        is.na(decena)!=TRUE)]/d3m09
+
+nomonetario$viv_nm[(decena==8 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$viv_nm[(decena==8 & 
+                        is.na(decena)!=TRUE)]/d3m09
+
+nomonetario$viv_nm[(decena==9 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$viv_nm[(decena==9 & 
+                        is.na(decena)!=TRUE)]/d3m10
+
+nomonetario$viv_nm[(decena==0 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$viv_nm[(decena==0 & 
+                        is.na(decena)!=TRUE)]/d3m10
+
+gc()
+```
+
+e. Gasto en Articulos de Limpieza deflactado (mensual)
+
+```
+{r 159_gasto_limpieza}
+for(i in 1:24){
+  gas_limp <- 1000+i
+  string=paste("C", 
+               substr(as.character(gas_limp), 2, 4),  
+               sep = "")
+  nomonetario$lim_nm[(clave==string & 
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+nomonetario$lim_nm[(decena==1 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$lim_nm[(decena==1 & 
+                        is.na(decena)!=TRUE)]/d42m07
+
+nomonetario$lim_nm[(decena==2 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$lim_nm[(decena==2 & 
+                        is.na(decena)!=TRUE)]/d42m07
+
+nomonetario$lim_nm[(decena==3 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$lim_nm[(decena==3 & 
+                        is.na(decena)!=TRUE)]/d42m08
+
+nomonetario$lim_nm[(decena==4 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$lim_nm[(decena==4 & 
+                        is.na(decena)!=TRUE)]/d42m08
+
+nomonetario$lim_nm[(decena==5 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$lim_nm[(decena==5 & 
+                        is.na(decena)!=TRUE)]/d42m08
+
+nomonetario$lim_nm[(decena==6 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$lim_nm[(decena==6 & 
+                        is.na(decena)!=TRUE)]/d42m09
+
+nomonetario$lim_nm[(decena==7 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$lim_nm[(decena==7 & 
+                        is.na(decena)!=TRUE)]/d42m09
+
+nomonetario$lim_nm[(decena==8 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$lim_nm[(decena==8 & 
+                        is.na(decena)!=TRUE)]/d42m09
+
+nomonetario$lim_nm[(decena==9 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$lim_nm[(decena==9 & 
+                        is.na(decena)!=TRUE)]/d42m10
+
+nomonetario$lim_nm[(decena==0 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$lim_nm[(decena==0 & 
+                        is.na(decena)!=TRUE)]/d42m10
+
+
+gc()
+```
+
+f. Gasto en Cristaleria y Blancos deflactado (trimestral)
+
+```
+{r 160_gasto_blancos}
+for(i in 1:26){
+  gas_cris <- 1000+i
+  string=paste("I", 
+               substr(as.character(gas_cris), 2, 4),  
+               sep = "")
+  nomonetario$cris_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+nomonetario$cris_nm[(decena==1 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cris_nm[(decena==1 & 
+                         is.na(decena)!=TRUE)]/d42t05
+
+nomonetario$cris_nm[(decena==2 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cris_nm[(decena==2 & 
+                         is.na(decena)!=TRUE)]/d42t05
+
+nomonetario$cris_nm[(decena==3 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cris_nm[(decena==3 & 
+                         is.na(decena)!=TRUE)]/d42t06
+
+nomonetario$cris_nm[(decena==4 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cris_nm[(decena==4 & 
+                         is.na(decena)!=TRUE)]/d42t06
+
+nomonetario$cris_nm[(decena==5 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cris_nm[(decena==5 & 
+                         is.na(decena)!=TRUE)]/d42t06
+
+nomonetario$cris_nm[(decena==6 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cris_nm[(decena==6 & 
+                         is.na(decena)!=TRUE)]/d42t07
+
+nomonetario$cris_nm[(decena==7 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cris_nm[(decena==7 & 
+                         is.na(decena)!=TRUE)]/d42t07
+
+nomonetario$cris_nm[(decena==8 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cris_nm[(decena==8 & 
+                         is.na(decena)!=TRUE)]/d42t07
+
+nomonetario$cris_nm[(decena==9 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cris_nm[(decena==9 & 
+                         is.na(decena)!=TRUE)]/d42t08
+
+nomonetario$cris_nm[(decena==0 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cris_nm[(decena==0 & 
+                         is.na(decena)!=TRUE)]/d42t08
+
+gc()
+```
+
+g. Gasto en Enseres Domesticos y Muebles deflactado (semestral)**
+  
+```
+{r 161_gasto_muebles}
+for(i in 1:37){
+  gas_endom <- 1000+i
+  string=paste("K", 
+               substr(as.character(gas_endom), 2, 4), 
+               sep = "")
+  nomonetario$ens_nm[(clave==string & 
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+nomonetario$ens_nm[(decena==1 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ens_nm[(decena==1 & 
+                        is.na(decena)!=TRUE)]/d41s02
+
+nomonetario$ens_nm[(decena==2 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ens_nm[(decena==2 & 
+                        is.na(decena)!=TRUE)]/d41s02
+
+nomonetario$ens_nm[(decena==3 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ens_nm[(decena==3 & 
+                        is.na(decena)!=TRUE)]/d41s03
+
+nomonetario$ens_nm[(decena==4 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ens_nm[(decena==4 & 
+                        is.na(decena)!=TRUE)]/d41s03
+
+nomonetario$ens_nm[(decena==5 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ens_nm[(decena==5 & 
+                        is.na(decena)!=TRUE)]/d41s03
+
+nomonetario$ens_nm[(decena==6 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ens_nm[(decena==6 & 
+                        is.na(decena)!=TRUE)]/d41s04
+
+nomonetario$ens_nm[(decena==7 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ens_nm[(decena==7 & 
+                        is.na(decena)!=TRUE)]/d41s04
+
+nomonetario$ens_nm[(decena==8 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ens_nm[(decena==8 & 
+                        is.na(decena)!=TRUE)]/d41s04
+
+nomonetario$ens_nm[(decena==9 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ens_nm[(decena==9 & 
+                        is.na(decena)!=TRUE)]/d41s05
+
+nomonetario$ens_nm[(decena==0 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$ens_nm[(decena==0 & 
+                        is.na(decena)!=TRUE)]/d41s05
+
+gc()
+```
+
+h. Gasto en Salud deflactado (trimestral)
+
+```
+{r 162_gasto_salud}
+for(i in 1:72){
+  gas_salud <- 1000+i
+  string=paste("J", 
+               substr(as.character(gas_salud), 2, 4),  
+               sep = "")
+  nomonetario$sal_nm[(clave==string & 
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+nomonetario$sal_nm[(decena==1 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$sal_nm[(decena==1 & 
+                        is.na(decena)!=TRUE)]/d51t05
+
+nomonetario$sal_nm[(decena==2 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$sal_nm[(decena==2 & 
+                        is.na(decena)!=TRUE)]/d51t05
+
+nomonetario$sal_nm[(decena==3 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$sal_nm[(decena==3 & 
+                        is.na(decena)!=TRUE)]/d51t06
+
+nomonetario$sal_nm[(decena==4 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$sal_nm[(decena==4 & 
+                        is.na(decena)!=TRUE)]/d51t06
+
+nomonetario$sal_nm[(decena==5 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$sal_nm[(decena==5 & 
+                        is.na(decena)!=TRUE)]/d51t06
+
+nomonetario$sal_nm[(decena==6 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$sal_nm[(decena==6 & 
+                        is.na(decena)!=TRUE)]/d51t07
+
+nomonetario$sal_nm[(decena==7 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$sal_nm[(decena==7 & 
+                        is.na(decena)!=TRUE)]/d51t07
+
+nomonetario$sal_nm[(decena==8 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$sal_nm[(decena==8 & 
+                        is.na(decena)!=TRUE)]/d51t07
+
+nomonetario$sal_nm[(decena==9 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$sal_nm[(decena==9 & 
+                        is.na(decena)!=TRUE)]/d51t08
+
+nomonetario$sal_nm[(decena==0 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$sal_nm[(decena==0 & 
+                        is.na(decena)!=TRUE)]/d51t08
+
+gc()
+```
+
+i. Gasto en Transporte publico deflactado (semanal)
+
+```
+{r 163_gasto_transporte}
+for(i in 1:7){
+  gas_transpub <- 1000+i
+  string=paste("B", 
+               substr(as.character(gas_transpub), 2, 4),  
+               sep = "")
+  nomonetario$tpub_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+nomonetario$tpub_nm[(decena==1 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tpub_nm[(decena==1 & 
+                         is.na(decena)!=TRUE)]/d611w08
+
+nomonetario$tpub_nm[(decena==2 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tpub_nm[(decena==2 & 
+                         is.na(decena)!=TRUE)]/d611w08
+
+nomonetario$tpub_nm[(decena==3 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tpub_nm[(decena==3 & 
+                         is.na(decena)!=TRUE)]/d611w08
+
+nomonetario$tpub_nm[(decena==4 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tpub_nm[(decena==4 & 
+                         is.na(decena)!=TRUE)]/d611w09
+
+nomonetario$tpub_nm[(decena==5 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tpub_nm[(decena==5 & 
+                         is.na(decena)!=TRUE)]/d611w09
+
+nomonetario$tpub_nm[(decena==6 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tpub_nm[(decena==6 & 
+                         is.na(decena)!=TRUE)]/d611w09
+
+nomonetario$tpub_nm[(decena==7 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tpub_nm[(decena==7 & 
+                         is.na(decena)!=TRUE)]/d611w10
+
+nomonetario$tpub_nm[(decena==8 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tpub_nm[(decena==8 & 
+                         is.na(decena)!=TRUE)]/d611w10
+
+nomonetario$tpub_nm[(decena==9 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tpub_nm[(decena==9 & 
+                         is.na(decena)!=TRUE)]/d611w10
+
+nomonetario$tpub_nm[(decena==0 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tpub_nm[(decena==0 & 
+                         is.na(decena)!=TRUE)]/d611w11
+
+gc()
+```
+
+j. Gasto en Transporte foraneo deflactado (semestral)
+
+```
+{r 164_gasto_transporte_foraneo}
+for(i in 1:18){
+  gas_transfor <- 1000+i
+  string=paste("M", 
+               substr(as.character(gas_transfor), 2, 4),  sep = "")
+  nomonetario$tfor_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- nomonetario$gasnomon[(clave==string & 
+                                                                         is.na(clave)!=TRUE)]
+}
+
+gc()
+
+for(i in 7:14){
+  gas_transfor <- 1000+i
+  string=paste("F", 
+               substr(as.character(gas_transfor), 2, 4),  
+               sep = "")
+  nomonetario$tfor_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+nomonetario$tfor_nm[(decena==1 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tfor_nm[(decena==1 & 
+                         is.na(decena)!=TRUE)]/d6s02
+
+nomonetario$tfor_nm[(decena==2 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tfor_nm[(decena==2 & 
+                         is.na(decena)!=TRUE)]/d6s02
+
+nomonetario$tfor_nm[(decena==3 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tfor_nm[(decena==3 & 
+                         is.na(decena)!=TRUE)]/d6s03
+
+nomonetario$tfor_nm[(decena==4 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tfor_nm[(decena==4 & 
+                         is.na(decena)!=TRUE)]/d6s03
+
+nomonetario$tfor_nm[(decena==5 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tfor_nm[(decena==5 & 
+                         is.na(decena)!=TRUE)]/d6s03
+
+nomonetario$tfor_nm[(decena==6 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tfor_nm[(decena==6 & 
+                         is.na(decena)!=TRUE)]/d6s04
+
+nomonetario$tfor_nm[(decena==7 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tfor_nm[(decena==7 & 
+                         is.na(decena)!=TRUE)]/d6s04
+
+nomonetario$tfor_nm[(decena==8 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tfor_nm[(decena==8 & 
+                         is.na(decena)!=TRUE)]/d6s04
+
+nomonetario$tfor_nm[(decena==9 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tfor_nm[(decena==9 & 
+                         is.na(decena)!=TRUE)]/d6s05
+
+nomonetario$tfor_nm[(decena==0 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$tfor_nm[(decena==0 & 
+                         is.na(decena)!=TRUE)]/d6s05
+
+gc()
+```
+
+k. Gasto en Comunicaciones deflactado (mensual)
+
+```
+{r 165_gasto_comunicaciones}
+for(i in 1:6){
+  gas_com <- 1000+i
+  string=paste("F", 
+               substr(as.character(gas_com), 2, 4),  
+               sep = "")
+  nomonetario$com_nm[(clave==string & 
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+for(i in 5:8){
+  gas_com <- 1000+i
+  string=paste("R", 
+               substr(as.character(gas_com), 2, 4),  
+               sep = "")
+  nomonetario$com_nm[(clave==string & 
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+for(i in 10:11){
+  gas_com <- 1000+i
+  string=paste("R", 
+               substr(as.character(gas_com), 2, 4), 
+               sep = "")
+  nomonetario$com_nm[(clave==string & 
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+nomonetario$com_nm[(decena==1 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$com_nm[(decena==1 & 
+                        is.na(decena)!=TRUE)]/d6m07
+
+nomonetario$com_nm[(decena==2 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$com_nm[(decena==2 & 
+                        is.na(decena)!=TRUE)]/d6m07
+
+nomonetario$com_nm[(decena==3 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$com_nm[(decena==3 & 
+                        is.na(decena)!=TRUE)]/d6m08
+
+nomonetario$com_nm[(decena==4 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$com_nm[(decena==4 & 
+                        is.na(decena)!=TRUE)]/d6m08
+
+nomonetario$com_nm[(decena==5 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$com_nm[(decena==5 & 
+                        is.na(decena)!=TRUE)]/d6m08
+
+nomonetario$com_nm[(decena==6 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$com_nm[(decena==6 & 
+                        is.na(decena)!=TRUE)]/d6m09
+
+nomonetario$com_nm[(decena==7 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$com_nm[(decena==7 & 
+                        is.na(decena)!=TRUE)]/d6m09
+
+nomonetario$com_nm[(decena==8 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$com_nm[(decena==8 & 
+                        is.na(decena)!=TRUE)]/d6m09
+
+nomonetario$com_nm[(decena==9 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$com_nm[(decena==9 & 
+                        is.na(decena)!=TRUE)]/d6m10
+
+nomonetario$com_nm[(decena==0 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$com_nm[(decena==0 & 
+                        is.na(decena)!=TRUE)]/d6m10
+
+gc()
+```
+
+l. Gasto en Educacion y recreacion deflactado (mensual)
+
+
+```
+{r 166_gasto_educacion}
+for(i in 1:34){
+  gas_edurec <- 1000+i
+  string=paste("E", 
+               substr(as.character(gas_edurec), 2, 4), 
+               sep = "")
+  nomonetario$edre_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+for(i in 134:135){
+  gas_edurec <- 1000+i
+  string=paste("H", 
+               substr(as.character(gas_edurec), 2, 4), 
+               sep = "")
+  nomonetario$edre_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+for(i in 1:29){
+  gas_edurec <- 1000+i
+  string=paste("L", 
+               substr(as.character(gas_edurec), 2, 4),  
+               sep = "")
+  nomonetario$edre_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+for(i in 3:5){
+  gas_edurec <- 1000+i
+  string=paste("N", 
+               substr(as.character(gas_edurec), 2, 4),
+               sep = "")
+  nomonetario$edre_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+nomonetario$edre_nm[(clave=="R009" & 
+                       is.na(clave)!=TRUE)] <- 
+  nomonetario$gasnomon[(clave=="R009" &
+                          is.na(clave)!=TRUE)]
+
+nomonetario$edre_nm[(decena==1 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edre_nm[(decena==1 & 
+                         is.na(decena)!=TRUE)]/d7m07
+
+nomonetario$edre_nm[(decena==2 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edre_nm[(decena==2 & 
+                         is.na(decena)!=TRUE)]/d7m07
+
+nomonetario$edre_nm[(decena==3 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edre_nm[(decena==3 & 
+                         is.na(decena)!=TRUE)]/d7m08
+
+nomonetario$edre_nm[(decena==4 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edre_nm[(decena==4 & 
+                         is.na(decena)!=TRUE)]/d7m08
+
+nomonetario$edre_nm[(decena==5 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edre_nm[(decena==5 & 
+                         is.na(decena)!=TRUE)]/d7m08
+
+nomonetario$edre_nm[(decena==6 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edre_nm[(decena==6 & 
+                         is.na(decena)!=TRUE)]/d7m09
+
+nomonetario$edre_nm[(decena==7 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edre_nm[(decena==7 & 
+                         is.na(decena)!=TRUE)]/d7m09
+
+nomonetario$edre_nm[(decena==8 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edre_nm[(decena==8 & 
+                         is.na(decena)!=TRUE)]/d7m09
+
+nomonetario$edre_nm[(decena==9 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edre_nm[(decena==9 & 
+                         is.na(decena)!=TRUE)]/d7m10
+
+nomonetario$edre_nm[(decena==0 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edre_nm[(decena==0 & 
+                         is.na(decena)!=TRUE)]/d7m10
+
+gc()
+```
+
+m. Gasto en Educacion basica deflactado (mensual)
+
+```
+{r 167_gasto_educacion_basica}
+for(i in 2:3){
+  gas_edubas <- 1000+i
+  string=paste("E", 
+               substr(as.character(gas_edubas), 2, 4), 
+               sep = "")
+  nomonetario$edba_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+for(i in 134:135){
+  gas_edubas <- 1000+i
+  string=paste("H", 
+               substr(as.character(gas_edubas), 2, 4), 
+               sep = "")
+  nomonetario$edba_nm[(clave==string &
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string &
+                            is.na(clave)!=TRUE)]
+}
+
+nomonetario$edba_nm[(decena==1 &
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edba_nm[(decena==1 & 
+                         is.na(decena)!=TRUE)]/d7m07
+
+nomonetario$edba_nm[(decena==2 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edba_nm[(decena==2 & 
+                         is.na(decena)!=TRUE)]/d7m07
+
+nomonetario$edba_nm[(decena==3 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edba_nm[(decena==3 & 
+                         is.na(decena)!=TRUE)]/d7m08
+
+nomonetario$edba_nm[(decena==4 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edba_nm[(decena==4 & 
+                         is.na(decena)!=TRUE)]/d7m08
+
+nomonetario$edba_nm[(decena==5 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edba_nm[(decena==5 & 
+                         is.na(decena)!=TRUE)]/d7m08
+
+nomonetario$edba_nm[(decena==6 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edba_nm[(decena==6 & 
+                         is.na(decena)!=TRUE)]/d7m09
+
+nomonetario$edba_nm[(decena==7 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edba_nm[(decena==7 & 
+                         is.na(decena)!=TRUE)]/d7m09
+
+nomonetario$edba_nm[(decena==8 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edba_nm[(decena==8 & 
+                         is.na(decena)!=TRUE)]/d7m09
+
+nomonetario$edba_nm[(decena==9 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edba_nm[(decena==9 & 
+                         is.na(decena)!=TRUE)]/d7m10
+
+nomonetario$edba_nm[(decena==0 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$edba_nm[(decena==0 & 
+                         is.na(decena)!=TRUE)]/d7m10
+
+gc()
+```
+
+n. Gasto en Cuidado personal deflactado (mensual)
+
+```
+{r 168_gasto_cuidado_personal}
+for(i in 1:26){
+  gas_cuiper <- 1000+i
+  string=paste("D", 
+               substr(as.character(gas_cuiper), 2, 4),  
+               sep = "")
+  nomonetario$cuip_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+nomonetario$cuip_nm[(clave=="H132" & 
+                       is.na(clave)!=TRUE)] <- 
+  nomonetario$gasnomon[(clave=="H132" & 
+                          is.na(clave)!=TRUE)]
+
+nomonetario$cuip_nm[(decena==1 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cuip_nm[(decena==1 & 
+                         is.na(decena)!=TRUE)]/d23m07
+
+nomonetario$cuip_nm[(decena==2 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cuip_nm[(decena==2 & 
+                         is.na(decena)!=TRUE)]/d23m07
+
+nomonetario$cuip_nm[(decena==3 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cuip_nm[(decena==3 & 
+                         is.na(decena)!=TRUE)]/d23m08
+
+nomonetario$cuip_nm[(decena==4 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cuip_nm[(decena==4 & 
+                         is.na(decena)!=TRUE)]/d23m08
+
+nomonetario$cuip_nm[(decena==5 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cuip_nm[(decena==5 & 
+                         is.na(decena)!=TRUE)]/d23m08
+
+nomonetario$cuip_nm[(decena==6 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cuip_nm[(decena==6 & 
+                         is.na(decena)!=TRUE)]/d23m09
+
+nomonetario$cuip_nm[(decena==7 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cuip_nm[(decena==7 & 
+                         is.na(decena)!=TRUE)]/d23m09
+
+nomonetario$cuip_nm[(decena==8 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cuip_nm[(decena==8 & 
+                         is.na(decena)!=TRUE)]/d23m09
+
+nomonetario$cuip_nm[(decena==9 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cuip_nm[(decena==9 & 
+                         is.na(decena)!=TRUE)]/d23m10
+
+nomonetario$cuip_nm[(decena==0 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$cuip_nm[(decena==0 & 
+                         is.na(decena)!=TRUE)]/d23m10
+
+gc()
+```
+
+o. Gasto en Accesorios personales deflactado (trimestral)
+
+```
+{r 169_gasto_accesorios}
+for(i in 123:131){
+  gas_accper <- 1000+i
+  string=paste("H", 
+               substr(as.character(gas_accper), 2, 4),  
+               sep = "")
+  nomonetario$accp_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+nomonetario$accp_nm[(clave=="H133" & 
+                       is.na(clave)!=TRUE)] <- 
+  nomonetario$gasnomon[(clave=="H133" & 
+                          is.na(clave)!=TRUE)]
+
+nomonetario$accp_nm[(decena==1 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$accp_nm[(decena==1 & 
+                         is.na(decena)!=TRUE)]/d23t05
+
+nomonetario$accp_nm[(decena==2 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$accp_nm[(decena==2 & 
+                         is.na(decena)!=TRUE)]/d23t05
+
+nomonetario$accp_nm[(decena==3 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$accp_nm[(decena==3 & 
+                         is.na(decena)!=TRUE)]/d23t06
+
+nomonetario$accp_nm[(decena==4 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$accp_nm[(decena==4 & 
+                         is.na(decena)!=TRUE)]/d23t06
+
+nomonetario$accp_nm[(decena==5 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$accp_nm[(decena==5 & 
+                         is.na(decena)!=TRUE)]/d23t06
+
+nomonetario$accp_nm[(decena==6 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$accp_nm[(decena==6 & 
+                         is.na(decena)!=TRUE)]/d23t07
+
+nomonetario$accp_nm[(decena==7 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$accp_nm[(decena==7 & 
+                         is.na(decena)!=TRUE)]/d23t07
+
+nomonetario$accp_nm[(decena==8 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$accp_nm[(decena==8 & 
+                         is.na(decena)!=TRUE)]/d23t07
+
+nomonetario$accp_nm[(decena==9 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$accp_nm[(decena==9 & 
+                         is.na(decena)!=TRUE)]/d23t08
+
+nomonetario$accp_nm[(decena==0 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$accp_nm[(decena==0 & 
+                         is.na(decena)!=TRUE)]/d23t08
+
+gc()
+```
+
+p. Gasto en Otros gastos y transferencias deflactado (semestral)
+
+```
+{r 170_gastos_otros}
+for(i in 1:2){
+  gas_otro <- 1000+i
+  string=paste("N", 
+               substr(as.character(gas_otro), 2, 4), 
+               sep = "")
+  nomonetario$otr_nm[(clave==string & 
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+for(i in 6:16){
+  gas_otro <- 1000+i
+  string <- paste("N", 
+                  substr(as.character(gas_otro), 2, 4), 
+                  sep = "")
+  nomonetario$otr_nm[(clave==string & 
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+for(i in 901:915){
+  gas_otro <- 1000+i
+  string <- paste("T", 
+                  substr(as.character(gas_otro), 2, 4),
+                  sep = "")
+  nomonetario$otr_nm[(clave==string & 
+                        is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+nomonetario$otr_nm[(clave=="R012" & 
+                      is.na(clave)!=TRUE)] <- 
+  nomonetario$gasnomon[(clave=="R012" & 
+                          is.na(clave)!=TRUE)]
+
+nomonetario$otr_nm[(decena==1 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$otr_nm[(decena==1 & 
+                        is.na(decena)!=TRUE)]/dINPCs02
+
+nomonetario$otr_nm[(decena==2 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$otr_nm[(decena==2 & 
+                        is.na(decena)!=TRUE)]/dINPCs02
+
+nomonetario$otr_nm[(decena==3 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$otr_nm[(decena==3 & 
+                        is.na(decena)!=TRUE)]/dINPCs03
+
+nomonetario$otr_nm[(decena==4 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$otr_nm[(decena==4 & 
+                        is.na(decena)!=TRUE)]/dINPCs03
+
+nomonetario$otr_nm[(decena==5 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$otr_nm[(decena==5 & 
+                        is.na(decena)!=TRUE)]/dINPCs03
+
+nomonetario$otr_nm[(decena==6 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$otr_nm[(decena==6 & 
+                        is.na(decena)!=TRUE)]/dINPCs04
+
+nomonetario$otr_nm[(decena==7 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$otr_nm[(decena==7 & 
+                        is.na(decena)!=TRUE)]/dINPCs04
+
+nomonetario$otr_nm[(decena==8 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$otr_nm[(decena==8 & 
+                        is.na(decena)!=TRUE)]/dINPCs04
+
+nomonetario$otr_nm[(decena==9 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$otr_nm[(decena==9 & 
+                        is.na(decena)!=TRUE)]/dINPCs05
+
+nomonetario$otr_nm[(decena==0 & 
+                      is.na(decena)!=TRUE)] <- 
+  nomonetario$otr_nm[(decena==0 & 
+                        is.na(decena)!=TRUE)]/dINPCs05
+
+gc()
+```
+
+q. Gasto en Regalos Otorgados deflactado
+
+```
+{r 171_gastos_regalos}
+for(i in 901:915){
+  gas_reg <- 1000+i
+  string <- paste("T", 
+                  substr(as.character(gas_reg), 2, 4),  
+                  sep = "")
+  nomonetario$reda_nm[(clave==string & 
+                         is.na(clave)!=TRUE)] <- 
+    nomonetario$gasnomon[(clave==string & 
+                            is.na(clave)!=TRUE)]
+}
+
+gc()
+
+nomonetario$reda_nm[(clave=="N013" & 
+                       is.na(clave)!=TRUE)] <- 
+  nomonetario$gasnomon[(clave=="N013" & 
+                          is.na(clave)!=TRUE)]
+
+nomonetario$reda_nm[(decena==1 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$reda_nm[(decena==1 & 
+                         is.na(decena)!=TRUE)]/dINPCs02
+
+nomonetario$reda_nm[(decena==2 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$reda_nm[(decena==2 & 
+                         is.na(decena)!=TRUE)]/dINPCs02
+
+nomonetario$reda_nm[(decena==3 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$reda_nm[(decena==3 & 
+                         is.na(decena)!=TRUE)]/dINPCs03
+
+nomonetario$reda_nm[(decena==4 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$reda_nm[(decena==4 & 
+                         is.na(decena)!=TRUE)]/dINPCs03
+
+nomonetario$reda_nm[(decena==5 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$reda_nm[(decena==5 & 
+                         is.na(decena)!=TRUE)]/dINPCs03
+
+nomonetario$reda_nm[(decena==6 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$reda_nm[(decena==6 & 
+                         is.na(decena)!=TRUE)]/dINPCs04
+
+nomonetario$reda_nm[(decena==7 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$reda_nm[(decena==7 & 
+                         is.na(decena)!=TRUE)]/dINPCs04
+
+nomonetario$reda_nm[(decena==8 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$reda_nm[(decena==8 & 
+                         is.na(decena)!=TRUE)]/dINPCs04
+
+nomonetario$reda_nm[(decena==9 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$reda_nm[(decena==9 & 
+                         is.na(decena)!=TRUE)]/dINPCs05
+
+nomonetario$reda_nm[(decena==0 & 
+                       is.na(decena)!=TRUE)] <- 
+  nomonetario$reda_nm[(decena==0 & 
+                         is.na(decena)!=TRUE)]/dINPCs05
+
+detach(nomonetario)
+
+#mean(nomonetario$ali_nm,na.rm=TRUE)
+#mean(nomonetario$alta_nm,na.rm=TRUE) 
+#mean(nomonetario$veca_nm,na.rm=TRUE) 
+#mean(nomonetario$viv_nm,na.rm=TRUE)
+#mean(nomonetario$lim_nm,na.rm=TRUE)
+#mean(nomonetario$cris_nm,na.rm=TRUE)
+#mean(nomonetario$ens_nm,na.rm=TRUE) 
+#mean(nomonetario$sal_nm,na.rm=TRUE) 
+#mean(nomonetario$tpub_nm,na.rm=TRUE) 
+#mean(nomonetario$tfor_nm,na.rm=TRUE) 
+#mean(nomonetario$com_nm,na.rm=TRUE) 
+#mean(nomonetario$edre_nm,na.rm=TRUE) 
+#mean(nomonetario$edba_nm,na.rm=TRUE) 
+#mean(nomonetario$cuip_nm,na.rm=TRUE) 
+#mean(nomonetario$accp_nm,na.rm=TRUE) 
+#mean(nomonetario$otr_nm,na.rm=TRUE)
+#mean(nomonetario$reda_nm,na.rm=TRUE)
+
+indexesp <- (nomonetario$esp==1 & is.na(nomonetario$esp)!=TRUE)
+
+nomonetarioesp <- nomonetario[indexesp,]
+
+dim(nomonetarioesp)
+```
+
+r. Construccion de la base de pagos en especie a partir de la base de gasto no monetario**
+  
+```
+{r 172_gastos_pagos_especie}
+attach(nomonetarioesp)
+nomonetarioesp2 <- aggregate(x=list(ali_nm, alta_nm, 
+                                    veca_nm,  viv_nm,  lim_nm, 
+                                    cris_nm, ens_nm, sal_nm, 
+                                    tpub_nm, tfor_nm, com_nm, 
+                                    edre_nm, edba_nm, cuip_nm, 
+                                    accp_nm, otr_nm, reda_nm), 
+                             by=list( folioviv, foliohog),  
+                             FUN=sum, na.rm=TRUE)
+detach(nomonetarioesp)
+
+names(nomonetarioesp2 )[1:19] <- c("folioviv", "foliohog","ali_nme", 
+                                   "alta_nme", "veca_nme", "viv_nme",
+                                   "lim_nme", "cris_nme", "ens_nme",
+                                   "sal_nme", "tpub_nme", "tfor_nme",
+                                   "com_nme", "edre_nme", "edba_nme",
+                                   "cuip_nme", "accp_nme", "otr_nme",
+                                   "reda_nme")
+
+nomonetarioesp2 <- orderBy(~+folioviv+foliohog, data=nomonetarioesp2)
+
+indexreg <- (nomonetario$reg==1 & is.na(nomonetario$reg)!=TRUE)
+nomonetarioreg <- nomonetario[indexreg,]
+
+gc()
+```
+
+s. Construccion de base de regalos a partir de la base no monetaria
+
+```
+{r 173_gastos_regalos}
+attach(nomonetarioreg)
+nomonetarioreg2 <- aggregate(x=list(
+  ali_nm, alta_nm, veca_nm, viv_nm,
+  lim_nm, cris_nm, ens_nm, sal_nm,
+  tpub_nm, tfor_nm, com_nm, edre_nm,
+  edba_nm, cuip_nm, accp_nm, otr_nm,
+  reda_nm), 
+  by=list( folioviv, foliohog), 
+  FUN=sum, na.rm=TRUE)
+detach(nomonetarioreg)
+
+names(nomonetarioreg2 )[1:19] <- c( "folioviv","foliohog","ali_nmr",
+                                    "alta_nmr","veca_nmr","viv_nmr",
+                                    "lim_nmr","cris_nmr","ens_nmr",
+                                    "sal_nmr","tpub_nmr","tfor_nmr",
+                                    "com_nmr","edre_nmr","edba_nmr",
+                                    "cuip_nmr","accp_nmr","otr_nmr",
+                                    "reda_nmr")
+
+nomonetarioreg2 <- orderBy(~+folioviv+foliohog, data=nomonetarioreg2)
+
+dim(nomonetarioreg2)
+
+##head(nomonetarioreg2)
+
+### **** ###
+
+write.csv(nomonetarioreg2, './Bases4Analysis/2016_nomonetarioreg2.csv', 
+          row.names = FALSE)
+write.dbf(nomonetarioreg2, './Bases4Analysis/2016_nomonetarioreg2.dbf')
+
+gc()
+```
+
+### Ingreso corriente total
+
+** Construccion del ingreso corriente total**
+  
+```
+{r 174_ingreso_corriente_total}
+library("foreign")
+concentrado <- read.dbf("./BasesDatos/ENIGH2016/concentradohogar.dbf", as.is = TRUE)
+
+names(concentrado) <- tolower(names(concentrado))
+
+concentrado <- concentrado[ c( "folioviv","foliohog","factor",
+                               "tam_loc" , "tot_integ")]
+
+concentrado <- orderBy(~+folioviv+foliohog, data=concentrado)
+
+dim(concentrado)
+#colnames(concentrado)
+
+### ***** ###
+ingresos2 <- read.csv("./Bases4Analysis/2016_ingresocorriente.csv",
+                      header = TRUE)
+
+dim(ingresos2)
+#colnames(ingresos2)
+
+concentrado <- concentrado[,c("folioviv","foliohog","tot_integ")]
+
+concentrado1 <- merge(concentrado,
+                      ingresos2,
+                      by.x = c("folioviv","foliohog"),
+                      by.y = c("folioviv","foliohog"),
+                      all = TRUE)
+
+#colnames(concentrado1)
+
+concentrado1 <- orderBy(~+folioviv+foliohog, data=concentrado1)
+
+dim(concentrado1)
+dim(nomonetarioesp2)
+
+concentrado2 <- merge(concentrado1,
+                      nomonetarioesp2,
+                      by.x=c("folioviv","foliohog"),
+                      by.y=c("folioviv","foliohog"),
+                      all = TRUE)
+
+concentrado2 <- orderBy(~+folioviv+foliohog, data=concentrado2)
+
+concentrado3 <- merge(concentrado2,
+                      nomonetarioreg2,
+                      by.x=c( "folioviv","foliohog"),
+                      by.y=c( "folioviv","foliohog"),
+                      all = TRUE)
+
+concentrado3 <- orderBy(~+folioviv+foliohog, data=concentrado3)
+
+concentrado3$rururb <- 0
+
+concentrado3$rururb[concentrado3$tam_loc=="4"] <- 1
+
+#colnames(concentrado3)
+pago_especie <- concentrado3[,c("ali_nme", "alta_nme", "veca_nme",
+                               "viv_nme", "lim_nme", "cris_nme",
+                               "ens_nme", "sal_nme", "tpub_nme",
+                               "tfor_nme", "com_nme", "edre_nme",
+                               "cuip_nme", "accp_nme", "otr_nme")]
+
+dim(pago_especie)
+
+concentrado3$pago_esp <- rowSums(pago_especie, na.rm = TRUE)
+
+concentrado3$reg_esp <- rowSums(
+  data.frame(concentrado3$ali_nmr,concentrado3$alta_nmr,
+             concentrado3$veca_nmr,concentrado3$viv_nmr,
+             concentrado3$lim_nmr,concentrado3$cris_nmr,
+             concentrado3$ens_nmr,concentrado3$sal_nmr,
+             concentrado3$tpub_nmr,concentrado3$tfor_nmr,
+             concentrado3$com_nmr,concentrado3$edre_nmr,
+             concentrado3$cuip_nmr,concentrado3$accp_nmr,
+             concentrado3$otr_nmr), 
+  na.rm = TRUE)
+
+concentrado3$nomon <- rowSums(data.frame(concentrado3$pago_esp, concentrado3$reg_esp ), na.rm = TRUE)
+concentrado3$ict <- rowSums(data.frame(concentrado3$ing_mon, concentrado3$nomon ), na.rm = TRUE)
+concentrado3 <- orderBy(~+folioviv+foliohog, data=concentrado3)
+
+#mean(concentrado3$pago_esp)
+#mean(concentrado3$reg_esp)
+#mean(concentrado3$nomon)
+#mean(concentrado3$ict)
+
+write.csv(concentrado3, './Bases4Analysis/2016_ingresocorriente_total.csv', 
+          row.names = FALSE)
+write.dbf(concentrado3, './Bases4Analysis/2016_ingresocorriente_total.dbf')
+
+#### ****** ###
+```
+
+## Indicador de Bienestar por Ingresos
+
+```
+{r 175_bienestar_tamaniohogar}
+poblacion1 <- read.dbf("./Bases4Analysis/2016_poblacion.dbf",
+                       as.is = TRUE)
+
+names(poblacion1) <- tolower(names(poblacion1))
+
+poblacion2 <- as.numeric(poblacion1$parentesco)
+
+index  <- ( (poblacion2>=400 & poblacion2<500) |
+              (poblacion2>=700 & poblacion2 <800) )
+
+index <- (index==FALSE)
+
+poblacion <- poblacion1[index,]
+
+poblacion$ind <- 1
+
+
+attach(poblacion)
+
+poblacion2 <- aggregate(x=list(ind), 
+                        by=list(folioviv, foliohog),
+                        FUN=sum, 
+                        na.rm=TRUE)
+
+detach(poblacion)
+
+names(poblacion2)[1:3] <- c("folioviv",  "foliohog", "tot_ind")
+
+poblacion <- merge(poblacion, poblacion2, 
+                   by=c( "folioviv",  "foliohog"), 
+                   all.x = TRUE)
+
+# Escalas de equivalencia
+attach(poblacion)
+poblacion$n_05 <- NA
+poblacion$n_05[edad>=0 & edad<=5] <- 1
+poblacion$n_05[(edad>5 & is.na(edad)==FALSE)] <- 0
+table(poblacion$n_05)
+
+poblacion$n_6_12 <- NA
+poblacion$n_6_12[edad>=6 & edad<=12] <- 1
+poblacion$n_6_12[((edad>12 | edad<6) & is.na(edad)==FALSE)] <- 0
+table(poblacion$n_6_12)
+
+poblacion$n_13_18 <- NA
+poblacion$n_13_18[edad>=13 & edad<=18] <- 1
+poblacion$n_13_18[((edad>18 | edad<13) & is.na(edad)==FALSE)] <- 0
+table(poblacion$n_13_18)
+
+
+poblacion$n_19 <- NA
+poblacion$n_19[edad>=19] <- 1
+poblacion$n_19[((edad<19) & is.na(edad)==FALSE)] <- 0
+table(poblacion$n_19)
+detach(poblacion)
+
+attach(poblacion)
+### tamhogesc
+poblacion$tamhogesc <- n_05*.7031
+
+poblacion$tamhogesc[n_6_12==1 & is.na(n_6_12)==FALSE] <- 
+  n_6_12[n_6_12==1 & is.na(n_6_12)==FALSE]*.7382
+
+poblacion$tamhogesc[n_13_18==1 & is.na(n_13_18)==FALSE] <- 
+  n_13_18[n_13_18==1 & is.na(n_13_18)==FALSE]*.7057
+
+poblacion$tamhogesc[n_19==1 & is.na(n_19)==FALSE] <- 
+  n_19[n_19==1 & is.na(n_19)==FALSE]*.9945
+
+poblacion$tamhogesc[tot_ind==1 & is.na(tot_ind)==FALSE] <- 1
+
+detach(poblacion)
+
+gc()
+
+attach(poblacion)
+
+poblacion2 <- aggregate(x=list(tamhogesc), 
+                        by=list( folioviv, foliohog),
+                        FUN=sum, 
+                        na.rm=TRUE)
+
+detach(poblacion)
+
+names(poblacion2 )[1:3] <- c( "folioviv", "foliohog","tamhogesc")
+
+poblacion2 <- orderBy(~+folioviv+foliohog, data=poblacion2)
+
+write.csv(poblacion2, './Bases4Analysis/2016_tamhogesc.csv', 
+          row.names = FALSE)
+write.dbf(poblacion2, './Bases4Analysis/2016_tamhogesc.dbf')
+
+gc()
+```
+
+**LP I:** Valor de la Canasta para bienestar minimo 
+
+**LP II:** Valor de la Canasta acc_alimentaria mas el valor de la canasta no acc_alimentaria (ver Anexo A del documento metodologico).
+
+En este programa se construyen los indicadores de bienestar por ingresos mediante las 2 lineas definidas por el CONEVAL:
+
+1. `lp1`: Linea de Bienestar Minimo
+2. `lp2`: Linea de Bienestar
+
+### 1. Línea de bienestar minimo
+`plb_m`
+
+Valor de la canasta basica
+
+```
+{r 176_bienestar_ingresos_pc}
+library("foreign")
+ingresos <- read.dbf("./Bases4Analysis/2016_ingresocorriente_total.dbf",
+                     as.is = TRUE)
+
+poblacion2 <- read.dbf("./Bases4Analysis/2016_tamhogesc.dbf",
+                       as.is = TRUE)
+
+names(ingresos) <- tolower(names(ingresos))
+
+ingresos2 <- merge(ingresos, poblacion2, 
+                   by=c( "folioviv","foliohog"),
+                   all = TRUE)
+
+ingresos2 <- orderBy(~+folioviv+foliohog, data=ingresos2)
+
+dim(ingresos2)
+#colnames(ingresos2)
+
+summary(as.numeric(ingresos2$ict))
+summary(as.numeric(ingresos2$tamhogesc))
+
+ingresos2$ictpc <- ingresos2$ict/ingresos2$tamhogesc
+ingresos2$factorp <- ingresos2$factor*ingresos2$tot_integ
+
+dim(poblacion2)
+dim(ingresos)
+
+attach(ingresos2)
+```
+
+**Se identifica a los hogares bajo**`LP1`
+
+```
+{r 177_plb_m}
+lp1_urb <- 1310.94
+lp1_rur <- 933.20
+
+attach(ingresos2)
+ingresos2$plb_m <- NA
+ingresos2$plb_m[ictpc<lp1_urb & rururb==0] <- 1
+ingresos2$plb_m[ictpc>=lp1_urb & rururb==0] <- 0
+ingresos2$plb_m[ictpc<lp1_rur & rururb==1] <- 1
+ingresos2$plb_m[ictpc>=lp1_rur & rururb==1] <- 0
+table(ingresos2$plb_m)
+detach(ingresos2)
+```
+
+### 2. Línea de bienestar
+`plb`
+
+```
+{r 178_plb}
+lp2_urb <- 2660.40
+lp2_rur <- 1715.57
+
+attach(ingresos2)
+ingresos2$plb <- NA
+ingresos2$plb[(ictpc<lp2_urb & rururb==0)] <- 1
+ingresos2$plb[(ictpc>=lp2_urb & rururb==0)] <- 0
+ingresos2$plb[(ictpc<lp2_rur & rururb==1)] <- 1
+ingresos2$plb[(ictpc>=lp2_rur & rururb==1)] <- 0
+table(ingresos2$plb)
+#detach(ingresos2)
+
+attach(ingresos2)
+#colnames(ingresos2)
+
+ingresos2 <- orderBy(~+folioviv+foliohog, data=ingresos2)
+
+write.csv(ingresos2, './Bases4Analysis/2016_bienestar_ingreso.csv',
+          row.names = FALSE)
+write.dbf(ingresos2, './Bases4Analysis/2016_bienestar_ingreso.dbf')
+
+detach(ingresos2)
+dim(ingresos2)
+```
+
+===================
+
+# Parte VIII - Pobreza - Indicadores
+
+Tomamos estos datos del folder `Bases4analysis`, las cuales fueron creadas en los procesos anteriores.
+
+Ver `MDI.2017_Parte1_ENIGH2016_Variables_Addendum_Indicadores.Rmd`.
+

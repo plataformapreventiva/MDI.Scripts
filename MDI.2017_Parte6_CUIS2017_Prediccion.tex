@@ -1,0 +1,508 @@
+\documentclass[11pt,]{article}
+\usepackage[left=1in,top=1in,right=1in,bottom=1in]{geometry}
+\newcommand*{\authorfont}{\fontfamily{phv}\selectfont}
+\usepackage[]{mathpazo}
+
+
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+
+
+
+\usepackage{abstract}
+\renewcommand{\abstractname}{}    % clear the title
+\renewcommand{\absnamepos}{empty} % originally center
+
+\renewenvironment{abstract}
+ {{%
+    \setlength{\leftmargin}{0mm}
+    \setlength{\rightmargin}{\leftmargin}%
+  }%
+  \relax}
+ {\endlist}
+
+\makeatletter
+\def\@maketitle{%
+  \newpage
+%  \null
+%  \vskip 2em%
+%  \begin{center}%
+  \let \footnote \thanks
+    {\fontsize{18}{20}\selectfont\raggedright  \setlength{\parindent}{0pt} \@title \par}%
+}
+%\fi
+\makeatother
+
+
+
+
+\setcounter{secnumdepth}{0}
+
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+
+
+\title{Anexo 2.4. Predicción de los datos CUIS  }
+
+
+
+\author{\Large Juan Carlos Martinez-Ovando\vspace{0.05in} \newline\normalsize\emph{}   \and \Large \vspace{0.05in} \newline\normalsize\emph{ITAM}  }
+
+
+\date{}
+
+\usepackage{titlesec}
+
+\titleformat*{\section}{\normalsize\bfseries}
+\titleformat*{\subsection}{\normalsize\itshape}
+\titleformat*{\subsubsection}{\normalsize\itshape}
+\titleformat*{\paragraph}{\normalsize\itshape}
+\titleformat*{\subparagraph}{\normalsize\itshape}
+
+
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+\usepackage[strings]{underscore} % protect underscores in most circumstances
+
+
+
+\newtheorem{hypothesis}{Hypothesis}
+\usepackage{setspace}
+
+\makeatletter
+\@ifpackageloaded{hyperref}{}{%
+\ifxetex
+  \PassOptionsToPackage{hyphens}{url}\usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \PassOptionsToPackage{hyphens}{url}\usepackage[unicode=true]{hyperref}
+\fi
+}
+
+\@ifpackageloaded{color}{
+    \PassOptionsToPackage{usenames,dvipsnames}{color}
+}{%
+    \usepackage[usenames,dvipsnames]{color}
+}
+\makeatother
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={Juan Carlos Martinez-Ovando () and  (ITAM)},
+             pdfkeywords = {},  
+            pdftitle={Anexo 2.4. Predicción de los datos CUIS},
+            colorlinks=true,
+            citecolor=blue,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+
+% add tightlist ----------
+\providecommand{\tightlist}{%
+\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\begin{document}
+	
+% \pagenumbering{arabic}% resets `page` counter to 1 
+%
+% \maketitle
+
+{% \usefont{T1}{pnc}{m}{n}
+\setlength{\parindent}{0pt}
+\thispagestyle{plain}
+{\fontsize{18}{20}\selectfont\raggedright 
+\maketitle  % title \par  
+
+}
+
+{
+   \vskip 13.5pt\relax \normalsize\fontsize{11}{12} 
+\textbf{\authorfont Juan Carlos Martinez-Ovando} \hskip 15pt \emph{\small }   \par \textbf{\authorfont } \hskip 15pt \emph{\small ITAM}   
+
+}
+
+}
+
+
+
+
+
+
+
+
+\begin{abstract}
+
+    \hbox{\vrule height .2pt width 39.14pc}
+
+    \vskip 8.5pt % \small 
+
+\noindent Se presenta y comenta el codigo para implementar el procedimientos de
+identificación del estado de los hogares empleando el modelo de ingreso
+(MDI) propuesto.
+
+
+    \hbox{\vrule height .2pt width 39.14pc}
+
+
+\end{abstract}
+
+
+\vskip 6.5pt
+
+
+\noindent  \begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\subsubsection{Preambulo}\label{preambulo}
+
+=========================================================
+
+\section{Datos CUIS}\label{datos-cuis}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Datos CUIS}
+\NormalTok{hogares_cuis_agr <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"../Bases.Cuis/hogares_cuis_agr.csv"}\NormalTok{, }\DataTypeTok{header=}\OtherTok{TRUE}\NormalTok{)}
+
+\KeywordTok{colnames}\NormalTok{(hogares_cuis_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "X"                      "LLAVE_HOGAR_H"         
+##  [3] "tot_per"                "muj12a49"              
+##  [5] "int0a12"                "int12a64"              
+##  [7] "int65a98"               "trabsub"               
+##  [9] "trabind"                "trab_s_pago"           
+## [11] "segsoc1"                "seg_pop"               
+## [13] "es_jefe"                "j_esc"                 
+## [15] "jtrab_ind"              "es_cony"               
+## [17] "c_esc"                  "CVE_ENTIDAD_FEDERATIVA"
+## [19] "CVE_MUNICIPIO"          "CVE_LOCALIDAD"         
+## [21] "depdemog"               "ltot_per"              
+## [23] "p_esc"                  "p_esc3"                
+## [25] "p_esc4"                 "p_esc5"                
+## [27] "p_esc5b"                "trab_sub"              
+## [29] "trab_ind"               "trab_s_pag"            
+## [31] "seg_alim2"              "seg_alim3"             
+## [33] "seg_alim_a"             "ss"                    
+## [35] "ssjtrabind"             "con_remesas"           
+## [37] "viv_prop"               "viv_rent"              
+## [39] "tot_cuar"               "bao1"                  
+## [41] "bao2"                   "bao3"                  
+## [43] "bao13"                  "piso_fir"              
+## [45] "piso_rec"               "combustible"           
+## [47] "sin_refri"              "sin_vehi"              
+## [49] "sin_compu"              "sin_vidvd"             
+## [51] "sin_telef"              "sin_horno"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hogares_cuis_agr}\OperatorTok{$}\NormalTok{ENTIDAD <-}\StringTok{ }\NormalTok{hogares_cuis_agr}\OperatorTok{$}\NormalTok{CVE_ENTIDAD_FEDERATIVA}
+\NormalTok{hogares_cuis_agr}\OperatorTok{$}\NormalTok{MUN <-}\StringTok{ }\NormalTok{hogares_cuis_agr}\OperatorTok{$}\NormalTok{CVE_MUNICIPIO }\OperatorTok{-}\StringTok{ }\DecValTok{1000}\OperatorTok{*}\NormalTok{hogares_cuis_agr}\OperatorTok{$}\NormalTok{ENTIDAD}
+\NormalTok{hogares_cuis_agr}\OperatorTok{$}\NormalTok{LOC <-}\StringTok{ }\NormalTok{hogares_cuis_agr}\OperatorTok{$}\NormalTok{CVE_LOCALIDAD }\OperatorTok{-}\StringTok{ }\DecValTok{10000000}\OperatorTok{*}\NormalTok{hogares_cuis_agr}\OperatorTok{$}\NormalTok{ENTIDAD }\OperatorTok{-}\StringTok{ }\DecValTok{10000}\OperatorTok{*}\NormalTok{hogares_cuis_agr}\OperatorTok{$}\NormalTok{MUN}
+
+\KeywordTok{colnames}\NormalTok{(hogares_cuis_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] "X"                      "LLAVE_HOGAR_H"         
+##  [3] "tot_per"                "muj12a49"              
+##  [5] "int0a12"                "int12a64"              
+##  [7] "int65a98"               "trabsub"               
+##  [9] "trabind"                "trab_s_pago"           
+## [11] "segsoc1"                "seg_pop"               
+## [13] "es_jefe"                "j_esc"                 
+## [15] "jtrab_ind"              "es_cony"               
+## [17] "c_esc"                  "CVE_ENTIDAD_FEDERATIVA"
+## [19] "CVE_MUNICIPIO"          "CVE_LOCALIDAD"         
+## [21] "depdemog"               "ltot_per"              
+## [23] "p_esc"                  "p_esc3"                
+## [25] "p_esc4"                 "p_esc5"                
+## [27] "p_esc5b"                "trab_sub"              
+## [29] "trab_ind"               "trab_s_pag"            
+## [31] "seg_alim2"              "seg_alim3"             
+## [33] "seg_alim_a"             "ss"                    
+## [35] "ssjtrabind"             "con_remesas"           
+## [37] "viv_prop"               "viv_rent"              
+## [39] "tot_cuar"               "bao1"                  
+## [41] "bao2"                   "bao3"                  
+## [43] "bao13"                  "piso_fir"              
+## [45] "piso_rec"               "combustible"           
+## [47] "sin_refri"              "sin_vehi"              
+## [49] "sin_compu"              "sin_vidvd"             
+## [51] "sin_telef"              "sin_horno"             
+## [53] "ENTIDAD"                "MUN"                   
+## [55] "LOC"
+\end{verbatim}
+
+\section{Datos MDI, localidades y lineas de
+bienestar}\label{datos-mdi-localidades-y-lineas-de-bienestar}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Datos modelo}
+\KeywordTok{load}\NormalTok{(}\StringTok{"../Datos.Modelo/mdi_segmentacion.RData"}\NormalTok{)}
+\KeywordTok{load}\NormalTok{(}\StringTok{"../Datos.Modelo/mdi_regresion.RData"}\NormalTok{)}
+
+\NormalTok{localidades <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"../Datos.Modelo/inegi_localidades.csv"}\NormalTok{, }
+                        \DataTypeTok{header=}\OtherTok{TRUE}\NormalTok{)}
+
+\NormalTok{lineas_bienestar <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"../Datos.Modelo/coneval_lineas_bienestar.csv"}\NormalTok{,}
+                             \DataTypeTok{header=}\OtherTok{TRUE}\NormalTok{)}
+
+\NormalTok{hogares_cuis_agr <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(hogares_cuis_agr)}
+\NormalTok{dim.hog.agr <-}\StringTok{ }\KeywordTok{dim}\NormalTok{(hogares_cuis_agr)}
+\NormalTok{dim.hog.agr}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 980  55
+\end{verbatim}
+
+\subsection{Definición de tipos de
+variables}\label{definicion-de-tipos-de-variables}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Numeric }
+\CommentTok{#hogares_cuis_agr[,var_enighcuis_num] <- apply(hogares_cuis_agr[,var_enighcuis_num], as.numeric)}
+
+\CommentTok{# Categorias}
+\NormalTok{hogares_cuis_agr[,var_enighcuis_cat] <-}\StringTok{ }\KeywordTok{lapply}\NormalTok{(hogares_cuis_agr[,var_enighcuis_cat], factor)}
+
+\KeywordTok{summary}\NormalTok{(hogares_cuis_agr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        X                                                    LLAVE_HOGAR_H
+##  Min.   :  1.0   000000-12719111-0000000020130319131318-00000000001:  1  
+##  1st Qu.:245.8   000000-12798200-0000000020130411102355-00000000001:  1  
+##  Median :490.5   000000-12815335-0000000020130417114930-00000000001:  1  
+##  Mean   :490.5   000000-12847948-0000000020130426093731-00000000001:  1  
+##  3rd Qu.:735.2   0000000-3349948-0000000020120113110333-00000000001:  1  
+##  Max.   :980.0   0000000-3350092-0000000020120113112251-00000000001:  1  
+##                  (Other)                                           :974  
+##     tot_per          muj12a49        int0a12         int12a64     
+##  Min.   : 1.000   Min.   :0.000   Min.   :0.000   Min.   : 0.000  
+##  1st Qu.: 2.000   1st Qu.:1.000   1st Qu.:0.000   1st Qu.: 1.000  
+##  Median : 3.000   Median :1.000   Median :1.000   Median : 2.000  
+##  Mean   : 3.715   Mean   :1.119   Mean   :1.251   Mean   : 2.271  
+##  3rd Qu.: 5.000   3rd Qu.:1.000   3rd Qu.:2.000   3rd Qu.: 3.000  
+##  Max.   :11.000   Max.   :5.000   Max.   :6.000   Max.   :11.000  
+##                                                                   
+##     int65a98         trabsub     trabind   trab_s_pago    segsoc1      
+##  Min.   :0.0000   Min.   :0   Min.   :0   Min.   :0    Min.   :0.0000  
+##  1st Qu.:0.0000   1st Qu.:0   1st Qu.:0   1st Qu.:0    1st Qu.:0.0000  
+##  Median :0.0000   Median :0   Median :0   Median :0    Median :0.0000  
+##  Mean   :0.1929   Mean   :0   Mean   :0   Mean   :0    Mean   :0.2133  
+##  3rd Qu.:0.0000   3rd Qu.:0   3rd Qu.:0   3rd Qu.:0    3rd Qu.:0.0000  
+##  Max.   :3.0000   Max.   :0   Max.   :0   Max.   :0    Max.   :7.0000  
+##                                                                        
+##     seg_pop          es_jefe      j_esc        jtrab_ind    es_cony 
+##  Min.   : 0.000   Min.   :1   Min.   : 0.000   0:980     Min.   :1  
+##  1st Qu.: 0.000   1st Qu.:1   1st Qu.: 4.000             1st Qu.:1  
+##  Median : 1.000   Median :1   Median : 7.000             Median :1  
+##  Mean   : 1.873   Mean   :1   Mean   : 7.134             Mean   :1  
+##  3rd Qu.: 3.000   3rd Qu.:1   3rd Qu.: 9.000             3rd Qu.:1  
+##  Max.   :11.000   Max.   :1   Max.   :19.000             Max.   :1  
+##                                                                     
+##      c_esc   CVE_ENTIDAD_FEDERATIVA CVE_MUNICIPIO   CVE_LOCALIDAD      
+##  Min.   :0   Min.   : 1.00          Min.   : 1001   Min.   : 10010001  
+##  1st Qu.:0   1st Qu.:11.00          1st Qu.:11006   1st Qu.:110105011  
+##  Median :0   Median :16.00          Median :16024   Median :160435001  
+##  Mean   :0   Mean   :17.45          Mean   :17500   Mean   :176328722  
+##  3rd Qu.:0   3rd Qu.:25.00          3rd Qu.:25012   3rd Qu.:250120001  
+##  Max.   :0   Max.   :32.00          Max.   :32056   Max.   :320560001  
+##                                                     NA's   :24         
+##     depdemog         ltot_per          p_esc       p_esc3 
+##  Min.   :0.0000   Min.   :0.0000   Min.   :0.000   0:807  
+##  1st Qu.:0.0000   1st Qu.:0.6931   1st Qu.:2.000   1:173  
+##  Median :0.5000   Median :1.0986   Median :3.500          
+##  Mean   :0.6977   Mean   :1.1984   Mean   :3.567          
+##  3rd Qu.:1.0000   3rd Qu.:1.6094   3rd Qu.:4.500          
+##  Max.   :7.0000   Max.   :2.3979   Max.   :9.500          
+##                                                           
+##      p_esc4             p_esc5  p_esc5b    trab_sub    trab_ind
+##  Min.   :0.000000   Min.   :0   0:975   Min.   :0   Min.   :0  
+##  1st Qu.:0.000000   1st Qu.:0   1:  5   1st Qu.:0   1st Qu.:0  
+##  Median :0.000000   Median :0           Median :0   Median :0  
+##  Mean   :0.005102   Mean   :0           Mean   :0   Mean   :0  
+##  3rd Qu.:0.000000   3rd Qu.:0           3rd Qu.:0   3rd Qu.:0  
+##  Max.   :1.000000   Max.   :0           Max.   :0   Max.   :0  
+##                                                                
+##    trab_s_pag seg_alim2 seg_alim3 seg_alim_a       ss         ssjtrabind
+##  Min.   :0    0:720     0:795     0:715      Min.   :0.0000   0:980     
+##  1st Qu.:0    1:260     1:185     1:265      1st Qu.:0.0000             
+##  Median :0                                   Median :0.0000             
+##  Mean   :0                                   Mean   :0.1571             
+##  3rd Qu.:0                                   3rd Qu.:0.0000             
+##  Max.   :0                                   Max.   :1.0000             
+##                                                                         
+##  con_remesas viv_prop viv_rent    tot_cuar           bao1        
+##  0:980       0:363    0:816    Min.   :0.0000   Min.   :0.00000  
+##              1:617    1:164    1st Qu.:0.0000   1st Qu.:0.00000  
+##                                Median :0.0000   Median :0.00000  
+##                                Mean   :0.3622   Mean   :0.07449  
+##                                3rd Qu.:0.0000   3rd Qu.:0.00000  
+##                                Max.   :5.0000   Max.   :1.00000  
+##                                                                  
+##       bao2             bao3        bao13   piso_fir piso_rec combustible
+##  Min.   :0.0000   Min.   :0.0000   0:542   0:405    0:808    0:700      
+##  1st Qu.:0.0000   1st Qu.:0.0000   1:438   1:575    1:172    1:280      
+##  Median :0.0000   Median :0.0000                                        
+##  Mean   :0.4173   Mean   :0.4469                                        
+##  3rd Qu.:1.0000   3rd Qu.:1.0000                                        
+##  Max.   :1.0000   Max.   :1.0000                                        
+##                                                                         
+##  sin_refri sin_vehi sin_compu sin_vidvd sin_telef sin_horno
+##  0:980     0:980    0:980     0:980     0:980     0:980    
+##                                                            
+##                                                            
+##                                                            
+##                                                            
+##                                                            
+##                                                            
+##     ENTIDAD           MUN             LOC         
+##  Min.   : 1.00   Min.   :  1.0   Min.   :   1.00  
+##  1st Qu.:11.00   1st Qu.: 10.0   1st Qu.:   1.00  
+##  Median :16.00   Median : 30.0   Median :   1.00  
+##  Mean   :17.45   Mean   : 48.2   Mean   :  60.71  
+##  3rd Qu.:25.00   3rd Qu.: 61.0   3rd Qu.:  21.25  
+##  Max.   :32.00   Max.   :570.0   Max.   :2005.00  
+##                                  NA's   :24
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Caso}
+\NormalTok{j <-}\StringTok{ }\DecValTok{1}
+\NormalTok{caso <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(hogares_cuis_agr[j,])}
+
+\CommentTok{# Prediccion (un caso a la vez)}
+\NormalTok{caso.pred <-}\StringTok{ }\KeywordTok{mdi.pred}\NormalTok{(caso,localidades,lineas_bienestar,}
+\NormalTok{                      modelo_actual_rur,modelo_actual_urb, }
+\NormalTok{                      modelo_lm_rur,modelo_lm_urb,}
+\NormalTok{                      modelo_qr_rur_lb,modelo_qr_urb_lb, }
+\NormalTok{                      modelo_qr_rur_lbm,modelo_qr_urb_lbm,}
+\NormalTok{                      modelo_seg_rur,modelo_seg_rur_tab,}
+\NormalTok{                      modelo_seg_urb,modelo_seg_urb_tab)}
+\NormalTok{caso.pred}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   ENTIDAD MUN LOC X.x                                      LLAVE_HOGAR_H
+## 1      12  46   1   1 000000-12719111-0000000020130319131318-00000000001
+##   tot_per muj12a49 int0a12 int12a64 int65a98 trabsub trabind trab_s_pago
+## 1       2        0       0        0        2       0       0           0
+##   segsoc1 seg_pop es_jefe j_esc jtrab_ind es_cony c_esc
+## 1       0       0       1     0         0       1     0
+##   CVE_ENTIDAD_FEDERATIVA CVE_MUNICIPIO CVE_LOCALIDAD depdemog  ltot_per
+## 1                     12         12046     120460001        0 0.6931472
+##   p_esc p_esc3 p_esc4 p_esc5 p_esc5b trab_sub trab_ind trab_s_pag
+## 1     0      0      0      0       0        0        0          0
+##   seg_alim2 seg_alim3 seg_alim_a ss ssjtrabind con_remesas viv_prop
+## 1         0         0          0  0          0           0        1
+##   viv_rent tot_cuar bao1 bao2 bao3 bao13 piso_fir piso_rec combustible
+## 1        0        1    0    1    0     0        1        0           1
+##   sin_refri sin_vehi sin_compu sin_vidvd sin_telef sin_horno   X.y P_TOTAL
+## 1         0        0         0         0         0         0 64679   24120
+##   TAM_LOC RURURB pred.segm pred.mactual.lev pred.mactual.lb
+## 1       2      2         3         5576.332               0
+##   pred.mactual.lbm
+## 1                0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#}
+\CommentTok{# -----------------------------------------------------------}
+\CommentTok{#}
+
+\CommentTok{# Iteraciones}
+\NormalTok{j <-}\StringTok{ }\DecValTok{2}
+\CommentTok{#for(j in 2:dim.hog.agr[1])\{}
+ \ControlFlowTok{for}\NormalTok{(j }\ControlFlowTok{in} \DecValTok{2}\OperatorTok{:}\DecValTok{8}\NormalTok{)\{}
+  \KeywordTok{print}\NormalTok{(j)}
+  \CommentTok{# Seleccion del caso}
+\NormalTok{  caso <-}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(hogares_cuis_agr[j,])}
+  \CommentTok{# Prediccion}
+\NormalTok{  caso.pred.new <-}\StringTok{ }\KeywordTok{mdi.pred}\NormalTok{(caso,localidades,lineas_bienestar,}
+\NormalTok{                            modelo_actual_rur,modelo_actual_urb, }
+\NormalTok{                            modelo_lm_rur,modelo_lm_urb,}
+\NormalTok{                            modelo_qr_rur_lb,modelo_qr_urb_lb, }
+\NormalTok{                            modelo_qr_rur_lbm,modelo_qr_urb_lbm,}
+\NormalTok{                            modelo_seg_rur,modelo_seg_rur_tab,}
+\NormalTok{                            modelo_seg_urb,modelo_seg_urb_tab)}
+  \CommentTok{# Agrupacion}
+\NormalTok{  caso.pred <-}\StringTok{ }\KeywordTok{rbind}\NormalTok{(caso.pred,caso.pred.new)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 2
+## [1] 3
+## [1] 4
+## [1] 5
+## [1] 6
+## [1] 7
+## [1] 8
+\end{verbatim}
+
+
+
+
+\newpage
+\singlespacing 
+\end{document}

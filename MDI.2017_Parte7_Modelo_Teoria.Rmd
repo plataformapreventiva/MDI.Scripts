@@ -1,0 +1,102 @@
+---
+title: "Creación unificada de variables"
+author: "Juan Carlos Martinez Ovando"
+date: "Primavera 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+----------------
+
+### Preambulo
+
+Las bases de datos originales fueron obtenidas del INEGI (`www.inegi.org.mx`) en formato `*.dbf`. 
+
+*Nota.- Los scripts de este documento fueron probabados en R versión 3.4.3. (Linux y Windows x64).*
+
+Los `scripts` del documento previo `Parte1` hacen uso de las siguientes tablas:
+
+* Base hogares: `hogares.dbf`
+
+* Base poblacion: `poblacion.dbf`
+
+* Base de ingresos: `ingresos.dbf`
+
+* Base de concentrado: `concentradohogar.dbf`
+
+* Base de trabajos: `trabajos.dbf`
+
+* Base de viviendas: `viviendas.dbf`
+
+* Bases de no monetario: `gastospersona.dbf` y `gastoshogar.dbf`
+
+Las rutas de las bases de datos correspondientes al proyecto `Modelo.Distribucion.Ingreso.2017` son:
+
+a. Bases originales: `BasesDatos/ENIGH2016`
+
+b. Bases generadas: `Bases4Analysis`
+
+Asi, las tablas generadas empleadas en este documento (`Parte2`) se descargan de la carpeta `Bases4analysis`.
+
+### Paquetes de R
+
+Se cargan los paquetes necesarios de `R` de manera oculta. En el archivo `*.Rmd` se encuentra el script para la verificacion e instalacion de los paquetes.
+
+Fijamos, adicionalmente, la ruta de la carpeta donde los datos fuente del INEGI y CUIS se localizan de manera local.
+
+```{r prelim, include=FALSE}
+source("Sedesol.Code/load.R.packages.R")
+
+path.data <- "Bases4Analysis/"
+path.data.enigh <- "BasesDatos/ENIGH2016/"
+path.data.cuis <- "BasesDatos/CUIS/CUIS/"
+```
+
+A continuacion presentamos los procedimientos unificados para contruir las variables de analisis, para diferentes indicadores:
+
+1. Rezago Educativo
+
+2. Caracteristicas Demográficas
+
+3. Laborales
+
+4. Servicios de Salud
+
+5. Vivienda
+
+6. Servicios Vivienda
+
+7. Enseres Doesticos
+
+8. Alimentacion
+
+9. Remesas
+
+10. Contexto Territorial
+
+## 1. Rezago Educativo
+
+Al igual que `CONEVAL`, no se considera dentro de la poblacion objetivo a los huespedes ni trabajadores domesticos.
+
+**enigh2016**
+
+```{r}
+poblacion1 <- read.dbf(paste(path.data.enigh,"poblacion.dbf",sep=""),
+                       as.is = TRUE)
+
+names(poblacion1) <- tolower(names(poblacion1))
+
+poblacion2 <- as.numeric(poblacion1$parentesco)
+
+index <- ( (poblacion2>=400 & poblacion2<500) | 
+           (poblacion2>=700 & poblacion2 <800) )
+
+index <- (index==FALSE)
+
+poblacion <- poblacion1[index,]
+dim(poblacion)
+```
+
+

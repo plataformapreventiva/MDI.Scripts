@@ -1,0 +1,3 @@
+To do:
+
+ - corregir todos los archivos '*.R' a partir de los archivos '*.Rmd' correctos

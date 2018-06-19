@@ -1,0 +1,234 @@
+---
+title: "Modelo Distribucion del Ingreso :: ENIGH 2016"
+author: "Juan Carlos Martinez-Ovando"
+date: "Primavera 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+----------------
+
+### Preambulo
+
+Las bases de datos originales fueron obtenidas del INEGI (`www.inegi.org.mx`) en formato `*.dbf`. 
+
+*Nota.- Los scripts de este documento fueron probabados en R versión 3.4.3. (Linux y Windows x64).*
+
+Los `scripts` del documento previo `Parte1` hacen uso de las siguientes tablas:
+
+* Base hogares: `hogares.dbf`
+
+* Base poblacion: `poblacion.dbf`
+
+* Base de ingresos: `ingresos.dbf`
+
+* Base de concentrado: `concentradohogar.dbf`
+
+* Base de trabajos: `trabajos.dbf`
+
+* Base de viviendas: `viviendas.dbf`
+
+* Bases de no monetario: `gastospersona.dbf` y `gastoshogar.dbf`
+
+Las rutas de las bases de datos correspondientes al proyecto `Modelo.Distribucion.Ingreso.2017` son:
+1) Bases originales: `BasesDatos/ENIGH2016`
+2) Bases generadas: `Bases4Analysis`
+
+**Asi, las tablas generadas empleadas en este documento (`Parte2`) se descargan de la carpeta `Bases4analysis`.**
+
+### Paquetes de R
+
+Se cargan los paquetes necesarios de `R` de manera oculta. En el archivo `*.Rmd` se encuentra el script para la verificacion e instalacion de los paquetes.
+
+Fijamos, adicionalmente, la ruta de la carpeta donde los datos fuente del INEGI se localizan.
+
+```{r prelim, include=FALSE}
+source("Sedesol.Code/load.R.packages.R")
+
+path.data <- "Bases4Analysis/"
+```
+
+=========================================================
+
+#  Preliminar
+
+Preparamos la `tabla_analisis` para el analisis subsecuente.
+
+## Bienestar de ingreso
+
+Se importan las tablas de bienestar por ingreso de los hogares con base en el ingreso. 
+
+```{r}
+bienestar_ingreso <- read.dbf(paste(path.data,"2016_bienestra_ingreso.dbf",
+                                    sep=""),
+                       as.is = TRUE)
+
+foliovivhog_cols <- c("folioviv","foliohog")
+
+bienestar_ingreso$foliovivhog <- do.call(paste, c(bienestar_ingreso[foliovivhog_cols], sep=""))
+
+dim(bienestar_ingreso)
+summary(bienestar_ingreso)
+```
+
+## Carencia y mediciones en los hogares
+
+```{r}
+poblacion_carencia <- read.dbf(paste(path.data,"2016_poblacion_carencia.dbf",
+                                     sep=""),
+                       as.is = TRUE)
+
+foliovivhog_cols <- c("folioviv","foliohog")
+
+poblacion_carencia$foliovivhog <- do.call(paste, c(poblacion_carencia[foliovivhog_cols], sep=""))
+
+dim(poblacion_carencia)
+summary(poblacion_carencia)
+```
+
+**Poblacion para analisis**
+
+Definimos y exportamos la tabla `2016_a_analisis_tabla`, para analisis subsecuente.
+
+```{r}
+poblacion_analisis <- merge(
+  bienestar_ingreso[,c("foliovivhog","factor","tam_loc", "rururb",
+                       "tamhogesc","ict","ictpc","plb_m","plb")],                          poblacion_carencia[,c("foliovivhog","numren","edad","anac_e",
+                       "inas_esc","antec_esc","niv_ed","ic_rezedu",
+                       "hli","sexo","discap","ic_asalud","pea","jub",
+                       "ss_dir","par","jef_ss","cony_ss","hijo_ss",
+                       "s_salud","pam","ic_segsoc","tot_resid",
+                       "num_cuarto","icv_pisos","icv_techos","icv_muros",
+                       "icv_hac","ic_cv","isb_agua","isb_dren","isb_luz",
+                       "isb_combus","ic_sbv","id_men","ia_1ad","ia_2ad",
+                       "ia_3ad","ia_4ad","ia_5ad","ia_6ad","ia_7men",
+                       "ia_8men","ia_9men","ia_10men","ia_11men","ia_12men",
+                       "tot_iaad","tot_iamen","ins_ali","ic_ali","ent",
+                       "i_privacio","pobreza","pobreza_e","pobreza_m","vul_car",
+                       "vul_ing","no_pobv","carencias","carencias3","cuadrantes",
+                       "prof_b1","prof_bm1","profun","int_pob","int_pobe","int_vulcar",
+                       "int_caren")],
+    by="foliovivhog")
+
+head(poblacion_analisis)
+
+dim(poblacion_analisis)
+sum(poblacion_analisis$factor)
+
+write.csv(poblacion_analisis, paste(path.data,"2016_a_analisis_tabla.csv",sep=""), row.names = TRUE)
+write.dbf(poblacion_analisis, paste(path.data,"2016_a_analisis_tabla.csv",sep=""))
+rm("poblacion_analisis")
+rm("bienestar_ingreso")
+rm("poblacion_carencia")
+rm("foliovivhog_cols")
+```
+
+---
+
+# Diseño Experimental 
+
+### Tablas de `entrenamiento` y `prueba`
+
+```{r}
+analisis_tabla <- read.csv(paste(path.data,"2016_a_analisis_tabla.csv",sep=""),
+                           header=TRUE, sep=",", na.strings="NA", dec=".")
+dim(analisis_tabla)
+
+# Random sample
+set.seed(123)
+sample_id <- sample(seq_len(nrow(analisis_tabla)), size=1000, 
+                    replace = FALSE, prob = NULL)
+#sample_id <- sample(rows, size=1000, replace = FALSE, prob = NULL)
+
+# Split Train and Test Data
+analisis_tabla_train <- analisis_tabla[sample_id,]
+dim(analisis_tabla_train)
+analisis_tabla_test <- analisis_tabla[-sample_id,]
+dim(analisis_tabla_test)
+```
+
+**Atributos de segmentacion**
+
+Definimos los atributos de los hogares a partir de los cuales realizaremos la segmentacion.
+
+```{r}
+atributos <- c("tam_loc","rururb","tamhogesc",
+               "numren","edad","anac_e","inas_esc","antec_esc","niv_ed",
+               "ic_rezedu","hli",
+               "sexo","discap","ic_asalud",
+               "pea","jub",
+               "ss_dir","par","jef_ss","cony_ss","hijo_ss","s_salud",
+               "pam","ic_segsoc",
+               "num_cuarto","icv_pisos","icv_techos","icv_muros","icv_hac","ic_cv",
+               "isb_agua","isb_dren","isb_luz","isb_combus","ic_sbv","id_men","ia_1ad",
+               "tot_iaad","tot_iamen","ins_ali","ic_ali","ent","i_privacio")
+
+#row.names(analisis_tabla_train) <- analisis_tabla_train$foliovivhog 
+#head(analisis_tabla_train)
+```
+
+**Dos tablas**
+
+Identificamos dentro de `analisis_tabla_train` los hogares que pertenecen a la muestra de `entrenamiento` y los de la muestra de `prueba`.
+
+```{r}
+train_lab <- which(analisis_tabla$traintest == 1)
+test_lab <- which(analisis_tabla$traintest == 0)
+
+analisis_tabla_train <- analisis_tabla[train_lab,atributos]
+analisis_tabla_test <- analisis_tabla[test_lab,atributos]
+```
+
+**Etiquetas `int_vulcar`**
+
+```{r}
+# Definicion de factor
+analisis_tabla$int_vulcar <- as.factor(analisis_tabla$int_vulcar)
+
+analisis_tabla_train_marca <- analisis_tabla[train_lab,"int_vulcar"]
+analisis_tabla_test_marca <- analisis_tabla[test_lab,"int_vulcar"]
+```
+
+**Segmentacion**
+
+Matriz de distancias `train` vs `test`
+
+```{r}
+distancia_traintest <- Distance_for_KNN_test(analisis_tabla_test, analisis_tabla_train)
+dim(distancia_traintest)
+#head(distancia_traintest)
+```
+
+**Asociaciones**
+
+Lista de asociaciones respecto de la tabla `test` respecto al entrenamiento basadon en la tabla `train`.
+
+```{r}
+# Numero de vecindades a considerar
+k.num <- 3
+
+analisis_tabla_test_marca_label <- knn_test_function(
+                  analisis_tabla_train, 
+                  analisis_tabla_test, 
+                  distancia_traintest,
+                  analisis_tabla_train_marca, 
+                  k = k.num)
+
+#analisis_tabla_test_marca_label
+```
+
+Para la implementacion que trabajamos, necesitamos la lista de `vecinos` de cada elemento en la tabla `train`. Esto lo obtenemos en elsiguiente script.
+
+```{r}
+test_dim <- dim(analisis_tabla_test)
+test_neig <- list()
+i <- 1
+for(i in 1:test_dim[1]){
+  test_neig[i] <- k.nearest.neighbors(analisis_tabla_test[i,], 
+                                        distancia_traintest, 
+                                        k = k.num)
+}
+```

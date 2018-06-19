@@ -1,0 +1,19 @@
+La base de trabajo final (para APREDNIZAJE ESTADISTICO y para MODELACION FINAL) es: 
+
+[base_pobreza]
+
+con 
+
+1) 'int_caren' campo para "Población Carenciada"
+
+2) 'int_vulcar' campo para "Población Vulnerable por Carencias"
+
+3) 'int_pobe' campo para "Población en Pobreza Extrema"
+
+[LLaves]
+
+"folioviv" ,	"foliohog"
+
+[Auxiliares - Estratificacion]
+"factor" ,	"tam_loc" ,	"rururb" 	
+

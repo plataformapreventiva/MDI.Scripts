@@ -1,0 +1,858 @@
+---
+output: 
+  pdf_document:
+    citation_package: natbib
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template: ../svm-sources/svm-latex-ms.tex
+title: "Anexo 2.2. Creacion de variables ENIGH"
+#thanks: "Agradecimientos..."
+author: 
+- name: "Juan Carlos Martinez-Ovando"
+- affiliation: ITAM
+abstract: "Se presenta y comenta el codigo para la creacion de las variables de analisis del modelo MUM y propuesto a partir de los datos de la ENIGH 2016 compatibles con la informacion proporcionada por los datos CUIS."
+#keywords: "..."
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+#spacing: double
+#bibliography: C:/Users/jcmo/Dropbox/@BibTeX/ReferencesJCMO.bib
+#biblio-style: apsr
+endnote: yes
+---
+
+# Parte I: Creacion de Variables
+
+----------------
+
+## Preambulo
+
+Las bases de datos fueron obtenidas del INEGI (`www.inegi.org.mx`) en formato `*.dbf` de la liga:
+
+`http://www.beta.inegi.org.mx/proyectos/enchogares/regulares/enigh/nc/2016/`
+
+*Nota.- Los scripts de este documento fueron probabados en R version > 3.4.x. (Linux y Windows x64).*
+
+Los `scripts` de este documento hacen uso de las siguientes tablas:
+
+* Concentrado hogar: `concentradohogar.dbf`
+
+* Base hogares: `hogares.dbf`
+
+* Base poblacion: `poblacion.dbf`
+
+* Base laboral: `trabajos.dbf`
+
+* Base de viviendas: `viviendas.dbf`
+
+Las rutas de las bases de datos correspondientes al proyecto `Modelo.Distribucion.Ingreso.2017` son:
+
+1. Bases originales: `./BasesDatos/ENIGH.2016`
+
+2. Bases generadas: `./Bases4Analysis`
+
+## Paquetes de R
+
+Se cargan los paquetes necesarios de `R` de manera oculta. En el archivo `*.Rmd` se encuentra el script para la verificacion e instalacion de los paquetes.
+
+Fijamos, adicionalmente, la ruta de la carpeta donde los datos fuente del INEGI se localizan.
+
+```{r 00_prelim, include=FALSE}
+source("./Code/load.R.packages.R")
+load("../Datos.Modelo/mdi_variables_modelo.RData")
+```
+
+=========================================================
+
+## Preparacion de los datos
+
+**La preparacion de los datos sigue las especificaciones y reglas definidas por el CONEVAL (`www.coneval.org.mx`).**
+
+------------------------------
+
+# Parte I. Preparacion
+
+## Importancion de las tablas
+
+```{r 0_concentradohogar}
+concentradohogar <- read.dbf("../Bases.Datos.Original/ENIGH.2016/Microdatos/concentradohogar.dbf", 
+                       as.is = TRUE)
+dim(concentradohogar)
+```
+
+## Creacion de tabla base
+
+```{r 0_creacion}
+aux_var <- c("tam_loc",
+             "sexo_jefe","edad_jefe","educa_jefe",
+             "tot_integ","p12_64","p65mas","remesas",
+             "ing_cor")
+hogares_agr <- concentradohogar[,c("folioviv","foliohog",aux_var)]
+colnames(hogares_agr) <- c("FOLIOVIV","FOLIOHOG",aux_var)
+dim(hogares_agr)
+
+write.csv(hogares_agr,file="../Bases.Enigh/2016_a_hogares_enigh.csv")
+rm(concentradohogar)
+rm(aux_var)
+```
+
+
+## Preparacion de tablas
+
+### Jefe/conyuge
+
+```{r 0_poblacion_jefe}
+poblacion <- read.dbf("../Bases.Datos.Original/ENIGH.2016/Microdatos/poblacion.dbf", 
+                       as.is = TRUE)
+dim(poblacion)
+colnames(poblacion) <- toupper(colnames(poblacion))
+
+# Jefe y conyuge
+poblacion$es_jefe <- 0
+poblacion$es_cony <- 0
+poblacion[which(poblacion$PARENTESCO==101),"es_jefe"] <- 1
+poblacion[which(poblacion$PARENTESCO==201),"es_cony"] <- 1
+table(poblacion[,c("es_jefe","es_cony")])
+
+poblacion_jefe <- poblacion[which( poblacion$es_jefe==1 | poblacion$es_cony==1),]
+dim(poblacion_jefe)
+
+# Escolaridad Jefe y Conyuge
+poblacion_jefe$p_esc3 <- 0
+poblacion_jefe[which( (poblacion$PARENTESCO==101 |poblacion$PARENTESCO==201) &
+                   poblacion$EDAD>=12 & 
+                   ( poblacion$NIVELAPROB>=2 & poblacion$NIVELAPROB<3 ) ),"p_esc3"] <- 1
+
+poblacion_jefe$p_esc5b <- 0
+poblacion_jefe[which( (poblacion$PARENTESCO==101 |poblacion$PARENTESCO==201) &
+                   poblacion$EDAD>=12 & 
+                   poblacion$NIVELAPROB>=3 ),"p_esc5b"] <- 1
+  
+# Agregago
+aux_var <- c("p_esc3","p_esc5b")
+poblacion_jefe <- aggregate( x = poblacion_jefe[,aux_var],
+                            by = list(poblacion_jefe$FOLIOVIV,poblacion_jefe$FOLIOHOG),
+                            FUN = max )
+colnames(poblacion_jefe) <- c("FOLIOVIV","FOLIOHOG",aux_var)
+dim(poblacion_jefe)
+rm(poblacion)
+rm(aux_var)
+```
+
+### Poblacion 
+
+```{r 0_poblacion_agr}
+poblacion <- read.dbf("../Bases.Datos.Original/ENIGH.2016/Microdatos/poblacion.dbf", 
+                       as.is = TRUE)
+dim(poblacion)
+colnames(poblacion) <- toupper(colnames(poblacion))
+
+# Grupos de edad
+poblacion$int0a12 <- 0
+poblacion$int12a64 <- 0
+poblacion$int65a98 <- 0
+poblacion[which(poblacion$EDAD>0 & poblacion$EDAD<12 ),"int0a12"] <- 1  
+poblacion[which(poblacion$EDAD>=12 & poblacion$EDAD<=64 ),"int12a64"] <- 1  
+poblacion[which(poblacion$EDAD>=65 & poblacion$EDAD<=98 ),"int65a98"] <- 1  
+
+# Mujeres 
+poblacion$muj12a49 <- 0
+poblacion[which( poblacion$SEXO==2 & 
+                   (poblacion$EDAD>=12 & poblacion$EDAD<49) ),"muj12a49"] <- 1  
+
+# Seguro Popular 
+poblacion$seg_pop <- 0
+poblacion[which( poblacion$SEGPOP==1 ),"seg_pop"] <- 1  
+
+# Atencion Medica
+poblacion$ss <- 0
+poblacion[which( poblacion$ATEMED==1 ),"ss"] <- 1  
+
+# Agregago
+aux_var <- c("int0a12","int12a64","int65a98","muj12a49","seg_pop","ss")
+poblacion_agr <- aggregate( x = poblacion[,aux_var],
+                            by = list(poblacion$FOLIOVIV,poblacion$FOLIOHOG),
+                            FUN = sum )
+colnames(poblacion_agr) <- c("FOLIOVIV","FOLIOHOG",aux_var)
+dim(poblacion_agr)
+rm(poblacion)
+rm(aux_var)
+```
+
+### Hogares
+
+```{r 0_hogares}
+hogares <- read.dbf("../Bases.Datos.Original/ENIGH.2016/Microdatos/hogares.dbf", 
+                       as.is = TRUE)
+dim(hogares)
+colnames(hogares) <- toupper(colnames(hogares))
+
+# Seguridad Alimentaria 3 (Desayuno, comida o cena)
+table(hogares$ACC_ALIM5)
+hogares$seg_alim2 <- 0
+hogares[which(hogares$ACC_ALIM5==1),"seg_alim2"] <- 1
+
+# Seguridad Alimentaria 3 (Comida)
+table(hogares$ACC_ALIM2)
+hogares$seg_alim3 <- 0
+hogares[which(hogares$ACC_ALIM2==1),"seg_alim3"] <- 1
+
+# Seguridad Alimentaria a (Comida)
+table(hogares$ACC_ALIM8)
+hogares$seg_alim_a <- 0
+hogares[which(hogares$ACC_ALIM8==1),"seg_alim_a"] <- 1
+
+# Refrigerador
+table(hogares$NUM_REFRI)
+hogares$sin_refri <- 0
+hogares[which( hogares$NUM_REFRI==0 ),"sin_refri"] <- 1
+table(hogares$sin_refri)
+
+# Vehiculos
+hogares$num_vehi <- hogares$NUM_AUTO + hogares$NUM_VAN + hogares$NUM_PICKUP
+table(hogares$num_vehi)
+hogares$sin_vehi <- 0
+hogares[which( hogares$num_vehi==0 ),"sin_vehi"] <- 1
+table(hogares$sin_vehi)
+
+# Computadora
+table(hogares$NUM_COMPU)
+hogares$sin_compu <- 0
+hogares[which( hogares$NUM_COMPU==0 ),"sin_compu"] <- 1
+table(hogares$sin_compu)
+
+# Video & DVD
+hogares$num_vidvd <- hogares$NUM_DVD + hogares$NUM_VIDEO
+table(hogares$num_vidvd)
+hogares$sin_vidvd <- 0
+hogares[which( hogares$num_vidvd==0 ),"sin_vidvd"] <- 1
+table(hogares$sin_vidvd)
+
+# Telefono
+table(hogares$TELEFONO)
+hogares$sin_telef <- 1
+hogares[which( hogares$TELEFONO==1 ),"sin_telef"] <- 0
+table(hogares$sin_telef)
+
+# Horno (microondas)
+table(hogares$NUM_MICRO)
+hogares$sin_horno <- 0
+hogares[which( hogares$NUM_MICRO==0 ),"sin_horno"] <- 1
+table(hogares$sin_horno)
+
+# Agregago
+aux_var <- c("seg_alim2","seg_alim3","seg_alim_a","sin_refri","sin_vehi","sin_vidvd","sin_compu","sin_telef","sin_horno")
+hogares_agr_agr <- aggregate( x = hogares[,aux_var],
+                            by = list(hogares$FOLIOVIV,hogares$FOLIOHOG),
+                            FUN = max )
+colnames(hogares_agr_agr) <- c("FOLIOVIV","FOLIOHOG",aux_var)
+summary(hogares_agr_agr$seg_alim2)
+summary(hogares_agr_agr$sin_refri)
+summary(hogares_agr_agr$sin_vehi)
+summary(hogares_agr_agr$sin_compu)
+summary(hogares_agr_agr$sin_vidvd)
+summary(hogares_agr_agr$sin_telef)
+summary(hogares_agr_agr$sin_horno)
+
+rm(hogares)
+```
+
+### Trabajos
+
+```{r 0_trabajos}
+trabajos <- read.dbf("../Bases.Datos.Original/ENIGH.2016/Microdatos/trabajos.dbf", 
+                       as.is = TRUE)
+dim(trabajos)
+colnames(trabajos) <- toupper(colnames(trabajos))
+
+poblacion <- read.dbf("../Bases.Datos.Original/ENIGH.2016/Microdatos/poblacion.dbf", 
+                       as.is = TRUE)
+dim(poblacion)
+colnames(poblacion) <- toupper(colnames(poblacion))
+
+trabajos <- merge(trabajos,
+                  poblacion[,c("FOLIOVIV","FOLIOHOG",
+                               "NUMREN", "EDAD","PARENTESCO")],
+                  by=c("FOLIOVIV","FOLIOHOG","NUMREN"),
+                  all.x=TRUE)
+
+# Trabajo subordinado
+trabajos$trab_sub <- 0
+trabajos[which( trabajos$EDAD >= 12 & 
+                  trabajos$ID_TRABAJO==1 &
+                  #( trabajos$ID_TRABAJO==1 | trabajos$ID_TRABAJO==2 ) & 
+                  trabajos$SUBOR==1 ),"trab_sub"] <- 1
+
+table(trabajos$trab_sub)
+
+# Trabajo independiendte
+trabajos$trab_ind <- 0
+trabajos[which( trabajos$EDAD >= 12 & 
+                  trabajos$ID_TRABAJO==1 &
+                  #( trabajos$ID_TRABAJO==1 | trabajos$ID_TRABAJO==2 ) & 
+                  trabajos$INDEP==1 ),"trab_ind"] <- 1
+
+table(trabajos$trab_ind)
+
+# Trabajo subordinado sin pago
+trabajos$trab_s_pago <- 0
+trabajos[which( trabajos$EDAD >= 12 & 
+                  trabajos$ID_TRABAJO==1 &
+                  #( trabajos$ID_TRABAJO==1 | trabajos$ID_TRABAJO==2 ) & 
+                  trabajos$SUBOR==1 & 
+                  (trabajos$PAGO==2 | trabajos$PAGO==3) ),"trab_s_pago"] <- 1
+
+table(trabajos$trab_s_pago)
+
+# Trabajo independiendte / Jefe del hogar
+trabajos$jtrab_ind <- 0
+trabajos[which( trabajos$EDAD >= 12 & 
+                  trabajos$PARENTESCO==101 & 
+                  trabajos$ID_TRABAJO==1 &
+                  #( trabajos$ID_TRABAJO==1 | trabajos$ID_TRABAJO==2 ) & 
+                  trabajos$INDEP==1 ),"jtrab_ind"] <- 1
+
+table(trabajos$jtrab_ind)
+
+# Agregago
+aux_var <- c("trab_sub","trab_ind","jtrab_ind","trab_s_pago")
+trabajos_agr <- aggregate( x = trabajos[,aux_var],
+                            by = list(trabajos$FOLIOVIV,trabajos$FOLIOHOG),
+                            FUN = sum )
+colnames(trabajos_agr) <- c("FOLIOVIV","FOLIOHOG",aux_var)
+summary(trabajos_agr$trab_sub)
+summary(trabajos_agr$trab_ind)
+summary(trabajos_agr$trab_s_pago)
+
+rm(trabajos)
+rm(poblacion)
+```
+
+### Viviendas
+
+```{r 0_viviendas}
+viviendas <- read.dbf("../Bases.Datos.Original/ENIGH.2016/Microdatos/viviendas.dbf", 
+                       as.is = TRUE)
+dim(viviendas)
+colnames(viviendas) <- toupper(colnames(viviendas))
+
+# Vivienda propia
+table(viviendas$TENENCIA)
+
+viviendas$viv_prop <- 0
+viviendas[which( viviendas$TENENCIA==3 | viviendas$TENENCIA==4 ),"viv_prop"] <- 1
+
+# Vivienda rentada
+viviendas$viv_rent <- 0
+viviendas[which( viviendas$TENENCIA==1 ),"viv_rent"] <- 1
+
+# Piso firme
+table(viviendas$MAT_PISOS)
+
+viviendas$piso_fir <- 0
+viviendas[which( viviendas$MAT_PISOS==2 ),"piso_fir"] <- 1
+
+# Piso con recubrimiento
+viviendas$piso_rec <- 0
+viviendas[which( viviendas$MAT_PISOS==3 ),"piso_rec"] <- 1
+
+# Piso con recubrimiento
+viviendas$tot_cuar <- viviendas$NUM_CUARTO
+
+# Combustible
+table(viviendas$COMBUSTIBL)
+viviendas$combustible <- 0
+viviendas[which( viviendas$COMBUSTIBL==1 | viviendas$COMBUSTIBL==2 ),"combustible"] <- 1
+table(viviendas$combustible)
+
+#Escusado exclusivo con descarga de agua
+table(viviendas[,c("EXCUSADO","USO_COMPAR","SANIT_AGUA")])
+viviendas$bao13 <- 0
+viviendas[which( viviendas$EXCUSADO==1 &
+                  viviendas$USO_COMPAR==2 & 
+                   viviendas$SANIT_AGUA== 1 ),"bao13"] <- 1
+table(viviendas$bao13)
+
+# Agregacion
+aux_var <- c("viv_prop","viv_rent","piso_fir","piso_rec","tot_cuar","combustible","bao13")
+
+viviendas_agr <- viviendas[,c("FOLIOVIV",aux_var)]
+  
+rm(viviendas)
+```
+
+
+# Parte II. Calculo de variables para modelacion
+
+## 1. Dependencia demografica (numerica)
+`depdemog`
+
+```{r v01_indice_de_dependencia_demografica} 
+# v01 depdemog
+
+# Se obtiene directamente de `poblacion_agr`
+poblacion_agr$depdemog <- 0
+poblacion_agr[which(poblacion_agr$int12a64>0),"depdemog"] <-
+  (poblacion_agr[which(poblacion_agr$int12a64>0),"int0a12"] +
+     poblacion_agr[which(poblacion_agr$int12a64>0),"int65a98"]) /
+  poblacion_agr[which(poblacion_agr$int12a64>0),"int12a64"]
+summary(poblacion_agr$depdemog)
+
+aux_var <- c("int0a12","int12a64","int65a98","depdemog")
+
+hogares_agr <- merge(hogares_agr,
+                     poblacion_agr[,c("FOLIOVIV","FOLIOHOG",aux_var)],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+dim(hogares_agr)
+colnames(hogares_agr)
+```
+
+## 2. Mujeres entre 12 y 49 anios (numero de personas)
+`muj12a49`
+
+```{r v02_numero_mujeres_12y49} 
+# v02 muj12a49
+# Trabajamos con la tabla `pobracion_agr`
+summary(poblacion_agr$muj12a49)
+
+aux_var <- c("muj12a49")
+
+hogares_agr <- merge(hogares_agr,
+                     poblacion_agr[,c("FOLIOVIV","FOLIOHOG",aux_var)],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+dim(hogares_agr)
+colnames(hogares_agr)
+```
+
+## 3. Total de personas (numero de personas en `log-scale`)
+
+```{r v03_total_personas} 
+# v03 ltot_per
+# Trabajamos con la tabla `hogares_agr`
+summary(hogares_agr$tot_integ)
+summary(hogares_agr$int0a12 + hogares_agr$int12a64 + hogares_agr$int65a98)
+hogares_agr$tot_per <- hogares_agr$int0a12 + 
+  hogares_agr$int12a64 + hogares_agr$int65a98
+hogares_agr$ltot_per <- log(as.numeric(hogares_agr$tot_per))
+colnames(hogares_agr)
+```
+
+## 4. Educacion del jefe del hogar y conyuge
+`p_esc3`
+
+```{r v04_educacion_jefe} 
+# v04 p_esc3, p_esc4 and p_esc5
+# Trabajamos con la tabla `poblacion_jefe`
+table(poblacion_jefe$p_esc3)
+
+hogares_agr <- merge(hogares_agr,
+                     poblacion_jefe[,c("FOLIOVIV","FOLIOHOG","p_esc3")],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+table(hogares_agr$p_esc3)
+```
+
+## 5. Educacion del jefe del hogar y conyuge
+`p_esc5b`
+
+```{r v05_educacion_jefecony_prom}
+# v05 p_esc5b
+# Trabajamos con la tabla `poblacion_jefe`
+table(poblacion_jefe$p_esc5b)
+
+hogares_agr <- merge(hogares_agr,
+                     poblacion_jefe[,c("FOLIOVIV","FOLIOHOG","p_esc5b")],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+table(hogares_agr$p_esc5b)
+```
+
+## 6. Trabajo subordinado (numero de personas)
+`trab_sub`
+
+```{r v06_trabajo_subordinado} 
+# v06 trab_sub (numero)
+# Traajamos con la tabla `trabajos_agr`
+summary(trabajos_agr$trab_sub)
+
+aux_var <- c("trab_sub")
+
+hogares_agr <- merge(hogares_agr,
+                     trabajos_agr[,c("FOLIOVIV","FOLIOHOG",aux_var)],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+dim(hogares_agr)
+colnames(hogares_agr)
+```
+
+## 7. Trabajo independiente (numero de personas)
+`trab_ind`
+
+```{r v07_trabajo_independiente} 
+# v07 trab_ind (numero)
+# Traajamos con la tabla `trabajos_agr`
+summary(trabajos_agr$trab_ind)
+summary(trabajos_agr$trab_s_pago)
+
+aux_var <- c("trab_ind")
+
+hogares_agr <- merge(hogares_agr,
+                     trabajos_agr[,c("FOLIOVIV","FOLIOHOG",aux_var)],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+dim(hogares_agr)
+colnames(hogares_agr)
+```
+
+## 8. Trabajo subuordinado sin pago (numero de personas)
+`trab_s_pago`
+
+```{r v08_trabajo_subordinado_sinpago} 
+# v08 trab_s_pag (numero)
+# Traajamos con la tabla `trabajos_agr`
+summary(trabajos_agr$trab_s_pago)
+
+aux_var <- c("trab_s_pago")
+
+hogares_agr <- merge(hogares_agr,
+                     trabajos_agr[,c("FOLIOVIV","FOLIOHOG",aux_var)],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+dim(hogares_agr)
+colnames(hogares_agr)
+```
+
+## 9. Seguridad alimentaria 1
+`seg_alim2`
+
+```{r v09_seguridad_alimentaria_1} 
+# v09 seg_alim2 (indicadora)
+# Trabajamos con la tabla `hogares_agr_agr`
+table(hogares_agr_agr$seg_alim2)
+
+hogares_agr <- merge(hogares_agr,
+                     hogares_agr_agr[,c("FOLIOVIV","FOLIOHOG","seg_alim2")],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+table(hogares_agr$seg_alim2)
+```
+
+## 10. Seguridad alimentaria 2
+`seg_alim3`
+
+```{r v10_Seguridad_alimentaria_a} 
+# v10 seg_alim3 (indicadora)
+# Trabajamos con la tabla `hogares_agr_agr`
+table(hogares_agr_agr$seg_alim3)
+
+hogares_agr <- merge(hogares_agr,
+                     hogares_agr_agr[,c("FOLIOVIV","FOLIOHOG","seg_alim3")],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+table(hogares_agr$seg_alim3)
+```
+
+## 11. Seguridad alimentaria conjunta
+`seg_alim_a2`
+
+```{r v11_seguridad_alimentaria_conjunta} 
+# v11 seg_alim_a2 (indicadora)
+# Trabajamos con la tabla `hogares_agr_agr`
+# Trabajamos con la tabla `hogares_agr_agr`
+table(hogares_agr_agr$seg_alim_a)
+
+hogares_agr <- merge(hogares_agr,
+                     hogares_agr_agr[,c("FOLIOVIV","FOLIOHOG","seg_alim_a")],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+table(hogares_agr$seg_alim_a)
+
+```
+
+## 12. Acceso a seguro popular (numero de personas)
+
+`seg_pop`
+```{r v12_seguro_popular} 
+# v12 seg_pop (numero)
+table(poblacion_agr$seg_pop)
+
+aux_var <- c("seg_pop")
+
+hogares_agr <- merge(hogares_agr,
+                     poblacion_agr[,c("FOLIOVIV","FOLIOHOG",aux_var)],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+dim(hogares_agr)
+colnames(hogares_agr)
+```
+
+## 13. Servicio medico 
+`ss`
+
+```{r 13_servicio_medico} 
+# v13 ss (indicadora)
+table(poblacion_agr$ss)
+
+aux_var <- c("ss")
+
+hogares_agr <- merge(hogares_agr,
+                     poblacion_agr[,c("FOLIOVIV","FOLIOHOG",aux_var)],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+dim(hogares_agr)
+colnames(hogares_agr)
+
+```
+
+## 14. Seguridad social por trabajo independiente
+`ssjtrabind`
+
+```{r v14_trabind_ss}
+# v14 ssjtrabind (indicadora)
+table(hogares_agr$ss)
+table(trabajos_agr$jtrab_ind)
+
+hogares_agr <- merge(hogares_agr,
+                     trabajos_agr[,c("FOLIOVIV","FOLIOHOG","jtrab_ind")],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+
+hogares_agr$ssjtrabind <- 0
+hogares_agr[which( hogares_agr$ss==1 & 
+                     hogares_agr$jtrab_ind==1 ),"ssjtrabind"] <- 1
+table(hogares_agr$ssjtrabind)
+```
+
+## 15. Recepcion de remesas
+`con_remesas`
+
+```{r v15_accotros_ingresos} 
+# v30 remesa
+summary(hogares_agr$remesas)
+
+hogares_agr$con_remesas <- 0
+hogares_agr[which( hogares_agr$remesas>0 ),"con_remesas"] <- 1
+table(hogares_agr$con_remesas)
+```
+
+## 16. Vivienda propia
+`viv_prop`
+
+```{r v16_vivenda_propia} 
+# v16 viv_prop (indicadora)
+# Trabajamos con `viviendas_agr`
+table(viviendas_agr$viv_prop)
+
+hogares_agr <- merge(hogares_agr,
+                     viviendas_agr[,c("FOLIOVIV","viv_prop")],
+                     by=c("FOLIOVIV"))
+table(hogares_agr$viv_prop)
+```
+
+## 17. Vivienda rentada
+`viv_rent`
+
+```{r v17_vivenda_rantada} 
+# v17 viv_rent (indicadora)
+# Trabajamos con `viviendas_agr`
+table(viviendas_agr$viv_rent)
+
+hogares_agr <- merge(hogares_agr,
+                     viviendas_agr[,c("FOLIOVIV","viv_rent")],
+                     by=c("FOLIOVIV"))
+table(hogares_agr$viv_rent)
+```
+
+## 18. Total de cuartos (numero)
+
+`tot_cuar`
+
+```{r v18_tot_cuartos} 
+# v18 tot_cuar (numero)
+table(viviendas_agr$tot_cuar)
+
+hogares_agr <- merge(hogares_agr,
+                     viviendas_agr[,c("FOLIOVIV","tot_cuar")],
+                     by=c("FOLIOVIV"))
+table(hogares_agr$tot_cuar)
+```
+
+## 19. Tipo de banio
+
+```{r v19_tipo_banio} 
+# v19 bao1, bao2 and bao3 (indicadoras)
+```
+
+## 20. Banio exclusivo
+`bao13`
+
+```{r v20_banio_exclusivo} 
+# v20 bao13 (indicadoras)
+# Trabajamos con la tabla `viviendas_agr`
+table(viviendas_agr$bao13)
+
+hogares_agr <- merge(hogares_agr,
+                     viviendas_agr[,c("FOLIOVIV","bao13")],
+                     by=c("FOLIOVIV"))
+table(hogares_agr$bao13)
+```
+
+## 21. Piso firme
+`piso_fir`
+
+```{r v21_piso_firme} 
+# v21 piso_fir & piso_rec (indicadoras)
+# Trabajamos con `viviendas_agr`
+table(viviendas_agr$piso_fir)
+
+hogares_agr <- merge(hogares_agr,
+                     viviendas_agr[,c("FOLIOVIV","piso_fir")],
+                     by=c("FOLIOVIV"))
+table(hogares_agr$piso_fir)
+```
+
+## 22. Piso con recubrimiento
+`piso_rec`
+
+```{r v22_piso_firme} 
+# v22 piso_fir & piso_rec (indicadoras)
+# Trabajamos con `viviendas_agr`
+table(viviendas_agr$piso_rec)
+
+hogares_agr <- merge(hogares_agr,
+                     viviendas_agr[,c("FOLIOVIV","piso_rec")],
+                     by=c("FOLIOVIV"))
+table(hogares_agr$piso_rec)
+```
+
+## 23. Uso de combustible
+`combustible`
+
+```{r v223<_combustible} 
+# v223< combustible (indicadoras)
+# Trabajamos con la tabla `viviendas_agr`
+table(viviendas_agr$combustible)
+
+hogares_agr <- merge(x=hogares_agr,
+                     y=viviendas_agr[,c("FOLIOVIV","combustible")],
+                     by=c("FOLIOVIV"))
+table(hogares_agr$combustible)
+```
+
+## 24. Hogar sin refrigerador
+`sin_refri`
+
+```{r v24<_sin_refrigerador} 
+# v24< sin_refri (indicadoras)
+# Trabajamos con la base `hogares_agr_agr`
+table(hogares_agr_agr$sin_refri)
+
+hogares_agr <- merge(hogares_agr,
+                     hogares_agr_agr[,c("FOLIOVIV","FOLIOHOG","sin_refri")],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+table(hogares_agr$sin_refri)
+```
+
+## 25. Hogar sin vehiculo
+`sin_vehi`
+
+```{r v25_sin_vehiculo} 
+# v25 sin_vehi (indicadoras)
+# Trabajamos con la base `hogares_agr_agr`
+table(hogares_agr_agr$sin_vehi)
+
+hogares_agr <- merge(hogares_agr,
+                     hogares_agr_agr[,c("FOLIOVIV","FOLIOHOG","sin_vehi")],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+table(hogares_agr$sin_vehi)
+```
+
+## 26. Hogar sin computadora
+`sin_compu`
+
+```{r v26_sin_compu} 
+# v26 sin_compu (indicadoras)
+# Trabajamos con la base `hogares_agr_agr`
+table(hogares_agr_agr$sin_compu)
+
+hogares_agr <- merge(hogares_agr,
+                     hogares_agr_agr[,c("FOLIOVIV","FOLIOHOG","sin_compu")],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+table(hogares_agr$sin_compu)
+```
+
+## 27. Hogar sin video ni dvd
+`sin_vidvd`
+
+```{r v27_sin_vhs_dvd} 
+# v27 sin_vidvd (indicadoras)
+# Trabajamos con la base `hogares_agr_agr`
+table(hogares_agr_agr$sin_vidvd)
+
+hogares_agr <- merge(hogares_agr,
+                     hogares_agr_agr[,c("FOLIOVIV","FOLIOHOG","sin_vidvd")],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+table(hogares_agr$sin_vidvd)
+```
+
+## 28. Hogar sin telefono
+`sin_telef`
+
+```{r v28_sin_telefono} 
+# v28 sin_telef (indicadoras)
+# Trabajamos con la base `hogares_agr_agr`
+table(hogares_agr_agr$sin_telef)
+
+hogares_agr <- merge(hogares_agr,
+                     hogares_agr_agr[,c("FOLIOVIV","FOLIOHOG","sin_telef")],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+table(hogares_agr$sin_telef)
+```
+
+## 29. Hogar sin horno
+`sin_horno`
+
+```{r v29_sin_horno} 
+# v29 sin_horno (indicadoras)
+# Trabajamos con la base `hogares_agr_agr`
+table(hogares_agr_agr$sin_horno)
+
+hogares_agr <- merge(hogares_agr,
+                     hogares_agr_agr[,c("FOLIOVIV","FOLIOHOG","sin_horno")],
+                     by=c("FOLIOVIV","FOLIOHOG"))
+table(hogares_agr$sin_horno)
+dim(hogares_agr)
+```
+
+## Ingreso corriente total
+`ict` y `ictp`
+
+```{r ict} 
+# ict - Ingresp Corriente Total
+# Trabajamos con la base `2016_a_bienestar_ingreso`
+ict_agr <- read.csv("../Bases.Enigh/2016_a_bienestar_ingreso.csv", header=TRUE)
+dim(ict_agr)
+
+colnames(ict_agr) <- c("FOLIOVIV","FOLIOHOG","factor","tam_loc","rururb","tamhogesc","ict","ictpc","plb_m","plb")
+
+table(ict_agr[,c("plb_m","plb")])
+
+aux_var <- c("factor","rururb","tamhogesc","ict","ictpc") 
+ict_agr$ict <- ict_agr$ict + 1
+ict_agr$ictpc <- ict_agr$ictpc + 1
+
+hogares_agr <- merge(hogares_agr,
+                     ict_agr[,c("FOLIOVIV","FOLIOHOG",aux_var)],
+                     by=c("FOLIOVIV","FOLIOHOG"),
+                     x.all=TRUE)
+summary(hogares_agr$ictpc)
+```
+
+# Variables numericas y categoricas (p/ modelo)
+
+```{r num_cat}
+hogares_agr[,var_enighcuis_num] <- lapply(hogares_agr[,var_enighcuis_num],as.numeric)
+
+hogares_agr[,var_enighcuis_cat] <- lapply(hogares_agr[,var_enighcuis_cat],factor)
+```
+
+# Exportacion de tabla de trabajo
+
+```{r exportacion}
+write.csv(hogares_agr,file="../Bases.Enigh/hogares_enigh_agr.csv")
+colnames(hogares_agr)
+dim(hogares_agr)
+rm(list=ls())
+gc()
+```

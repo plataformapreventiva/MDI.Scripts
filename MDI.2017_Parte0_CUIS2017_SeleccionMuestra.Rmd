@@ -1,0 +1,221 @@
+---
+output: 
+  pdf_document:
+    citation_package: natbib
+    keep_tex: true
+    fig_caption: true
+    latex_engine: pdflatex
+    template:  ../svm-sources/svm-latex-ms.tex
+title: "Anexo 2.0. Seleccion de una muestra CUIS para experimentacion"
+#thanks: "Agradecimientos..."
+author: 
+- name: "Juan Carlos Martinez-Ovando"
+- affiliation: ITAM
+abstract: "Se presenta y comenta el codigo extraer una muestra de los cuestionarios CUIS para experimentacion e ilustracion."
+#keywords: "..."
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+geometry: margin=1in
+fontfamily: mathpazo
+fontsize: 11pt
+#spacing: double
+#bibliography: C:/Users/jcmo/Dropbox/@BibTeX/ReferencesJCMO.bib
+#biblio-style: apsr
+endnote: yes
+---
+
+### Preambulo
+
+
+```{r prelim, include=FALSE}
+source("./Code/load.R.packages.R")
+```
+
+
+# CUIS
+
+## Base de seleccion
+
+La muestra pcorresponde a los registros en `cuis_muestra100.csv`. 
+
+**Muestra base**
+
+```{r 01_base}
+# Base de la muestra
+
+se_integrante_cuis <- read.csv("../Bases.Datos.Original/CUIS/CUIS/cuis_muestra100.csv",head=TRUE)
+                      #read.spss("../Bases.Datos.Original/CUIS/CUIS/se_integrante_cuis.sav", to.data.frame=TRUE)
+
+dim(se_integrante_cuis)
+
+#head(se_integrante_cuis)
+
+LLAVE_HOGAR_H.df <- as.data.frame(unique(se_integrante_cuis$LLAVE_HOGAR_H))
+
+LLAVE_HOGAR_H.df$IND_SAM <- 1
+
+colnames(LLAVE_HOGAR_H.df) <- c("LLAVE_HOGAR_H","IND_SAM")
+
+#head(LLAVE_HOGAR_H.df)
+
+dim(LLAVE_HOGAR_H.df)
+
+write.csv(LLAVE_HOGAR_H.df, file="../Bases.Cuis/hogares_cuis_4_analysis.csv")
+```
+
+## Importacion
+
+Importamos los datos completos de los cuestionarios CUIS desde su formato `SAV`.
+
+**Domicilio**
+
+```{r domicilio}
+# DOMICILIO CUIS
+domicilio_cuis <- read.spss("../Bases.Datos.Original/CUIS/CUIS/domicilio_cuis_original.sav", to.data.frame=TRUE)
+                  #read.csv("../Bases.Datos.Original/CUIS/CUIS/domicilio_cuis_original.csv", head=TRUE)
+
+dim(domicilio_cuis)
+
+domicilio_cuis <- merge(domicilio_cuis, LLAVE_HOGAR_H.df, by = "LLAVE_HOGAR_H")
+
+domicilio_cuis <- domicilio_cuis[which(domicilio_cuis$IND_SAM==1),]
+
+dim(domicilio_cuis)
+
+write.csv(domicilio_cuis, file="../Bases.Cuis/domicilio_cuis.csv")
+```
+
+**Encuesta**
+
+```{r encuesta}
+# ENCUESTA CUIS
+
+encuesta_cuis <- read.spss("../Bases.Datos.Original/CUIS/CUIS/encuesta_cuis_original.sav", to.data.frame=TRUE)
+                #read.csv("../Bases.Datos.Original/CUIS/CUIS/encuesta_cuis_original.csv", head=TRUE)
+
+dim(encuesta_cuis)
+
+encuesta_cuis <- merge(encuesta_cuis, LLAVE_HOGAR_H.df, by = "LLAVE_HOGAR_H")
+
+encuesta_cuis <- encuesta_cuis[which(encuesta_cuis$IND_SAM==1),]
+
+dim(encuesta_cuis)
+
+write.csv(encuesta_cuis, file="../Bases.Cuis/encuesta_cuis.csv")
+```
+
+**Integrante**
+
+```{r integrante} 
+# INTEGRANTE CUIS
+
+integrante_cuis <- read.spss("../Bases.Datos.Original/CUIS/CUIS/integrante_cuis_original.sav", to.data.frame=TRUE)
+                  #read.csv("../Bases.Datos.Original/CUIS/CUIS/integrante_cuis_original.csv", head=TRUE)
+
+dim(integrante_cuis)
+
+integrante_cuis <- merge(integrante_cuis, LLAVE_HOGAR_H.df, by = "LLAVE_HOGAR_H")
+
+integrante_cuis <- integrante_cuis[which(integrante_cuis$IND_SAM==1),]
+
+dim(integrante_cuis)
+
+write.csv(integrante_cuis, file="../Bases.Cuis/integrante_cuis.csv")
+```
+
+**Personas filtrado**
+
+```{r personas_filt}
+# PERSONA CUIS FILTRADO
+
+persona_cuis_filtrado <- read.spss("../Bases.Datos.Original/CUIS/CUIS/persona_cuis_filtrado_original.sav", to.data.frame=TRUE)
+                        #read.csv("../Bases.Datos.Original/CUIS/CUIS/persona_cuis_filtrado_original.csv", head=TRUE)
+
+dim(persona_cuis_filtrado)
+
+persona_cuis_filtrado <- merge(persona_cuis_filtrado, LLAVE_HOGAR_H.df, by = "LLAVE_HOGAR_H")
+
+persona_cuis_filtrado <- persona_cuis_filtrado[which(persona_cuis_filtrado$IND_SAM==1),]
+
+dim(persona_cuis_filtrado)
+
+write.csv(persona_cuis_filtrado, file="../Bases.Cuis/persona_cuis_filtrado.csv")
+```
+
+**SE Integrante**
+
+```{r se_integrante}
+# SE INTEGRANTE CUIS
+
+se_integrante_cuis <- read.spss("../Bases.Datos.Original/CUIS/CUIS/se_integrante_cuis_original.sav", to.data.frame=TRUE)
+                      #read.csv("../Bases.Datos.Original/CUIS/CUIS/se_integrante_cuis_linux.csv", head=TRUE)
+
+dim(se_integrante_cuis)
+
+se_integrante_cuis <- merge(se_integrante_cuis, LLAVE_HOGAR_H.df, by = "LLAVE_HOGAR_H")
+
+se_integrante_cuis <- se_integrante_cuis[which(se_integrante_cuis$IND_SAM==1),]
+
+dim(se_integrante_cuis)
+
+write.csv(se_integrante_cuis, file="../Bases.Cuis/se_integrante_cuis.csv")
+```
+
+**SE Vivienda**
+
+```{r se_vivienda}
+#SE VIVIENDA
+
+se_vivienda_cuis <- read.spss("../Bases.Datos.Original/CUIS/CUIS/se_vivienda_cuis_original.sav", to.data.frame=TRUE)
+                   #read.csv("../Bases.Datos.Original/CUIS/CUIS/se_vivienda_cuis_original.csv", head=TRUE)
+
+dim(se_vivienda_cuis)
+
+se_vivienda_cuis <- merge(se_vivienda_cuis, LLAVE_HOGAR_H.df, by = "LLAVE_HOGAR_H")
+
+se_vivienda_cuis <- se_vivienda_cuis[which(se_vivienda_cuis$IND_SAM==1),]
+
+dim(se_vivienda_cuis)
+
+write.csv(se_vivienda_cuis, file="../Bases.Cuis/se_vivienda_cuis.csv")
+```
+
+**V Encuestador**
+
+```{r v_encuestador}
+# V ENCUESTADOR
+
+v_encuestador_cuis <- read.spss("../Bases.Datos.Original/CUIS/CUIS/v_encuestador_cuis_original.sav", to.data.frame=TRUE)
+                     #read.csv("../Bases.Datos.Original/CUIS/CUIS/v_encuestador_cuis_original.csv", head=TRUE)
+
+dim(v_encuestador_cuis)
+
+v_encuestador_cuis <- merge(v_encuestador_cuis, LLAVE_HOGAR_H.df, by = "LLAVE_HOGAR_H")
+
+v_encuestador_cuis <- v_encuestador_cuis[which(v_encuestador_cuis$IND_SAM==1),]
+
+dim(v_encuestador_cuis)
+
+write.csv(v_encuestador_cuis, file="../Bases.Cuis/v_encuestador_cuis.csv")
+```
+
+**Vivienda**
+
+```{r vivienda}
+# VIVIENDA CUIS
+
+vivienda_cuis <- read.spss("../Bases.Datos.Original/CUIS/CUIS/vivienda_cuis_original.sav", to.data.frame=TRUE)
+                #read.csv("../Bases.Datos.Original/CUIS/CUIS/vivienda_cuis_original.csv", head=TRUE)
+
+dim(vivienda_cuis)
+
+vivienda_cuis <- merge(vivienda_cuis, LLAVE_HOGAR_H.df, by = "LLAVE_HOGAR_H")
+
+vivienda_cuis <- vivienda_cuis[which(vivienda_cuis$IND_SAM==1),]
+
+dim(vivienda_cuis)
+
+write.csv(vivienda_cuis, file="../Bases.Cuis/vivienda_cuis.csv")
+
+gc()
+
+```
