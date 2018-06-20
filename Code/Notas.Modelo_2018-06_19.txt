@@ -1,0 +1,5 @@
+To do:
+
+ - retomar los datos de [IO @ Bayes] relacionados a PS
+ - corregir todos los archivos '*.R' a partir de los archivos '*.Rmd' correctos
+ - migrar datis de [MDI.Script] y [Datos.Modelo]
