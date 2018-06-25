@@ -100,17 +100,29 @@ run_batch_prediction <- function(filename){
                                 modelo_seg_urb,modelo_seg_urb_tab)
     }
 
-    caso.pred <- 1:100000 %>%
-      map_dfr(make_prediction)
-    #caso.pred <- do.call(rbind,lapply(1:dim.hog.agr[1], make_prediction))
-    output_filename = paste0('Predicciones.Cuis/', filename)
-    write.table(hogares_agr, file=output_filename, sep='|', row.names=FALSE)
-    print(filename)
+    for (j in 0:999){
+      start <- j * 100 + 1
+      end <- j * 100 + 100
+      caso.pred <- start:end %>%
+        map_dfr(make_prediction)
+      #caso.pred <- do.call(rbind,lapply(1:dim.hog.agr[1], make_prediction))
+      output_filename = paste0('Predicciones.Cuis/', j, '_', filename)
+      write.table(caso.pred, file=output_filename, sep='|', row.names=FALSE)
+      print(output_filename)
+    }
     rm(list=ls())
     gc()
-
 }
 
+run_test <- function(filename){
+  print(filename)
+  input_filename = paste0('Bases.Cuis/', filename)
+  # Datos CUIS
+  hogares_cuis_agr <- read.csv(input_filename, sep='|', header=TRUE)
+  print('si')
+  rm(list=ls())
+  gc()
+}
 ## read llaves
 ## llaves_all <- read_csv('../llaves_hogar_sifode.csv')
 ## parameters
@@ -137,5 +149,5 @@ if(length(opt) > 1){
     filename <- opt$filename
   }
   run_batch_prediction(filename)
-
+  #run_test(filename)
 }
