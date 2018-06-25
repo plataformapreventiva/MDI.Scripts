@@ -32,7 +32,7 @@ mdi.pred <- function(caso,localidades,lineas_bienestar,
 
   # Prediccion de Segmento & Probabilidad
   # Rural
-  if(caso$RURURB==1){
+  if(!is.na(caso$RURURB) & caso$RURURB==1){
     # Segmento
     caso$pred.segm <- classifyKamila(modelo_seg_rur, caso.list)
     # Modelo Actual
@@ -41,7 +41,7 @@ mdi.pred <- function(caso,localidades,lineas_bienestar,
     if(caso$pred.mactual.lev<=lbm_rur){caso$pred.mactual.lbm <- 1}else{caso$pred.mactual.lbm <- 0}
   }
   # Urbano
-  if(caso$RURURB==2){
+  else if(!is.na(caso$RURURB) & caso$RURURB==2){
     # Segmento
     caso$pred.segm <- classifyKamila(modelo_seg_urb, caso.list)
     # Modelo Actual
@@ -50,6 +50,14 @@ mdi.pred <- function(caso,localidades,lineas_bienestar,
     if(caso$pred.mactual.lev<=lbm_urb){caso$pred.mactual.lbm <- 1}else{caso$pred.mactual.lbm <- 0}
     # Modelo Blasso
     modelo_blasso_urb$beta
+  }
+  # No identificado
+  else {
+    caso$pred.segm <- NA
+    caso$pred.mactual.lev <- NA
+    caso$pred.mactual.lb <- NA
+    caso$pred.mactual.lbm <- NA
+    
   }
   
   # Output
