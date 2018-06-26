@@ -149,6 +149,8 @@ attach(poblacion)
 write.csv( poblacion, "Bases.Enigh/Tablas_2016/2016_ic_rezeducacion.csv", row.names = FALSE)
 write.dbf( poblacion, "Bases.Enigh/Tablas_2016/2016_ic_rezeducacion.dbf")
 
+# -----------------
+
 #detach(poblacion)
 
 ### 11_privacion_social}
@@ -235,6 +237,8 @@ dim(trabajos2)
 
 write.csv(trabajos2,"Bases.Enigh/Tablas_2016/2016_basetrabajadora.csv", row.names = FALSE)
 write.dbf(trabajos2,"Bases.Enigh/Tablas_2016/2016_basetrabajadora.dbf")
+
+# --------------------------
 
 ### 18_integracion_poblacion_basetrabajadora}
 poblacion1 <- read.dbf("Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/poblacion.dbf", 
@@ -582,6 +586,8 @@ write.csv(poblacion,"Bases.Enigh/Tablas_2016/2016_poblacion.csv",
 
 write.dbf(poblacion,"Bases.Enigh/Tablas_2016/2016_poblacion.dbf")
 
+# ------------------------------
+
 ### 46_discapacidad1}
 poblacion$discap <- 0
 
@@ -615,6 +621,8 @@ write.csv(poblacion,"Bases.Enigh/Tablas_2016/2016_ic_salud.csv",
           row.names = FALSE)
 
 write.dbf(poblacion,"Bases.Enigh/Tablas_2016/2016_ic_salud.dbf")
+
+# -------------------------------
 
 ### 47_privacion_social2}
 #rm(list=ls())
@@ -706,6 +714,7 @@ write.csv(trabajos2, "Bases.Enigh/Tablas_2016/2016_prestaciones_laborales.csv",
           row.names = FALSE)
 write.dbf(trabajos2, "Bases.Enigh/Tablas_2016/2016_prestaciones_laborales.dbf")
 
+# --------------------------------
 
 ### 56_ingresos_pension}
 ingresos <- read.dbf("Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/ingresos.dbf",
@@ -762,6 +771,8 @@ ingresos2 <- orderBy(~+folioviv+foliohog+numren, data=ingresos2)
 write.csv(ingresos2, "Bases.Enigh/Tablas_2016/2016_ingresos_pensiones.csv", 
           row.names = FALSE)
 write.dbf(ingresos2, "Bases.Enigh/Tablas_2016/2016_ingresos_pensiones.dbf")
+
+# --------------------------------
 
 ### 57_poblacion1_2}
 poblacion1 <- read.dbf("Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/poblacion.dbf",
@@ -1162,6 +1173,8 @@ write.csv(poblacion, "Bases.Enigh/Tablas_2016/2016_ic_seguridadsocial.csv",
           row.names = FALSE)
 write.dbf(poblacion, "Bases.Enigh/Tablas_2016/2016_ic_seguridadsocial.dbf")
 
+# --------------------------------
+
 ### 89_ic_carencia_vivienda}
 #rm(list=ls())
 hogares<- read.dbf("Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/hogares.dbf",
@@ -1261,6 +1274,8 @@ write.csv(hogares2, "Bases.Enigh/Tablas_2016/2016_ic_vivienda.csv",
           row.names = FALSE)
 write.dbf(hogares2, "Bases.Enigh/Tablas_2016/2016_ic_vivienda.dbf")
 attach(hogares2)
+
+# -------------------------------
 
 ### 96_hogares}
 hogares <- read.dbf("Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/viviendas.dbf",
@@ -1391,6 +1406,8 @@ write.csv(hogares, "Bases.Enigh/Tablas_2016/2016_ic_privacionsocial.csv",
 write.dbf(hogares, "Bases.Enigh/Tablas_2016/2016_ic_privacionsocial.dbf")
 #detach(hogares)
 
+# ------------------------------
+
 ### 104_ic_alimentacion}
 poblacion1 <- read.dbf("Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/poblacion.dbf",
                        as.is = TRUE)
@@ -1438,6 +1455,8 @@ write.csv(poblacion2, "Bases.Enigh/Tablas_2016/2016_hogares_menos12a.csv",
           row.names = FALSE)
 write.dbf(poblacion2, "Bases.Enigh/Tablas_2016/2016_hogares_menos12a.dbf")
 #detach(poblacion2)
+
+# ---------------------------------
 
 hogares <- read.dbf("Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/hogares.dbf",
                     as.is = TRUE)
@@ -1603,6 +1622,8 @@ write.csv(hogares, "Bases.Enigh/Tablas_2016/2016_ic_alimentacion_12a.csv",
           row.names = FALSE)
 write.dbf(hogares, "Bases.Enigh/Tablas_2016/2016_ic_alimentacion_12a.dbf")
 
+# ------------------------------
+
 ### 123_bienestar_ing_auxiliar_a}
 gc()
 ## defrag memory #
@@ -1648,6 +1669,8 @@ write.dbf(aguinaldo, "Bases.Enigh/Tablas_2016/2016_aguinaldo.dbf")
 write.csv(aguinaldo, "Bases.Enigh/Tablas_2016/2016_aguinaldo.csv", 
           row.names=FALSE)
 detach(trabajos2)
+
+# --------------------------------
 
 ### 128_ingresos_monetarios}
 ingresos <-read.dbf("Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/ingresos.dbf",
@@ -2042,6 +2065,8 @@ ingresos2 <- orderBy(~+folioviv+foliohog, data=ingresos2)
 write.csv(ingresos2, "Bases.Enigh/Tablas_2016/2016_ingresocorriente.csv",
           row.names = FALSE)
 write.dbf(ingresos2, "Bases.Enigh/Tablas_2016/2016_ingresocorriente.dbf")
+
+# -------------------------------
 
 ### *** ###
 
@@ -3586,6 +3611,9 @@ head(nomonetarioreg2)
 write.csv(nomonetarioreg2, "Bases.Enigh/Tablas_2016/2016_nomonetarioreg2.csv", 
           row.names = FALSE)
 write.dbf(nomonetarioreg2, "Bases.Enigh/Tablas_2016/2016_nomonetarioreg2.dbf")
+
+# --------------------------------------
+# --------------------------------------
 
 gc()
 
