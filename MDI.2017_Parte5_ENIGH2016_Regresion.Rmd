@@ -238,7 +238,7 @@ for(j in 1:J_rur){
 
 ## Urbano
 
-### Modelos de regresion para LB y LBM
+Modelos de regresion para LB y LBM
 
 ```{r 2_qr_lm_urb}
 ## Linea de bienestar y bienestar minimo

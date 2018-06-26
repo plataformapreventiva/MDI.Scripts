@@ -180,3 +180,90 @@ for(j in 1:J_rur){
              ndraw=M.sim)
   summary( modelo_qr_rur_lbm[[j]] )
 }
+
+# ## Urbano
+
+# Modelos de regresion para LB y LBM
+
+# 2_qr_lm_urb}
+## Linea de bienestar y bienestar minimo
+modelo_qr_urb_lb <- list()
+modelo_lm_urb <- list()
+modelo_blasso_urb <- list()
+modelo_qr_urb_lbm <- list()
+
+# Tipos de variables
+hogares_agr_urb[,var_enighcuis_reg_num] <- lapply(hogares_agr_urb[,var_enighcuis_reg_num],
+                                                  as.numeric)
+hogares_agr_urb[,var_enighcuis_reg_cat] <- lapply(hogares_agr_urb[,var_enighcuis_reg_cat],
+                                                  factor)
+
+# Modelo Agregado Urbano
+modelo_actual_urb <- lm( mdi.formula, 
+                         dat=hogares_agr_urb)
+summary(modelo_actual_urb)
+
+j <- 1
+for(j in 1:J_urb){
+  print(j)
+  data_aux <- hogares_agr_urb[which(hogares_agr_urb$finalMemb_urb == 
+                                      modelo_seg_urb_tab[j,"segment_urb"]),]
+  #  is.data.frame(data_aux)
+  data_aux[,var_enighcuis_reg_num] <- lapply(data_aux[,var_enighcuis_reg_num],
+                                             as.numeric)
+  data_aux[,var_enighcuis_reg_cat] <- lapply(data_aux[,var_enighcuis_reg_cat],
+                                             factor)
+  #  is.factor(data_aux$sin_compu)
+  #  dim(data_aux)
+  #  colnames(data_aux)
+  
+  # QR - LB
+  modelo_qr_urb_lb[[j]] <-
+    bayesQR( mdi.formula, 
+             dat=data_aux,
+             quantile=modelo_seg_urb_tab[j,"q_urb_lb"],
+             alasso=TRUE, 
+             ndraw=M.sim)
+  summary( modelo_qr_urb_lb[[j]] )
+  
+  # Actual Segmentado
+  modelo_lm_urb[[j]] <-
+    lm( mdi.formula, 
+        dat=data_aux)
+  summary( modelo_lm_urb[[j]] )
+  
+  # Blasso Segmentado
+  Y.aux <- data_aux[,"ictpc"]
+  X.aux <- cbind(1,data_aux[,c(var_enighcuis_reg_num,var_enighcuis_reg_cat)])
+  modelo_blasso_urb[[j]] <- blasso(X.aux, Y.aux,T=M.sim,thin=NULL,verb=0)
+  summary( modelo_blasso_urb[[j]] )
+  
+  # QR - LBM
+  modelo_qr_urb_lbm[[j]] <-
+    bayesQR(mdi.formula,
+            dat=data_aux,
+            quantile=modelo_seg_urb_tab[j,"q_urb_lbm"],
+            alasso=TRUE, 
+            ndraw=M.sim)
+  summary( modelo_qr_urb_lbm[[j]] )
+}
+
+# Exportacion
+
+# exportacion}
+save(modelo_actual_rur,modelo_actual_urb,
+     modelo_seg_rur,modelo_seg_urb,
+     modelo_seg_rur_tab,modelo_seg_urb_tab,
+     hogares_agr_rur,hogares_agr_urb,
+     var_enighcuis_num,var_enighcuis_cat,
+     var_enighcuis_seg_num,var_enighcuis_seg_cat,
+     var_enighcuis_reg_num,var_enighcuis_reg_cat,
+     modelo_qr_rur_lb,modelo_qr_rur_lbm,
+     modelo_lm_rur,modelo_lm_urb,
+     modelo_blasso_rur,modelo_blasso_urb,
+     modelo_qr_urb_lb,modelo_qr_urb_lbm,
+     lb_rur,lb_urb,
+     lbm_rur,lbm_urb,
+     file = "MDI.Scripts/Datos.Modelo/mdi_regresion.RData")
+ls()
+gc()
