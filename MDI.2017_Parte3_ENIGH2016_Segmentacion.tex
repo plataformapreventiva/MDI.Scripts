@@ -209,6 +209,14 @@ datos generados de la ENIGH.
 \end{Shaded}
 
 \begin{verbatim}
+## Loading required package: parallel
+\end{verbatim}
+
+\begin{verbatim}
+## Loading required package: foreach
+\end{verbatim}
+
+\begin{verbatim}
 ## Loading required package: digest
 \end{verbatim}
 
@@ -398,15 +406,7 @@ datos generados de la ENIGH.
 \end{verbatim}
 
 \begin{verbatim}
-## Loading required package: foreach
-\end{verbatim}
-
-\begin{verbatim}
 ## Loading required package: iterators
-\end{verbatim}
-
-\begin{verbatim}
-## Loading required package: parallel
 \end{verbatim}
 
 \begin{verbatim}
@@ -483,9 +483,9 @@ datos generados de la ENIGH.
 \end{verbatim}
 
 \begin{verbatim}
-## The following object is masked from 'package:foreach':
+## The following object is masked from 'package:ggplot2':
 ## 
-##     foreach
+##     syms
 \end{verbatim}
 
 \begin{verbatim}
@@ -504,6 +504,12 @@ datos generados de la ENIGH.
 ## The following object is masked from 'package:car':
 ## 
 ##     recode
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:foreach':
+## 
+##     foreach
 \end{verbatim}
 
 \begin{verbatim}
@@ -654,7 +660,7 @@ datos generados de la ENIGH.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{load}\NormalTok{(}\StringTok{"../Datos.Modelo/mdi_variables_modelo.RData"}\NormalTok{)}
+\KeywordTok{load}\NormalTok{(}\StringTok{"./Datos.Modelo/mdi_variables_modelo.RData"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -670,14 +676,14 @@ Los datos con los que trabajaremos son:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"../Bases.Enigh/hogares_enigh_agr.csv"}\NormalTok{, }\DataTypeTok{header=}\OtherTok{TRUE}\NormalTok{)}
+\NormalTok{hogares_agr <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"./Datos.Aux/hogares_enigh_agr.csv"}\NormalTok{, }\DataTypeTok{header=}\OtherTok{TRUE}\NormalTok{)}
 \KeywordTok{colnames}\NormalTok{(hogares_agr)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
 ##  [1] "X"           "FOLIOVIV"    "FOLIOHOG"    "tam_loc"     "sexo_jefe"  
-##  [6] "edad_jefe"   "educa_jefe"  "tot_integ"   "p12_64"      "p65mas"     
+##  [6] "edad_jefe"   "educa_jefe"  "tot_integ.x" "p12_64"      "p65mas"     
 ## [11] "remesas"     "ing_cor"     "int0a12"     "int12a64"    "int65a98"   
 ## [16] "depdemog"    "muj12a49"    "tot_per"     "ltot_per"    "p_esc3"     
 ## [21] "p_esc5b"     "trab_sub"    "trab_ind"    "trab_s_pago" "seg_alim2"  
@@ -685,7 +691,15 @@ Los datos con los que trabajaremos son:
 ## [31] "ssjtrabind"  "con_remesas" "viv_prop"    "viv_rent"    "tot_cuar"   
 ## [36] "bao13"       "piso_fir"    "piso_rec"    "combustible" "sin_refri"  
 ## [41] "sin_vehi"    "sin_compu"   "sin_vidvd"   "sin_telef"   "sin_horno"  
-## [46] "factor"      "rururb"      "tamhogesc"   "ict"         "ictpc"
+## [46] "tot_integ.y" "ing_mon"     "ali_nme"     "alta_nme"    "veca_nme"   
+## [51] "viv_nme"     "lim_nme"     "cris_nme"    "ens_nme"     "sal_nme"    
+## [56] "tpub_nme"    "tfor_nme"    "com_nme"     "edre_nme"    "edba_nme"   
+## [61] "cuip_nme"    "accp_nme"    "otr_nme"     "reda_nme"    "ali_nmr"    
+## [66] "alta_nmr"    "veca_nmr"    "viv_nmr"     "lim_nmr"     "cris_nmr"   
+## [71] "ens_nmr"     "sal_nmr"     "tpub_nmr"    "tfor_nmr"    "com_nmr"    
+## [76] "edre_nmr"    "edba_nmr"    "cuip_nmr"    "accp_nmr"    "otr_nmr"    
+## [81] "reda_nmr"    "rururb"      "pago_esp"    "reg_esp"     "nomon"      
+## [86] "ict"         "tamhogesc"   "ictpc"       "plb_m"       "plb"
 \end{verbatim}
 
 \begin{Shaded}
@@ -695,7 +709,7 @@ Los datos con los que trabajaremos son:
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 43609    50
+## [1] 43578    90
 \end{verbatim}
 
 \subsection{Ingreso corriente (dos
@@ -722,8 +736,8 @@ versiones)}\label{ingreso-corriente-dos-versiones}
 \begin{verbatim}
 ##       tam_loc
 ## rururb     1     2     3     4
-##      0 14364  6018  6960     0
-##      1     0     0     0 16267
+##      0 14352  6015  6955     0
+##      1     0     0     0 16256
 \end{verbatim}
 
 \begin{Shaded}
@@ -735,7 +749,7 @@ versiones)}\label{ingreso-corriente-dos-versiones}
 \begin{verbatim}
 ## 
 ##     0     1 
-## 27342 16267
+## 27322 16256
 \end{verbatim}
 
 \section{Parte I - Segmentacion
@@ -767,7 +781,7 @@ Rural}\label{parte-i---segmentacion-rural}
 
 \begin{verbatim}
 ##              Length Class  Mode   
-## finalMemb    16267  -none- numeric
+## finalMemb    16256  -none- numeric
 ## numIter         10  -none- numeric
 ## finalLogLik      1  -none- numeric
 ## finalObj         1  -none- numeric
@@ -787,7 +801,7 @@ Rural}\label{parte-i---segmentacion-rural}
 \begin{verbatim}
 ## 
 ##    1    2    3    4    5 
-## 3399 1807 3624 2453 4984
+## 3430 1796 3596 2445 4989
 \end{verbatim}
 
 \subsection{Unimos los
@@ -801,7 +815,7 @@ clasificaciones}\label{unimos-los-clasificaciones}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 16267    50
+## [1] 16256    90
 \end{verbatim}
 
 \begin{Shaded}
@@ -812,7 +826,7 @@ clasificaciones}\label{unimos-los-clasificaciones}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 16267     1
+## [1] 16256     1
 \end{verbatim}
 
 \begin{Shaded}
@@ -826,7 +840,7 @@ clasificaciones}\label{unimos-los-clasificaciones}
 
 \begin{verbatim}
 ##  [1] "X"             "FOLIOVIV"      "FOLIOHOG"      "tam_loc"      
-##  [5] "sexo_jefe"     "edad_jefe"     "educa_jefe"    "tot_integ"    
+##  [5] "sexo_jefe"     "edad_jefe"     "educa_jefe"    "tot_integ.x"  
 ##  [9] "p12_64"        "p65mas"        "remesas"       "ing_cor"      
 ## [13] "int0a12"       "int12a64"      "int65a98"      "depdemog"     
 ## [17] "muj12a49"      "tot_per"       "ltot_per"      "p_esc3"       
@@ -836,8 +850,18 @@ clasificaciones}\label{unimos-los-clasificaciones}
 ## [33] "viv_prop"      "viv_rent"      "tot_cuar"      "bao13"        
 ## [37] "piso_fir"      "piso_rec"      "combustible"   "sin_refri"    
 ## [41] "sin_vehi"      "sin_compu"     "sin_vidvd"     "sin_telef"    
-## [45] "sin_horno"     "factor"        "rururb"        "tamhogesc"    
-## [49] "ict"           "ictpc"         "finalMemb_rur"
+## [45] "sin_horno"     "tot_integ.y"   "ing_mon"       "ali_nme"      
+## [49] "alta_nme"      "veca_nme"      "viv_nme"       "lim_nme"      
+## [53] "cris_nme"      "ens_nme"       "sal_nme"       "tpub_nme"     
+## [57] "tfor_nme"      "com_nme"       "edre_nme"      "edba_nme"     
+## [61] "cuip_nme"      "accp_nme"      "otr_nme"       "reda_nme"     
+## [65] "ali_nmr"       "alta_nmr"      "veca_nmr"      "viv_nmr"      
+## [69] "lim_nmr"       "cris_nmr"      "ens_nmr"       "sal_nmr"      
+## [73] "tpub_nmr"      "tfor_nmr"      "com_nmr"       "edre_nmr"     
+## [77] "edba_nmr"      "cuip_nmr"      "accp_nmr"      "otr_nmr"      
+## [81] "reda_nmr"      "rururb"        "pago_esp"      "reg_esp"      
+## [85] "nomon"         "ict"           "tamhogesc"     "ictpc"        
+## [89] "plb_m"         "plb"           "finalMemb_rur"
 \end{verbatim}
 
 \begin{Shaded}
@@ -850,12 +874,12 @@ clasificaciones}\label{unimos-los-clasificaciones}
 \begin{verbatim}
 ## 
 ##        1        2        3        4        5 
-## 20.89506 11.10838 22.27823 15.07961 30.63872
+## 21.09990 11.04823 22.12106 15.04060 30.69021
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{write.csv}\NormalTok{(hogares_agr_rur,}\DataTypeTok{file=}\StringTok{"../Datos.Modelo/hogares_agr_rur.csv"}\NormalTok{)}
+\KeywordTok{write.csv}\NormalTok{(hogares_agr_rur,}\DataTypeTok{file=}\StringTok{"./Datos.Modelo/Tablas/hogares_agr_rur.csv"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -889,7 +913,7 @@ Urbano}\label{parte-ii---segmentacion-urbano}
 
 \begin{verbatim}
 ##              Length Class  Mode   
-## finalMemb    27342  -none- numeric
+## finalMemb    27322  -none- numeric
 ## numIter         10  -none- numeric
 ## finalLogLik      1  -none- numeric
 ## finalObj         1  -none- numeric
@@ -909,7 +933,7 @@ Urbano}\label{parte-ii---segmentacion-urbano}
 \begin{verbatim}
 ## 
 ##     1     2     3 
-##  8993  6237 12112
+##  8995  6233 12094
 \end{verbatim}
 
 \subsection{Unimos los
@@ -923,7 +947,7 @@ clasificaciones}\label{unimos-los-clasificaciones-1}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 27342    50
+## [1] 27322    90
 \end{verbatim}
 
 \begin{Shaded}
@@ -934,7 +958,7 @@ clasificaciones}\label{unimos-los-clasificaciones-1}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 27342     1
+## [1] 27322     1
 \end{verbatim}
 
 \begin{Shaded}
@@ -948,7 +972,7 @@ clasificaciones}\label{unimos-los-clasificaciones-1}
 
 \begin{verbatim}
 ##  [1] "X"             "FOLIOVIV"      "FOLIOHOG"      "tam_loc"      
-##  [5] "sexo_jefe"     "edad_jefe"     "educa_jefe"    "tot_integ"    
+##  [5] "sexo_jefe"     "edad_jefe"     "educa_jefe"    "tot_integ.x"  
 ##  [9] "p12_64"        "p65mas"        "remesas"       "ing_cor"      
 ## [13] "int0a12"       "int12a64"      "int65a98"      "depdemog"     
 ## [17] "muj12a49"      "tot_per"       "ltot_per"      "p_esc3"       
@@ -958,8 +982,18 @@ clasificaciones}\label{unimos-los-clasificaciones-1}
 ## [33] "viv_prop"      "viv_rent"      "tot_cuar"      "bao13"        
 ## [37] "piso_fir"      "piso_rec"      "combustible"   "sin_refri"    
 ## [41] "sin_vehi"      "sin_compu"     "sin_vidvd"     "sin_telef"    
-## [45] "sin_horno"     "factor"        "rururb"        "tamhogesc"    
-## [49] "ict"           "ictpc"         "finalMemb_urb"
+## [45] "sin_horno"     "tot_integ.y"   "ing_mon"       "ali_nme"      
+## [49] "alta_nme"      "veca_nme"      "viv_nme"       "lim_nme"      
+## [53] "cris_nme"      "ens_nme"       "sal_nme"       "tpub_nme"     
+## [57] "tfor_nme"      "com_nme"       "edre_nme"      "edba_nme"     
+## [61] "cuip_nme"      "accp_nme"      "otr_nme"       "reda_nme"     
+## [65] "ali_nmr"       "alta_nmr"      "veca_nmr"      "viv_nmr"      
+## [69] "lim_nmr"       "cris_nmr"      "ens_nmr"       "sal_nmr"      
+## [73] "tpub_nmr"      "tfor_nmr"      "com_nmr"       "edre_nmr"     
+## [77] "edba_nmr"      "cuip_nmr"      "accp_nmr"      "otr_nmr"      
+## [81] "reda_nmr"      "rururb"        "pago_esp"      "reg_esp"      
+## [85] "nomon"         "ict"           "tamhogesc"     "ictpc"        
+## [89] "plb_m"         "plb"           "finalMemb_urb"
 \end{verbatim}
 
 \begin{Shaded}
@@ -972,12 +1006,12 @@ clasificaciones}\label{unimos-los-clasificaciones-1}
 \begin{verbatim}
 ## 
 ##        1        2        3 
-## 32.89079 22.81106 44.29815
+## 32.92219 22.81312 44.26470
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\KeywordTok{write.csv}\NormalTok{(hogares_agr_urb,}\DataTypeTok{file=}\StringTok{"../Datos.Modelo/hogares_agr_urb.csv"}\NormalTok{)}
+\KeywordTok{write.csv}\NormalTok{(hogares_agr_urb,}\DataTypeTok{file=}\StringTok{"./Datos.Modelo/Tablas/hogares_agr_urb.csv"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1019,7 +1053,7 @@ clasificaciones}\label{unimos-los-clasificaciones-1}
 \NormalTok{      var_enighcuis_cat,var_enighcuis_num,}
 \NormalTok{      var_enighcuis_reg_cat,var_enighcuis_reg_num,}
 \NormalTok{      var_enighcuis_seg_cat,var_enighcuis_seg_num,}
-     \DataTypeTok{file =} \StringTok{"../Datos.Modelo/modelo_segmentacion.RData"}\NormalTok{)}
+     \DataTypeTok{file =} \StringTok{"./Datos.Modelo/mdi_segmentacion.RData"}\NormalTok{)}
 \KeywordTok{ls}\NormalTok{()}
 \end{Highlighting}
 \end{Shaded}
@@ -1044,8 +1078,8 @@ clasificaciones}\label{unimos-los-clasificaciones-1}
 
 \begin{verbatim}
 ##            used  (Mb) gc trigger  (Mb) max used  (Mb)
-## Ncells  1968519 105.2    3205452 171.2  3205055 171.2
-## Vcells 13339715 101.8   21625148 165.0 21625075 165.0
+## Ncells  1985857 106.1    3886542 207.6  3336963 178.3
+## Vcells 16761101 127.9   25922260 197.8 25907199 197.7
 \end{verbatim}
 
 

@@ -41,7 +41,7 @@ Los datos con los que trabajaremos son:
 # Preparacion
 
 ```{r 0_datos}
-hogares_agr <- read.csv("../Bases.Enigh/hogares_enigh_agr.csv", header=TRUE)
+hogares_agr <- read.csv("./Datos.Aux/hogares_enigh_agr.csv", header=TRUE)
 colnames(hogares_agr)
 dim(hogares_agr)
 ```
@@ -59,10 +59,13 @@ cor(hogares_agr[,c("ing_cor","ict")])
 # Numeric
 hogares_agr[,var_enighcuis_num] <- lapply(hogares_agr[,var_enighcuis_num],
                                           as.numeric)
+summary(hogares_agr[,var_enighcuis_num])
+
 
 # Categoric
 hogares_agr[,var_enighcuis_cat] <- lapply(hogares_agr[,var_enighcuis_cat],
                                           as.numeric)
+summary(hogares_agr[,var_enighcuis_cat])
 
 hogares_agr <- as.data.frame(hogares_agr)
 
@@ -88,7 +91,7 @@ hogares_rur_cat <- as.data.frame(hogares_rur_cat)
 # Segmentacion rural
 modelo_seg_rur <- kamila(hogares_rur_num, 
                          hogares_rur_cat,
-                         numClust=5,
+                         numClust=9,
                          numInit=10)
 
 summary(modelo_seg_rur)
@@ -111,7 +114,7 @@ colnames(hogares_agr_rur)
 100 * table(hogares_agr_rur$finalMemb_rur) / 
   sum(table(hogares_agr_rur$finalMemb_rur))
 
-write.csv(hogares_agr_rur,file="../Datos.Modelo/hogares_agr_rur.csv")
+write.csv(hogares_agr_rur,file="./Datos.Modelo/Tablas/hogares_agr_rur.csv")
 ```
 
 # Parte II - Segmentacion Urbano
@@ -132,7 +135,7 @@ hogares_urb_cat <- as.data.frame(hogares_urb_cat)
 # Segmentacion urbano
 modelo_seg_urb <- kamila(hogares_urb_num, 
                        hogares_urb_cat,
-                       numClust=3,
+                       numClust=11,
                        numInit=10,
                        verbose=TRUE)
 
@@ -156,7 +159,7 @@ colnames(hogares_agr_urb)
 100 * table(hogares_agr_urb$finalMemb_urb) / 
   sum(table(hogares_agr_urb$finalMemb_urb))
 
-write.csv(hogares_agr_urb,file="../Datos.Modelo/hogares_agr_urb.csv")
+write.csv(hogares_agr_urb,file="./Datos.Modelo/Tablas/hogares_agr_urb.csv")
 ```
 
 # Descripcion de salida
@@ -191,7 +194,7 @@ save( finalMemb_rur,finalMemb_urb,
       var_enighcuis_cat,var_enighcuis_num,
       var_enighcuis_reg_cat,var_enighcuis_reg_num,
       var_enighcuis_seg_cat,var_enighcuis_seg_num,
-     file = "../Datos.Modelo/mdi_segmentacion.RData")
+     file = "./Datos.Modelo/mdi_segmentacion.RData")
 ls()
 gc()
 ```
