@@ -4529,7 +4529,7 @@ dim(ict_agr)
 table(ict_agr[,c("plb_m","plb")])
 
 #aux_var <- c("factor","rururb","tamhogesc","ict","ictpc") 
-aux_var <- c("tot_integ","ing_mon","ali_nme",
+aux_var <- c("ing_mon","ali_nme",
              "alta_nme","veca_nme","viv_nme","lim_nme","cris_nme",
              "ens_nme","sal_nme","tpub_nme","tfor_nme","com_nme",
              "edre_nme","edba_nme","cuip_nme","accp_nme","otr_nme",
@@ -4548,6 +4548,7 @@ hogares_agr <- merge(hogares_agr,
                      x.all=TRUE)
 dim(hogares_agr)
 summary(hogares_agr$ictpc)
+colnames(hogares_agr)
 
 summary(hogares_agr$ictpc)
 #100*length(index.valido)/nrow(ingresos2)

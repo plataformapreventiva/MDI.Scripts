@@ -91,7 +91,7 @@ hogares_rur_cat <- as.data.frame(hogares_rur_cat)
 # Segmentacion rural
 modelo_seg_rur <- kamila(hogares_rur_num, 
                          hogares_rur_cat,
-                         numClust=9,
+                         numClust=5,
                          numInit=10)
 
 summary(modelo_seg_rur)
@@ -135,7 +135,7 @@ hogares_urb_cat <- as.data.frame(hogares_urb_cat)
 # Segmentacion urbano
 modelo_seg_urb <- kamila(hogares_urb_num, 
                        hogares_urb_cat,
-                       numClust=11,
+                       numClust=7,
                        numInit=10,
                        verbose=TRUE)
 

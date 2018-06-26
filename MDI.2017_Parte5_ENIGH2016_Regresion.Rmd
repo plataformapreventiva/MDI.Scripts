@@ -38,8 +38,9 @@ a) Variables ENIGH-CUIS: `mdi_variables_modelo.RData`
 b) Segmentacion: `modelo_segmentacion.RData`
 
 ```{r 0_data}
-load("../Datos.Modelo/mdi_variables_modelo.RData")
-load("../Datos.Modelo/mdi_segmentacion.RData")
+load("./Datos.Modelo/mdi_variables_modelo.RData")
+load("./Datos.Modelo/mdi_segmentacion.RData")
+ls()
 ```
 
 ## Lineas de bienestar
@@ -49,7 +50,7 @@ Cargamos las lineas de bienestar historicas definidas por CONEVAL.
 El archivo de datos es `coneval_lineas_bienestar.csv`, mientras que el objeto en `R` se nombra `lb_lbm`.
 
 ```{r 0_lb_lbm}
-lb_lbm <- read.csv("../Datos.Modelo/coneval_lineas_bienestar.csv", header=TRUE)
+lb_lbm <- read.csv("./Datos.Modelo/coneval_lineas_bienestar.csv", header=TRUE)
 colnames(lb_lbm)
 dim(lb_lbm)
 ```
@@ -59,8 +60,8 @@ dim(lb_lbm)
 Para efectos del estudio, se emplean las lineas de bienestr correspondientes a **Junio** de **2017**.
 
 ```{r 0_lb_lbm_sel}
-anio_sel <- 2017
-mes_sel <- "Jun"
+anio_sel <- 2016
+mes_sel <- "Jul"
 
 # Lineas de bienestar
 lb_rur <- lb_lbm[which(lb_lbm$anio==anio_sel &
@@ -109,7 +110,7 @@ for(j in 1:J_rur){
 
 modelo_seg_rur_tab
 
-write.csv(modelo_seg_rur_tab,file="../Datos.Modelo/modelo_seg_rur_tab.csv")
+write.csv(modelo_seg_rur_tab,file="./Datos.Modelo/Tablas/modelo_seg_rur_tab.csv")
 ```
 
 ## Urbano
@@ -140,7 +141,7 @@ for(j in 1:J_urb){
 
 modelo_seg_urb_tab
 
-write.csv(modelo_seg_urb_tab,file="../Datos.Modelo/modelo_seg_urb_tab.csv")
+write.csv(modelo_seg_urb_tab,file="./Datos.Modelo/Tablas/modelo_seg_urb_tab.csv")
 ```
 
 # Parte II - Estimacion del modelo de regresion cuantilica
@@ -191,7 +192,7 @@ summary(modelo_actual_rur)
 # Modelo Segmentado Rural
 j <- 1
 for(j in 1:J_rur){
-  j
+  print(j)
   data_aux <- hogares_agr_rur[which(hogares_agr_rur$finalMemb_rur == 
                                       modelo_seg_rur_tab[j,"segment_rur"]), ]
 #  is.data.frame(data_aux)
@@ -259,6 +260,7 @@ summary(modelo_actual_urb)
 
 j <- 1
 for(j in 1:J_urb){
+  print(j)
   data_aux <- hogares_agr_urb[which(hogares_agr_urb$finalMemb_urb == 
                                       modelo_seg_urb_tab[j,"segment_urb"]),]
 #  is.data.frame(data_aux)
@@ -318,7 +320,7 @@ save(modelo_actual_rur,modelo_actual_urb,
      modelo_qr_urb_lb,modelo_qr_urb_lbm,
      lb_rur,lb_urb,
      lbm_rur,lbm_urb,
-     file = "../Datos.Modelo/mdi_regresion.RData")
+     file = "./Datos.Modelo/mdi_regresion.RData")
 ls()
 gc()
 ```
