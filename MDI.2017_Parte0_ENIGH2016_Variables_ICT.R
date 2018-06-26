@@ -4,15 +4,11 @@ memory.size(16000000)
 rm(list=ls())
 
 ### 00_prelim, include=TRUE}
-source("Sedesol.Code/load.R.packages.R")
-
-path.data <- "./BasesDatos/ENIGH2016/"
+source("MDI.Scripts/Code/load.R.packages.R")
 
 ### 01_poblacion2}
 # General - Poblacion1
-poblacion1 <- read.dbf(paste(path.data,"poblacion.dbf",
-                             sep=""),
-                       as.is = TRUE)
+poblacion1 <- read.dbf("/Bases.Datos.Orinales/ENIGH2016/poblacion.dbf",as.is = TRUE)
 
 names(poblacion1) <- tolower(names(poblacion1))
 
@@ -153,7 +149,7 @@ write.dbf( poblacion, './Bases4Analysis/2016_ic_rezeducacion.dbf')
 
 ### 11_privacion_social}
 #rm(list=ls())
-trabajos <- read.dbf(paste(path.data,"trabajos.dbf",sep=""),
+trabajos <- read.dbf("/BasesDatos/ENIGH2016/trabajos.dbf",sep=""),
                      as.is = TRUE)
 attach(trabajos)
 dim(trabajos)
@@ -237,7 +233,7 @@ write.csv(trabajos2,'./Bases4Analysis/2016_basetrabajadora.csv', row.names = FAL
 write.dbf(trabajos2,'./Bases4Analysis/2016_basetrabajadora.dbf')
 
 ### 18_integracion_poblacion_basetrabajadora}
-poblacion1 <- read.dbf(paste(path.data,"poblacion.dbf",sep=""), 
+poblacion1 <- read.dbf("/BasesDatos/ENIGH2016/poblacion.dbf",sep=""), 
                        as.is = TRUE)
 names(poblacion1) <-  tolower(names(poblacion1))
 dim(poblacion1)
@@ -618,7 +614,7 @@ write.dbf(poblacion,"Bases4Analysis/2016_ic_salud.dbf")
 
 ### 47_privacion_social2}
 #rm(list=ls())
-trabajos <- read.dbf(paste(path.data,"trabajos.dbf",sep=""),
+trabajos <- read.dbf("/BasesDatos/ENIGH2016/trabajos.dbf",sep=""),
                      as.is = TRUE)
 
 attach(trabajos)
@@ -708,7 +704,7 @@ write.dbf(trabajos2, './Bases4Analysis/2016_prestaciones_laborales.dbf')
 
 
 ### 56_ingresos_pension}
-ingresos <- read.dbf(paste(path.data,"ingresos.dbf",sep=""),
+ingresos <- read.dbf("/BasesDatos/ENIGH2016/ingresos.dbf",sep=""),
                      as.is = TRUE)
 
 names(ingresos) <-  tolower(names(ingresos))
@@ -764,7 +760,7 @@ write.csv(ingresos2, './Bases4Analysis/2016_ingresos_pensiones.csv',
 write.dbf(ingresos2, './Bases4Analysis/2016_ingresos_pensiones.dbf')
 
 ### 57_poblacion1_2}
-poblacion1 <- read.dbf(paste(path.data,"poblacion.dbf",sep=""),
+poblacion1 <- read.dbf("/BasesDatos/ENIGH2016/poblacion.dbf",sep=""),
                        as.is = TRUE)
 
 names(poblacion1) <- tolower(names(poblacion1))
@@ -1164,12 +1160,12 @@ write.dbf(poblacion, './Bases4Analysis/2016_ic_seguridadsocial.dbf')
 
 ### 89_ic_carencia_vivienda}
 #rm(list=ls())
-hogares<- read.dbf(paste(path.data,"hogares.dbf",sep=""),
+hogares<- read.dbf("/BasesDatos/ENIGH2016/hogares.dbf",sep=""),
                    as.is = TRUE)
 
 hogares <- orderBy(~+folioviv, data=hogares)
 
-vivienda <- read.dbf(paste(path.data,"viviendas.dbf",sep=""),
+vivienda <- read.dbf("/BasesDatos/ENIGH2016/viviendas.dbf",sep=""),
                      as.is = TRUE)
 
 hogares2 = merge(hogares, vivienda,by=c( "folioviv"), all.x = TRUE)
@@ -1263,7 +1259,7 @@ write.dbf(hogares2, './Bases4Analysis/2016_ic_vivienda.dbf')
 attach(hogares2)
 
 ### 96_hogares}
-hogares <- read.dbf(paste(path.data,"viviendas.dbf",sep=""),
+hogares <- read.dbf("/BasesDatos/ENIGH2016/viviendas.dbf",sep=""),
                     as.is = TRUE)
 
 attach(hogares)
@@ -1392,7 +1388,7 @@ write.dbf(hogares, './Bases4Analysis/2016_ic_privacionsocial.dbf')
 #detach(hogares)
 
 ### 104_ic_alimentacion}
-poblacion1 <- read.dbf(paste(path.data,"poblacion.dbf",sep=""),
+poblacion1 <- read.dbf("/BasesDatos/ENIGH2016/poblacion.dbf",sep=""),
                        as.is = TRUE)
 
 names(poblacion1) <- tolower(names(poblacion1))
@@ -1439,7 +1435,7 @@ write.csv(poblacion2, './Bases4Analysis/2016_hogares_menos12a.csv',
 write.dbf(poblacion2, './Bases4Analysis/2016_hogares_menos12a.dbf')
 #detach(poblacion2)
 
-hogares <- read.dbf(paste(path.data,"hogares.dbf",sep=""),
+hogares <- read.dbf("/BasesDatos/ENIGH2016/hogares.dbf",sep=""),
                     as.is = TRUE)
 
 ### 106_6pregs_1}
@@ -1613,7 +1609,7 @@ gc()
 #path.data <- "BasesDatos/ENIGH2016/"
 
 ### 124_ingreso_monetario}
-trabajos <- read.dbf(paste(path.data,"trabajos.dbf",sep=""),
+trabajos <- read.dbf("/BasesDatos/ENIGH2016/trabajos.dbf",sep=""),
                      as.is = TRUE)
 
 trabajos <- trabajos[, c( "folioviv", "foliohog", "numren",
@@ -1650,7 +1646,7 @@ write.csv(aguinaldo, './Bases4Analysis/2016_aguinaldo.csv',
 detach(trabajos2)
 
 ### 128_ingresos_monetarios}
-ingresos <-read.dbf(paste(path.data,"ingresos.dbf",sep=""),
+ingresos <-read.dbf("/BasesDatos/ENIGH2016/ingresos.dbf",sep=""),
                     as.is = TRUE)
 
 names(ingresos) <- tolower(names(ingresos))
@@ -2049,7 +2045,7 @@ write.dbf(ingresos2, './Bases4Analysis/2016_ingresocorriente.dbf')
 library("foreign")
 library("doBy")
 
-nomonetariopersona <- read.dbf(paste(path.data,"gastospersona.dbf",sep=""),
+nomonetariopersona <- read.dbf("/BasesDatos/ENIGH2016/gastospersona.dbf",sep=""),
                                as.is = TRUE)
 
 names(nomonetariopersona) <- tolower(names(nomonetariopersona))
@@ -2060,7 +2056,7 @@ nomonetarioper <- orderBy(~+folioviv+foliohog,
                           data=nomonetariopersona)
 
 nomonetariohogar <- 
-  read.dbf(paste(path.data,"gastoshogar.dbf",sep=""),
+  read.dbf("/BasesDatos/ENIGH2016/gastoshogar.dbf",sep=""),
            as.is = TRUE)
 
 names(nomonetariohogar) <- tolower(names(nomonetariohogar))
@@ -3591,7 +3587,7 @@ gc()
 
 ### 174_ingreso_corriente_total}
 library("foreign")
-concentrado <- read.dbf(paste(path.data,"concentradohogar.dbf",sep=""),
+concentrado <- read.dbf("/BasesDatos/ENIGH2016/concentradohogar.dbf",sep=""),
                         as.is = TRUE)
 
 names(concentrado) <- tolower(names(concentrado))

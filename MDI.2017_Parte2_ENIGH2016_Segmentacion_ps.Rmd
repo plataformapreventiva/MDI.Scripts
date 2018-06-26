@@ -23,11 +23,6 @@ fontsize: 11pt
 endnote: yes
 ---
 
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ----------------
 
 # Preambulo

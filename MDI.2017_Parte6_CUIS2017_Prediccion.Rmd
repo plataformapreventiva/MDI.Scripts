@@ -99,19 +99,13 @@ caso.pred <- mdi.pred(caso,localidades,lineas_bienestar,
                       modelo_seg_rur,modelo_seg_rur_tab,
                       modelo_seg_urb,modelo_seg_urb_tab)
 caso.pred
-
 ```
 
 ```{r 05_iteraciones}
-#
-# -----------------------------------------------------------
-#
-
 # Iteraciones
 j <- 2
-#for(j in 2:dim.hog.agr[1]){
- for(j in 2:8){
-  print(j)
+for(j in 2:dim.hog.agr[1]){
+#  print(j)
   # Seleccion del caso
   caso <- as.data.frame(hogares_cuis_agr[j,])
   # Prediccion

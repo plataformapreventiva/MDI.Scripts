@@ -263,7 +263,7 @@ tablas}\label{importancion-de-las-tablas}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{concentradohogar <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/concentradohogar.dbf"}\NormalTok{, }
+\NormalTok{concentradohogar <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/concentradohogar.dbf"}\NormalTok{, }
                        \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
 \KeywordTok{dim}\NormalTok{(concentradohogar)}
 \end{Highlighting}
@@ -305,7 +305,7 @@ tablas}\label{importancion-de-las-tablas}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{poblacion <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/poblacion.dbf"}\NormalTok{, }
+\NormalTok{poblacion <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/poblacion.dbf"}\NormalTok{, }
                        \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
 \KeywordTok{dim}\NormalTok{(poblacion)}
 \end{Highlighting}
@@ -384,7 +384,7 @@ tablas}\label{importancion-de-las-tablas}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{poblacion <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/poblacion.dbf"}\NormalTok{, }
+\NormalTok{poblacion <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/poblacion.dbf"}\NormalTok{, }
                        \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
 \KeywordTok{dim}\NormalTok{(poblacion)}
 \end{Highlighting}
@@ -444,7 +444,7 @@ tablas}\label{importancion-de-las-tablas}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{hogares <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/hogares.dbf"}\NormalTok{, }
+\NormalTok{hogares <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/hogares.dbf"}\NormalTok{, }
                        \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
 \KeywordTok{dim}\NormalTok{(hogares)}
 \end{Highlighting}
@@ -763,7 +763,7 @@ tablas}\label{importancion-de-las-tablas}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{trabajos <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/trabajos.dbf"}\NormalTok{, }
+\NormalTok{trabajos <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/trabajos.dbf"}\NormalTok{, }
                        \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
 \KeywordTok{dim}\NormalTok{(trabajos)}
 \end{Highlighting}
@@ -777,7 +777,7 @@ tablas}\label{importancion-de-las-tablas}
 \begin{Highlighting}[]
 \KeywordTok{colnames}\NormalTok{(trabajos) <-}\StringTok{ }\KeywordTok{toupper}\NormalTok{(}\KeywordTok{colnames}\NormalTok{(trabajos))}
 
-\NormalTok{poblacion <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/poblacion.dbf"}\NormalTok{, }
+\NormalTok{poblacion <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/poblacion.dbf"}\NormalTok{, }
                        \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
 \KeywordTok{dim}\NormalTok{(poblacion)}
 \end{Highlighting}
@@ -923,7 +923,7 @@ tablas}\label{importancion-de-las-tablas}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{viviendas <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH.2016/Microdatos/viviendas.dbf"}\NormalTok{, }
+\NormalTok{viviendas <-}\StringTok{ }\KeywordTok{read.dbf}\NormalTok{(}\StringTok{"../Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/viviendas.dbf"}\NormalTok{, }
                        \DataTypeTok{as.is =} \OtherTok{TRUE}\NormalTok{)}
 \KeywordTok{dim}\NormalTok{(viviendas)}
 \end{Highlighting}
@@ -2261,8 +2261,8 @@ trabajo}\label{exportacion-de-tabla-de-trabajo}
 
 \begin{verbatim}
 ##           used  (Mb) gc trigger  (Mb)  max used   (Mb)
-## Ncells 1961331 104.8    3886542 207.6   3886542  207.6
-## Vcells 2383656  18.2  118874452 907.0 148589376 1133.7
+## Ncells 1978327 105.7    3886542 207.6   3886542  207.6
+## Vcells 2462228  18.8   93506304 713.4 146079537 1114.5
 \end{verbatim}
 
 
