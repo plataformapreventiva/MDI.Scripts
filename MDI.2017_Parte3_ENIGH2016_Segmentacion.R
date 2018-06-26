@@ -83,7 +83,7 @@ hogares_urb_cat <- as.data.frame(hogares_urb_cat)
 # Segmentacion urbano
 modelo_seg_urb <- kamila(hogares_urb_num, 
                          hogares_urb_cat,
-                         numClust=7,
+                         numClust=5,
                          numInit=10,
                          verbose=TRUE)
 

@@ -111,7 +111,7 @@ mdi.formula <- ictpc~1+depdemog+muj12a49+tot_per+
   sin_vidvd+sin_telef+sin_horno
 
 # MCMC draw samples
-M.sim <- 5000
+M.sim <- 15
 
 ### Rural
 
@@ -264,6 +264,6 @@ save(modelo_actual_rur,modelo_actual_urb,
      modelo_qr_urb_lb,modelo_qr_urb_lbm,
      lb_rur,lb_urb,
      lbm_rur,lbm_urb,
-     file = "MDI.Scripts/Datos.Modelo/mdi_regresion.RData")
+     file = "MDI.Scripts/Datos.Modelo/mdi_regresion_test.RData")
 ls()
 gc()
