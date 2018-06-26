@@ -41,7 +41,7 @@ Los datos con los que trabajaremos son:
 # Preparacion
 
 ```{r 0_datos}
-hogares_agr <- read.csv("./Bases.Enigh/hogares_enigh_agr.csv", header=TRUE)
+hogares_agr <- read.csv("./Datos.Aux/hogares_enigh_agr.csv", header=TRUE)
 colnames(hogares_agr)
 dim(hogares_agr)
 ```
@@ -113,7 +113,7 @@ colnames(hogares_agr_rur)
 100 * table(hogares_agr_rur$finalMemb_rur) / 
   sum(table(hogares_agr_rur$finalMemb_rur))
 
-write.csv(hogares_agr_rur,file="./Datos.Modelo/hogares_agr_rur_ps.csv")
+write.csv(hogares_agr_rur,file="./Datos.Modelo/Tablas/hogares_agr_rur_ps.csv")
 ```
 
 # Parte II - Segmentacion Urbano
@@ -159,7 +159,7 @@ colnames(hogares_agr_urb)
 100 * table(hogares_agr_urb$finalMemb_urb) / 
   sum(table(hogares_agr_urb$finalMemb_urb))
 
-write.csv(hogares_agr_urb,file="./Datos.Modelo/hogares_agr_urb_ps.csv")
+write.csv(hogares_agr_urb,file="./Datos.Modelo/Tablas/hogares_agr_urb_ps.csv")
 ```
 
 # Descripcion de salida

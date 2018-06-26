@@ -3617,10 +3617,18 @@ write.dbf(nomonetarioreg2, "Bases.Enigh/Tablas_2016/2016_nomonetarioreg2.dbf")
 
 gc()
 
+### 00_prelim, include=TRUE}
+source("MDI.Scripts/Code/load.R.packages.R")
+
 ### 174_ingreso_corriente_total}
 library("foreign")
+
 concentrado <- read.dbf("Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/concentradohogar.dbf",
                         as.is = TRUE)
+
+nomonetarioreg2 <- read.csv("Bases.Enigh/Tablas_2016/2016_nomonetarioreg2.csv", 
+          header = TRUE)
+
 
 names(concentrado) <- tolower(names(concentrado))
 
@@ -3872,9 +3880,6 @@ write.csv(ingresos2, "Bases.Enigh/Tablas_2016/2016_bienestar_ingreso.csv",
           row.names = FALSE)
 write.dbf(ingresos2, "Bases.Enigh/Tablas_2016/2016_bienestar_ingreso.dbf")
 
-write.csv(ingresos2, "Bases.Enigh/2016_bienestar_ingreso.csv",
-          row.names = FALSE)
-
 detach(ingresos2)
 dim(ingresos2)
 
@@ -3884,7 +3889,8 @@ dim(ingresos2)
 
 rm(list=ls())
 
-load("MDI.Scripts/Datos.Modelo/mdi_variables_modelo.RData")
+### 00_prelim, include=TRUE}
+source("MDI.Scripts/Code/load.R.packages.R")
 
 # 0_concentradohogar}
 concentradohogar <- read.dbf("Bases.Datos.Original/ENIGH2016_Coneval/Microdatos/concentradohogar.dbf", 
@@ -3900,7 +3906,7 @@ hogares_agr <- concentradohogar[,c("folioviv","foliohog",aux_var)]
 colnames(hogares_agr) <- c("FOLIOVIV","FOLIOHOG",aux_var)
 dim(hogares_agr)
 
-write.csv(hogares_agr,file="Bases.Enigh/2016_a_hogares_enigh.csv")
+write.csv(hogares_agr,file="Bases.Enigh/Tablas_2016/2016_a_hogares_enigh.csv")
 rm(concentradohogar)
 rm(aux_var)
 
@@ -4487,22 +4493,73 @@ dim(hogares_agr)
 # ict} 
 # ict - Ingresp Corriente Total
 # Trabajamos con la base `2016_a_bienestar_ingreso`
-ict_agr <- read.csv("Bases.Enigh/2016_bienestar_ingreso.csv", header=TRUE)
-dim(ict_agr)
 
-colnames(ict_agr) <- c("FOLIOVIV","FOLIOHOG","factor","tam_loc","rururb","tamhogesc","ict","ictpc","plb_m","plb")
+ingresos2 <- read.csv("Bases.Enigh/Tablas_2016/2016_bienestar_ingreso.csv",
+                      header = TRUE)
+
+index.valido <- which(ingresos2$ictpc > 50 & 
+                        ingresos2$ictpc != "NA" &
+                        ingresos2$ictpc < 250000) 
+summary(ingresos2[index.valido,"ictpc"])
+quantile(ingresos2[index.valido,"ictpc"],c(0,0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.99,1))
+100*length(index.valido)/nrow(ingresos2)
+hist(ingresos2[index.valido,"ictpc"],500)
+dim(ingresos2[index.valido,])
+
+write.csv(ingresos2[index.valido,], "Bases.Enigh/hogares_enigh_agr_bienestar_ingreso.csv",
+          row.names = FALSE)
+write.csv(ingresos2[index.valido,], "MDI.Scripts/Datos.Aux/hogares_enigh_agr_bienestar_ingreso.csv",
+          row.names = FALSE)
+
+ict_agr <- ingresos2[index.valido,]
+
+colnames(ict_agr) <- c("FOLIOVIV","FOLIOHOG",
+                       "tot_integ","ing_mon","ali_nme",
+                       "alta_nme","veca_nme","viv_nme","lim_nme","cris_nme",
+                       "ens_nme","sal_nme","tpub_nme","tfor_nme","com_nme",
+                       "edre_nme","edba_nme","cuip_nme","accp_nme","otr_nme",
+                       "reda_nme","ali_nmr","alta_nmr","veca_nmr","viv_nmr",
+                       "lim_nmr","cris_nmr","ens_nmr","sal_nmr","tpub_nmr",
+                       "tfor_nmr","com_nmr","edre_nmr","edba_nmr","cuip_nmr",
+                       "accp_nmr","otr_nmr","reda_nmr","rururb","pago_esp",
+                       "reg_esp","nomon","ict","tamhogesc","ictpc",
+                       "plb_m","plb")
+dim(ict_agr)
 
 table(ict_agr[,c("plb_m","plb")])
 
-aux_var <- c("factor","rururb","tamhogesc","ict","ictpc") 
-ict_agr$ict <- ict_agr$ict + 1
-ict_agr$ictpc <- ict_agr$ictpc + 1
+#aux_var <- c("factor","rururb","tamhogesc","ict","ictpc") 
+aux_var <- c("tot_integ","ing_mon","ali_nme",
+             "alta_nme","veca_nme","viv_nme","lim_nme","cris_nme",
+             "ens_nme","sal_nme","tpub_nme","tfor_nme","com_nme",
+             "edre_nme","edba_nme","cuip_nme","accp_nme","otr_nme",
+             "reda_nme","ali_nmr","alta_nmr","veca_nmr","viv_nmr",
+             "lim_nmr","cris_nmr","ens_nmr","sal_nmr","tpub_nmr",
+             "tfor_nmr","com_nmr","edre_nmr","edba_nmr","cuip_nmr",
+             "accp_nmr","otr_nmr","reda_nmr","rururb","pago_esp",
+             "reg_esp","nomon","ict","tamhogesc","ictpc",
+             "plb_m","plb") 
+#ict_agr$ict <- ict_agr$ict + 1
+#ict_agr$ictpc <- ict_agr$ictpc + 1
 
 hogares_agr <- merge(hogares_agr,
                      ict_agr[,c("FOLIOVIV","FOLIOHOG",aux_var)],
                      by=c("FOLIOVIV","FOLIOHOG"),
                      x.all=TRUE)
+dim(hogares_agr)
 summary(hogares_agr$ictpc)
+
+summary(hogares_agr$ictpc)
+#100*length(index.valido)/nrow(ingresos2)
+hist(hogares_agr$ictpc,500)
+
+dim(hogares_agr)
+
+# Codificación Rural (==1) / Urbano (==0)
+hogares_agr[which(hogares_agr$tam_loc==4),"rururb"] <- 1
+
+table(hogares_agr[,c("rururb","tam_loc")])
+table(hogares_agr$rururb)
 
 # num_cat}
 hogares_agr[,var_enighcuis_num] <- lapply(hogares_agr[,var_enighcuis_num],as.numeric)
@@ -4511,6 +4568,7 @@ hogares_agr[,var_enighcuis_cat] <- lapply(hogares_agr[,var_enighcuis_cat],factor
 
 # exportacion}
 write.csv(hogares_agr,file="Bases.Enigh/hogares_enigh_agr.csv")
+write.csv(hogares_agr,file="MDI.Scripts/Datos.Aux/hogares_enigh_agr.csv")
 colnames(hogares_agr)
 dim(hogares_agr)
 rm(list=ls())

@@ -31,7 +31,7 @@ Leemos los paquetes necesarios para realizar la segmentacion de los datos genera
 
 ```{r 0_prelim}
 source("./Code/load.R.packages.R")
-load("../Datos.Modelo/mdi_variables_modelo.RData")
+load("./Datos.Modelo/mdi_variables_modelo.RData")
 ```
 
 Los datos con los que trabajaremos son:

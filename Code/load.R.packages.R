@@ -9,6 +9,12 @@ rm(list=ls())
 
 #0
 
+if(!require('parallel')){install.packages("parallel")}
+library("parallel")
+
+if(!require('foreach')){install.packages("foreach")}
+library("foreach")
+
 if(!require('digest')){install.packages("digest")}
 library("digest")
 
