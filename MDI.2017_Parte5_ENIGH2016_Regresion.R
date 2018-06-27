@@ -8,6 +8,8 @@ load("MDI.Scripts/Datos.Modelo/mdi_variables_modelo.RData")
 load("MDI.Scripts/Datos.Modelo/mdi_segmentacion.RData")
 ls()
 
+str(hogares_agr)
+
 # 0_lb_lbm}
 lb_lbm <- read.csv("MDI.Scripts/Datos.Modelo/coneval_lineas_bienestar.csv", header=TRUE)
 colnames(lb_lbm)
@@ -29,10 +31,10 @@ lbm_rur <- lb_lbm[which(lb_lbm$anio==anio_sel &
 lbm_urb <- lb_lbm[which(lb_lbm$anio==anio_sel &
                           lb_lbm$mes==mes_sel ), "lbm.urbano"]
 
-lb_rur
-lb_urb
-lbm_rur
-lbm_urb
+lbm.table <- as.data.frame(array(c(lb_rur,lb_urb,lbm_rur,lbm_urb),dim=c(2,2)))
+rownames(lbm.table) <- c("rural","urbano") 
+colnames(lbm.table) <- c("lb","lbm") 
+lbm.table
 
 ## Rural
 
@@ -110,6 +112,30 @@ mdi.formula <- ictpc~1+depdemog+muj12a49+tot_per+
   sin_refri+sin_vehi+sin_compu+
   sin_vidvd+sin_telef+sin_horno
 
+mdi.formula.lb <- plb~1+depdemog+muj12a49+tot_per+
+  p_esc3+p_esc5b+
+  trab_sub+trab_ind+trab_s_pago+
+  seg_alim2+seg_alim3+seg_alim_a+
+  seg_pop+ss+jtrab_ind+ssjtrabind+
+  con_remesas+viv_prop+viv_rent+
+  tot_cuar+bao13+
+  piso_fir+piso_rec+
+  combustible+
+  sin_refri+sin_vehi+sin_compu+
+  sin_vidvd+sin_telef+sin_horno
+
+mdi.formula.lbm <- plb_m~1+depdemog+muj12a49+tot_per+
+  p_esc3+p_esc5b+
+  trab_sub+trab_ind+trab_s_pago+
+  seg_alim2+seg_alim3+seg_alim_a+
+  seg_pop+ss+jtrab_ind+ssjtrabind+
+  con_remesas+viv_prop+viv_rent+
+  tot_cuar+bao13+
+  piso_fir+piso_rec+
+  combustible+
+  sin_refri+sin_vehi+sin_compu+
+  sin_vidvd+sin_telef+sin_horno
+
 # MCMC draw samples
 M.sim <- 15
 
@@ -119,10 +145,12 @@ M.sim <- 15
   
 # 2_qr_lm_rur}
 ## Linea de bienestar y bienestar minimo
-modelo_qr_rur_lb <- list()
-modelo_lm_rur <- list()
-modelo_blasso_rur <- list()
-modelo_qr_rur_lbm <- list()
+modelo_qr_rur_lb <- list()        # Modelo cuantilico escalar con LB con lasso
+modelo_qr_bin_rur_lb <- list()    # Modelo cuantilico binario con LB con lasso
+modelo_lm_rur <- list()           # Modelo actual segmentado 
+modelo_blasso_rur <- list()       # Modelo actual segmentado con lasso
+modelo_qr_rur_lbm <- list()       # Modelo cuantilico escalar con LBM con lasso
+modelo_qr_bin_rur_lbm <- list()   # Modelo cuantilico bin con LBM con lasso
 
 # Tipos de variables
 hogares_agr_rur[,var_enighcuis_reg_num] <- lapply(hogares_agr_rur[,var_enighcuis_reg_num],
@@ -141,7 +169,7 @@ for(j in 1:J_rur){
   print(j)
   data_aux <- hogares_agr_rur[which(hogares_agr_rur$finalMemb_rur == 
                                       modelo_seg_rur_tab[j,"segment_rur"]), ]
-  #  is.data.frame(data_aux)
+  #is.data.frame(data_aux)
   data_aux[,var_enighcuis_reg_num] <- lapply(data_aux[,var_enighcuis_reg_num],
                                              as.numeric)
   data_aux[,var_enighcuis_reg_cat] <- lapply(data_aux[,var_enighcuis_reg_cat],
@@ -158,6 +186,15 @@ for(j in 1:J_rur){
             alasso=TRUE, 
             ndraw=M.sim)
   summary( modelo_qr_rur_lb[[j]] )
+
+  # QR Binario - LB
+  modelo_qr_bin_rur_lb[[j]] <-
+    bayesQR(mdi.formula.lb, 
+            dat=data_aux,
+            quantile=modelo_seg_rur_tab[j,"q_rur_lb"],
+            alasso=TRUE, 
+            ndraw=M.sim)
+  summary( modelo_qr_bin_rur_lb[[j]] )
   
   # Actual Segmentado
   modelo_lm_rur[[j]] <-
@@ -179,6 +216,15 @@ for(j in 1:J_rur){
              alasso=TRUE, 
              ndraw=M.sim)
   summary( modelo_qr_rur_lbm[[j]] )
+
+  # QR Binario - LBM
+  modelo_qr_bin_rur_lbm[[j]] <-
+    bayesQR( mdi.formula.lbm, 
+             dat=data_aux,
+             quantile=modelo_seg_rur_tab[j,"q_rur_lbm"],
+             alasso=TRUE, 
+             ndraw=M.sim)
+  summary( modelo_qr_bin_rur_lbm[[j]] )
 }
 
 # ## Urbano
@@ -187,10 +233,12 @@ for(j in 1:J_rur){
 
 # 2_qr_lm_urb}
 ## Linea de bienestar y bienestar minimo
-modelo_qr_urb_lb <- list()
-modelo_lm_urb <- list()
-modelo_blasso_urb <- list()
-modelo_qr_urb_lbm <- list()
+modelo_qr_urb_lb <- list()        # Modelo cuantilico escalar con LB con lasso
+modelo_qr_bin_urb_lb <- list()    # Modelo cuantilico binario con LB con lasso
+modelo_lm_urb <- list()           # Modelo actual segmentado 
+modelo_blasso_urb <- list()       # Modelo actual segmentado con lasso
+modelo_qr_urb_lbm <- list()       # Modelo cuantilico escalar con LBM con lasso
+modelo_qr_bin_urb_lbm <- list()   # Modelo cuantilico bin con LBM con lasso
 
 # Tipos de variables
 hogares_agr_urb[,var_enighcuis_reg_num] <- lapply(hogares_agr_urb[,var_enighcuis_reg_num],
@@ -226,6 +274,15 @@ for(j in 1:J_urb){
              ndraw=M.sim)
   summary( modelo_qr_urb_lb[[j]] )
   
+  # QR Binario - LB
+  modelo_qr_bin_urb_lb[[j]] <-
+    bayesQR( mdi.formula.lb, 
+             dat=data_aux,
+             quantile=modelo_seg_urb_tab[j,"q_urb_lb"],
+             alasso=TRUE, 
+             ndraw=M.sim)
+  summary( modelo_qr_bin_urb_lb[[j]] )
+
   # Actual Segmentado
   modelo_lm_urb[[j]] <-
     lm( mdi.formula, 
@@ -246,6 +303,15 @@ for(j in 1:J_urb){
             alasso=TRUE, 
             ndraw=M.sim)
   summary( modelo_qr_urb_lbm[[j]] )
+
+  # QR Binario - LBM
+  modelo_qr_bin_urb_lbm[[j]] <-
+    bayesQR(mdi.formula.lbm,
+            dat=data_aux,
+            quantile=modelo_seg_urb_tab[j,"q_urb_lbm"],
+            alasso=TRUE, 
+            ndraw=M.sim)
+  summary( modelo_qr_bin_urb_lbm[[j]] )
 }
 
 # Exportacion
@@ -259,9 +325,11 @@ save(modelo_actual_rur,modelo_actual_urb,
      var_enighcuis_seg_num,var_enighcuis_seg_cat,
      var_enighcuis_reg_num,var_enighcuis_reg_cat,
      modelo_qr_rur_lb,modelo_qr_rur_lbm,
+     modelo_qr_bin_rur_lb,modelo_qr_bin_rur_lbm,
      modelo_lm_rur,modelo_lm_urb,
      modelo_blasso_rur,modelo_blasso_urb,
      modelo_qr_urb_lb,modelo_qr_urb_lbm,
+     modelo_qr_bin_urb_lb,modelo_qr_bin_urb_lbm,
      lb_rur,lb_urb,
      lbm_rur,lbm_urb,
      file = "MDI.Scripts/Datos.Modelo/mdi_regresion_test.RData")

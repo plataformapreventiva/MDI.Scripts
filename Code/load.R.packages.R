@@ -9,15 +9,10 @@ rm(list=ls())
 
 #0
 
-if(!require('parallel')){install.packages("parallel")}
-library("parallel")
-
-if(!require('foreach')){install.packages("foreach")}
-library("foreach")
-
 if(!require('digest')){install.packages("digest")}
 library("digest")
 
+ # [Ubuntu]
  # sudo apt-get install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev
  # sudo -i R
  # install.packages('devtools') 
@@ -42,7 +37,6 @@ if (!require('bayesQR')){
 suppressMessages(library("bayesQR"))
 
 #c
-
 if (!require("car")){install.packages("car")}
 suppressMessages(library("car"))
 
@@ -65,27 +59,26 @@ library("doBy")
 if (!require('DPpackage')){install.packages("DPpackage")}
 suppressMessages(library("DPpackage"))
 
+#f 
+if(!require('foreach')){install.packages("foreach")}
+library("foreach")
+
 #g
 if (!require('GB2')){install.packages("GB2")}
 suppressMessages(library("GB2"))
 
-#e
-if (!require('effects')){install.packages("effects")}
-suppressMessages(library("effects"))
-
-#f
-#if (!require('FastKNN')){install.packages("FastKNN")}
-#suppressMessages(library("FastKNN"))
-
-if (!require('foreign')){install.packages("foreign")}
-suppressMessages(library("foreign"))
-
-#g
 if (!require('GPDPQuantReg')){
   suppressMessages(library("devtools"))
   install_github("opardo/GPDPQuantReg", force=TRUE)
 }
 suppressMessages(library("GPDPQuantReg"))
+
+#e
+if (!require('effects')){install.packages("effects")}
+suppressMessages(library("effects"))
+
+if (!require('foreign')){install.packages("foreign")}
+suppressMessages(library("foreign"))
 
 #h
 if (!require('Hmisc')){install.packages("Hmisc")}
@@ -118,6 +111,10 @@ suppressMessages(library("multcomp"))
 if (!require('mvtnorm')){install.packages("mvtnorm")}
 suppressMessages(library("mvtnorm"))
 
+#p
+if(!require('parallel')){install.packages("parallel")}
+library("parallel")
+
 #q
 if (!require('quantreg')){install.packages("quantreg")}
 suppressMessages(library("quantreg"))
@@ -129,30 +126,27 @@ suppressMessages(library("Rcpp"))
 if (!require('reshape')){install.packages("reshape")}
 suppressMessages(library("reshape"))
 
+if(!require('RTextTools')){install.packages("RTextTools")}
+library("RTextTools")
+
 #if (!require('rgl')){install.packages("rgl")}
 #suppressMessages(library("rgl"))
 
 if (!require('relimp')){install.packages("relimp")}
 suppressMessages(library("relimp"))
 
-#if (!require('RODBC')){install.packages("RODBC")}
-#suppressMessages(library("RODBC"))
+if (!require('RODBC')){install.packages("RODBC")}
+suppressMessages(library("RODBC"))
 
 #s
 if (!require('sampling')){install.packages("sampling")}
 suppressMessages(library("sampling"))
-
-#if (!require('splines')){install.packages("splines")}
-#suppressMessages(library("splines"))
 
 if (!require('stats')){install.packages("stats")}
 suppressMessages(library("stats"))
 
 if (!require('survey')){install.packages("survey")}
 suppressMessages(library("survey"))
-
-#if (!require('survival')){install.packages("survival")}
-#suppressMessages(library("survival"))
 
 # y
 if (!require('yaml')){install.packages("yaml")}
