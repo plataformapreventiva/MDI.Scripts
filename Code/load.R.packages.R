@@ -8,14 +8,13 @@ rm(list=ls())
 # Install Packages
 
 #0
-
 if(!require('digest')){install.packages("digest")}
 library("digest")
 
- # [Ubuntu]
- # sudo apt-get install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev
- # sudo -i R
- # install.packages('devtools') 
+# [Ubuntu]
+# sudo apt-get install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev
+# sudo -i R
+# install.packages('devtools') 
 
 if(!require('devtools')){install.packages("devtools")}
 suppressMessages(library("devtools"))
@@ -47,14 +46,20 @@ if (!require('colorspace')){install.packages("colorspace")}
 suppressMessages(library("colorspace"))
 
 #d
-if (!require('data.table')){install.packages("data.table")}
+if(!require('data.table')){install.packages("data.table")}
 suppressMessages(library("data.table"))
 
-if (!require('doBy')){
+if(!require('doBy')){
   suppressMessages(library("devtools"))
   install_github("cran/doBy")
 }
 library("doBy")
+
+if(!require('doParallel')){
+  suppressMessages(library("devtools"))
+  install_github("cran/doParallel")
+}
+library("doParallel")
 
 if (!require('DPpackage')){install.packages("DPpackage")}
 suppressMessages(library("DPpackage"))
