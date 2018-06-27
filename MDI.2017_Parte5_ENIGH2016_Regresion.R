@@ -98,7 +98,7 @@ write.csv(modelo_seg_urb_tab,file="MDI.Scripts/Datos.Modelo/Tablas/modelo_seg_ur
 ### Formula del MDI
 
 #Definimos la formula del modelo **MDI**
-  
+
 # formula_mdi}
 mdi.formula <- ictpc~1+depdemog+muj12a49+tot_per+
   p_esc3+p_esc5b+
@@ -137,12 +137,12 @@ mdi.formula.lbm <- plb_m~1+depdemog+muj12a49+tot_per+
   sin_vidvd+sin_telef+sin_horno
 
 # MCMC draw samples
-M.sim <- 15
+M.sim <- 15000
 
 ### Rural
 
 # Modelos de regresion para **LB** y **LBM**
-  
+
 # 2_qr_lm_rur}
 ## Linea de bienestar y bienestar minimo
 modelo_qr_rur_lb <- list()        # Modelo cuantilico escalar con LB con lasso
@@ -186,7 +186,7 @@ for(j in 1:J_rur){
             alasso=TRUE, 
             ndraw=M.sim)
   summary( modelo_qr_rur_lb[[j]] )
-
+  
   # QR Binario - LB
   modelo_qr_bin_rur_lb[[j]] <-
     bayesQR(mdi.formula.lb, 
@@ -216,7 +216,7 @@ for(j in 1:J_rur){
              alasso=TRUE, 
              ndraw=M.sim)
   summary( modelo_qr_rur_lbm[[j]] )
-
+  
   # QR Binario - LBM
   modelo_qr_bin_rur_lbm[[j]] <-
     bayesQR( mdi.formula.lbm, 
@@ -282,7 +282,7 @@ for(j in 1:J_urb){
              alasso=TRUE, 
              ndraw=M.sim)
   summary( modelo_qr_bin_urb_lb[[j]] )
-
+  
   # Actual Segmentado
   modelo_lm_urb[[j]] <-
     lm( mdi.formula, 
@@ -303,7 +303,7 @@ for(j in 1:J_urb){
             alasso=TRUE, 
             ndraw=M.sim)
   summary( modelo_qr_urb_lbm[[j]] )
-
+  
   # QR Binario - LBM
   modelo_qr_bin_urb_lbm[[j]] <-
     bayesQR(mdi.formula.lbm,
@@ -332,6 +332,6 @@ save(modelo_actual_rur,modelo_actual_urb,
      modelo_qr_bin_urb_lb,modelo_qr_bin_urb_lbm,
      lb_rur,lb_urb,
      lbm_rur,lbm_urb,
-     file = "MDI.Scripts/Datos.Modelo/mdi_regresion_test.RData")
+     file = "MDI.Scripts/Datos.Modelo/mdi_regresion.RData")
 ls()
 gc()
